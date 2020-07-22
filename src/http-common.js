@@ -5,7 +5,7 @@ import axios from 'axios';
 //'http://localhost:8000/
 
 export default axios.create({
-  baseURL: 'http://localhost:3001/',
+  baseURL: 'https://perfinper-api.herokuapp.com/',
   headers: {
     'Content-type': 'application/json',
   },
