@@ -20,22 +20,6 @@ const StatusBar = ({ array }) => {
     expense = setTotal(expense, setTotalExpense);
     getBalance(revenue, expense);
   }, [array]);
-  /*const onChangeSearchTransaction = (searchName) => {
-    let transactionsSearchList = [];
-
-    transactionsSearchList = array.filter(
-      (element) => element.description.toLowerCase().indexOf(searchName) !== -1
-    );
-    if (transactionsSearchList.length > 0) {
-      onDataChange(searchName, transactionsSearchList);
-    }
-  };*/
-  // const getTotalTransactions = (arr) => {
-  //   if (arr.length > 0) {
-  //     return arr.length;
-  //   }
-  //   return 0;
-  // };
 
   const setTotal = (arr, set) => {
     let total = 0;

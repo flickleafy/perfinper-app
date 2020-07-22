@@ -1,25 +1,31 @@
 import React, { useState, useEffect, Fragment } from 'react';
 import { Link } from 'react-router-dom';
 //Data load and processing
+import localStorage from 'local-storage';
 import TransactionsDataService from '../services/TransactionsService';
 import { checkSingleDigit } from '../helpers/objectsBuilder.js';
-import { searchCategory } from '../helpers/searchers.js';
+import { searchCategory, getIndexOfElement } from '../helpers/searchers.js';
 //List Elements
 import SearchBar from './SearchBar';
 import StatusBar from './StatusBar';
 import PeriodSelector from './PeriodSelector';
 import LoadingIndicator from './LoadingIndicator';
+import {
+  transactionTypeColor,
+  transactionTypeColorIcon,
+  iconByCategory,
+} from '../helpers/designHelpers';
 
 const TransactionList = () => {
   const [fullTransactionsList, setFullTransactionsList] = useState([]);
   const [transactionsPrintList, setTransactionsPrintList] = useState([]);
-  //const [currentTransaction, setCurrentTransaction] = useState(null);
-  //const [currentIndex, setCurrentIndex] = useState(-1);
   const [searchTerm, setSearchTerm] = useState('');
   const [periodSelected, setPeriodSelected] = useState('');
 
   useEffect(() => {
-    retrieveAllTransactions(periodSelected);
+    if (!initializeFromLocalStorage()) {
+      retrieveAllTransactions(periodSelected);
+    }
   }, [periodSelected]);
 
   const retrieveAllTransactions = (period) => {
@@ -27,6 +33,8 @@ const TransactionList = () => {
       .then((response) => {
         setFullTransactionsList(response.data);
         setTransactionsPrintList(response.data);
+        localStorage.set('fullTransactionsList', response.data);
+        localStorage.set('transactionsPrintList', response.data);
         console.log(response.data);
       })
       .catch((e) => {
@@ -34,16 +42,26 @@ const TransactionList = () => {
       });
   };
 
-  const refreshList = () => {
-    retrieveAllTransactions(periodSelected);
-    //setCurrentTransaction(null);
-    //setCurrentIndex(-1);
+  const initializeFromLocalStorage = () => {
+    let tmpFTL = localStorage.get('fullTransactionsList');
+    let tmpTPL = localStorage.get('transactionsPrintList');
+    let tmpST = localStorage.get('searchTerm');
+    let tmpPS = localStorage.get('periodSelected');
+
+    if (tmpFTL && tmpTPL && tmpPS) {
+      setFullTransactionsList(tmpFTL);
+      setTransactionsPrintList(tmpTPL);
+      setSearchTerm(tmpST);
+      setPeriodSelected(tmpPS);
+      return true;
+    } else {
+      return null;
+    }
   };
 
-  // const setActiveTransaction = (transaction, index) => {
-  //   setCurrentTransaction(transaction);
-  //   setCurrentIndex(index);
-  // };
+  const refreshList = () => {
+    retrieveAllTransactions(periodSelected);
+  };
 
   const handleDeleteSingleTransaction = (_id) => {
     TransactionsDataService.deleteTransactionById(_id)
@@ -52,12 +70,14 @@ const TransactionList = () => {
         removeElementFromList(
           _id,
           fullTransactionsList,
-          setFullTransactionsList
+          setFullTransactionsList,
+          'fullTransactionsList'
         );
         removeElementFromList(
           _id,
           transactionsPrintList,
-          setTransactionsPrintList
+          setTransactionsPrintList,
+          'transactionsPrintList'
         );
       })
       .catch((e) => {
@@ -65,15 +85,12 @@ const TransactionList = () => {
       });
   };
 
-  function removeElementFromList(_id, elementList, setCallback) {
-    let index = elementList.findIndex((element) => {
-      if (element._id === _id) {
-        return element;
-      }
-    });
+  function removeElementFromList(_id, elementList, setListCB, listName) {
+    let index = getIndexOfElement(_id, elementList);
     elementList.splice(index, 1); // remove the object by index
-    let tmpArr = [...elementList];
-    setCallback(tmpArr);
+    let modifiedElementList = [...elementList];
+    setListCB(modifiedElementList);
+    localStorage.set(listName, modifiedElementList);
   }
 
   const deleteAllTransactions = () => {
@@ -101,53 +118,38 @@ const TransactionList = () => {
         console.log(response.data);
         refreshList();
         setSearchTerm('');
+        localStorage.set('searchTerm', '');
       })
       .catch((e) => {
         console.log(e);
       });
   };
 
-  // prettier-ignore
-  const transactionTypeColor = (type) => {
-    if (type === '-') {return 'collection-item brown lighten-5 ';} 
-    else {return 'collection-item green lighten-5 ';}
-  };
-  // prettier-ignore
-  const transactionTypeColorIcon = (type) => {
-    if (type === '-') {return 'brown lighten-3 ';} 
-    else {return 'green lighten-3 ';}
-  };
-  // prettier-ignore
-  const iconByCategory = (category) => {
-    switch (category) {
-      case 'Mercado': return 'local_grocery_store'; case 'Receita': return 'attach_money';
-      case 'Transporte': return 'directions_car'; case 'Saúde': return 'local_hospital';
-      case 'Lazer': return 'directions_bike'; default: break;
+  const handleDataChangeSearchBar = (newSearchTerm, newList) => {
+    setSearchTerm(newSearchTerm);
+    localStorage.set('searchTerm', newSearchTerm);
+    if (newSearchTerm.length >= 3) {
+      setTransactionsPrintList(newList);
+      localStorage.set('transactionsPrintList', newList);
+    } else if (newSearchTerm.length < 3) {
+      setTransactionsPrintList(fullTransactionsList);
+      localStorage.set('transactionsPrintList', fullTransactionsList);
     }
   };
 
-  const handleDataChangeSearchBar = (searchTermFromSearchBar, newList) => {
-    setSearchTerm(searchTermFromSearchBar);
-    if (searchTermFromSearchBar.length >= 3) {
-      setTransactionsPrintList(newList);
-    } else if (searchTermFromSearchBar.length < 3) {
-      setTransactionsPrintList(fullTransactionsList);
-    }
-  };
   const handleCategorySelection = (category) => {
     if (category.length > 0) {
       let searchList = searchCategory(category, fullTransactionsList);
       if (searchList.length > 0) {
-        //Blast current transactions list
-        setTransactionsPrintList([]);
         setTransactionsPrintList(searchList);
+        localStorage.set('transactionsPrintList', searchList);
       }
     }
   };
 
   const restoreToFullTransactionsList = () => {
-    setTransactionsPrintList([]);
     setTransactionsPrintList(fullTransactionsList);
+    localStorage.set('transactionsPrintList', fullTransactionsList);
   };
 
   const handleDataChangePeriodSelector = (period) => {
@@ -155,6 +157,7 @@ const TransactionList = () => {
       //Blast current transactions list
       setTransactionsPrintList([]);
       setPeriodSelected(period);
+      localStorage.set('periodSelected', period);
       retrieveAllTransactions(period);
     }
   };

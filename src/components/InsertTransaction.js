@@ -36,6 +36,7 @@ const InsertTransaction = () => {
     if (transactionData) {
       TransactionsDataService.insertTransaction(transactionData)
         .then((response) => {
+          // ????????? insert local storage too ?????????????
           setTransaction(response.data);
           setSubmitted(true);
           console.log(response.data);
@@ -93,32 +94,6 @@ const InsertTransaction = () => {
               />
             </div>
             {/* - */}
-            {/* <div className="col s6">
-              <label for="radio0">
-                <input
-                  type="radio"
-                  name="group1"
-                  value="-"
-                  checked={transactionType === '-'}
-                  onChange={handleTypeChange}
-                  className=""
-                />
-                Despesa
-              </label>
-            </div>
-            <div className="col s6">
-              <label for="radio1">
-                <input
-                  type="radio"
-                  name="group1"
-                  value="+"
-                  checked={transactionType === '+'}
-                  onChange={handleTypeChange}
-                  className=""
-                />
-                Receita
-              </label>
-            </div> */}
             <RadioGroup
               label="Tipo"
               onChange={handleTypeChange}

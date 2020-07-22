@@ -48,25 +48,3 @@ const SearchBar = ({ array, onDataChange }) => {
 };
 
 export default SearchBar;
-
-/*
-<div className="col s12">
-      <div className="input-group mb-3">
-        <input
-          type="text"
-          className="form-control"
-          placeholder="Buscar por descrição"
-          value={searchTerm}
-          onChange={(event) => {
-            if (event.target.value.length >= 3) {
-              setSearchTerm(event.target.value);
-              onChangeSearchTransaction(event.target.value);
-            } else {
-              setSearchTerm(event.target.value);
-              onDataChange('', []);
-            }
-          }}
-        />
-      </div>
-    </div>
-    */
