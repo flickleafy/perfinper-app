@@ -6,8 +6,8 @@ const LoadingIndicator = (props) => {
   const { promiseInProgress } = usePromiseTracker();
   return (
     promiseInProgress && (
-      <div class="progress brown lighten-5">
-        <div class="indeterminate brown lighten-2"></div>
+      <div className="progress brown lighten-5">
+        <div className="indeterminate brown lighten-2"></div>
       </div>
     )
   );

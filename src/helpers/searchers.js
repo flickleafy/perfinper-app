@@ -18,3 +18,20 @@ export function searchDescription(searchName, array) {
   );
   return searchList;
 }
+
+export function searchByID(_id, array) {
+  let element = null;
+
+  element = array.find((element) => element._id.indexOf(_id) !== -1);
+
+  return element;
+}
+
+export function getIndexOfElement(_id, elementList) {
+  let index = elementList.findIndex((element) => {
+    if (element._id === _id) {
+      return element;
+    }
+  });
+  return index;
+}

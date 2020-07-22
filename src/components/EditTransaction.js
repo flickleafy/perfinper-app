@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import TransactionsDataService from '../services/TransactionsService';
 import { RadioGroup } from 'react-materialize';
-
-import { buildDateObj, transactionBuilder } from '../helpers/objectsBuilder.js';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+
+import { buildDateObj, transactionBuilder } from '../helpers/objectsBuilder.js';
+import { searchByID, getIndexOfElement } from '../helpers/searchers';
+import localStorage from 'local-storage';
 
 const EditTransaction = (props) => {
   const initialTransactionState = {
@@ -26,6 +28,12 @@ const EditTransaction = (props) => {
   const [transactionDate, setTransactionDate] = useState(''); // datepicker
   const [transactionType, setTransactionType] = useState('');
 
+  useEffect(() => {
+    if (!initializeFromLocalStorage()) {
+      getTransaction(props.match.params.id);
+    }
+  }, [props.match.params.id]);
+
   const getTransaction = (id) => {
     TransactionsDataService.findTransactionById(id)
       .then((response) => {
@@ -39,12 +47,47 @@ const EditTransaction = (props) => {
       });
   };
 
-  useEffect(() => {
-    getTransaction(props.match.params.id);
-  }, [props.match.params.id]);
+  const initializeFromLocalStorage = () => {
+    let tmpFTL = localStorage.get('fullTransactionsList');
+
+    if (tmpFTL) {
+      let tmpTrans = searchByID(props.match.params.id, tmpFTL);
+      setCurrentTransaction(tmpTrans);
+      setTransactionDate(buildDateObj(tmpTrans));
+      setTransactionType(tmpTrans.type);
+      return true;
+    } else {
+      return null;
+    }
+  };
+
+  const storeToLocalStorage = (updatedTransaction) => {
+    let tmpFTL = localStorage.get('fullTransactionsList');
+    let tmpTPL = localStorage.get('transactionsPrintList');
+
+    updatedTransaction._id = props.match.params.id;
+    if (tmpFTL && tmpTPL) {
+      let indexFTL = getIndexOfElement(props.match.params.id, tmpFTL);
+      let indexTPL = getIndexOfElement(props.match.params.id, tmpTPL);
+
+      tmpFTL[indexFTL] = updatedTransaction;
+      if (indexTPL > -1) {
+        tmpTPL[indexTPL] = updatedTransaction;
+      }
+
+      localStorage.set('fullTransactionsList', tmpFTL);
+      localStorage.set('transactionsPrintList', tmpTPL);
+      return true;
+    } else {
+      return null;
+    }
+  };
 
   const handleInputChange = (event) => {
-    const { name, value } = event.target;
+    let { name, value } = event.target;
+    if (name === 'value') {
+      value = parseInt(value);
+    }
     setCurrentTransaction({ ...currentTransaction, [name]: value });
   };
 
@@ -58,6 +101,7 @@ const EditTransaction = (props) => {
       updatedTransaction
     )
       .then((response) => {
+        storeToLocalStorage(updatedTransaction);
         setMessage('O lançamento foi atualizado com sucesso!');
       })
       .catch((e) => {
@@ -104,34 +148,6 @@ const EditTransaction = (props) => {
               />
             </div>
             {/* - */}
-            {/* <div className="col s6">
-              <label>
-                <input
-                  disabled
-                  type="radio"
-                  name="group1"
-                  value="-"
-                  checked={transactionType === '-'}
-                  // onChange={handleTypeChange}
-                  className=""
-                />
-                Despesa
-              </label>
-            </div>
-            <div className="col s6">
-              <label>
-                <input
-                  disabled
-                  type="radio"
-                  name="group1"
-                  value="+"
-                  checked={transactionType === '+'}
-                  // onChange={handleTypeChange}
-                  className=""
-                />
-                Receita
-              </label>
-            </div> */}
             <RadioGroup
               label="Tipo"
               onChange={handleTypeChange}
@@ -150,7 +166,6 @@ const EditTransaction = (props) => {
               ]}
             />
             {/* - */}
-
             <div className="form-group">
               <label htmlFor="value">Valor</label>
               <input

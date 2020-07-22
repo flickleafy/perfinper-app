@@ -5,15 +5,10 @@ import { Select } from 'react-materialize';
 
 const PeriodSelector = ({ onDataChange }) => {
   //const [currentPeriod, setCurrentPeriod] = useState('');
-  const [periodsList, setPeriodsList] = useState([
-    '',
-    '2019-01',
-    '2019-02',
-    '2019-03',
-    '2020-07',
-  ]);
+  const [periodsList, setPeriodsList] = useState(['']);
 
   useEffect(() => {
+    // ????????? get from local storage first ?????????????
     findPeriods();
   }, []);
 
@@ -38,8 +33,8 @@ const PeriodSelector = ({ onDataChange }) => {
   });
 
   const handlePeriodChange = (event) => {
-    console.log(periodsList[event.target.value]);
-    onDataChange(periodsList[event.target.value]);
+    console.log(event.target.value);
+    onDataChange(event.target.value);
   };
 
   return (
@@ -67,7 +62,7 @@ const PeriodSelector = ({ onDataChange }) => {
       }}
     >
       {periodsName.map((periodName, key) => (
-        <option value={key}>{periodName}</option>
+        <option value={periodsList[key]}>{periodName}</option>
       ))}
     </Select>
   );
