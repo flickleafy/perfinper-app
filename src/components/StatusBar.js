@@ -1,32 +1,29 @@
 import React, { useState, useEffect } from 'react';
+import { Grid, Typography, Box } from '@mui/material';
 
 const StatusBar = ({ array }) => {
-  const [totalExpense, setTotalExpense] = useState('');
-  const [totalRevenue, setTotalRevenue] = useState('');
-  const [balance, setBalance] = useState('');
+  const [totalExpense, setTotalExpense] = useState(0);
+  const [totalRevenue, setTotalRevenue] = useState(0);
+  const [balance, setBalance] = useState(0);
 
   useEffect(() => {
-    let revenue = array.filter((element) => {
-      if (element.type === '+') {
-        return element;
-      }
-    });
-    let expense = array.filter((element) => {
-      if (element.type === '-') {
-        return element;
-      }
-    });
-    revenue = setTotal(revenue, setTotalRevenue);
-    expense = setTotal(expense, setTotalExpense);
+    const revenue = calculateTotal(
+      array.filter((item) => item.type === '+'),
+      setTotalRevenue
+    );
+    const expense = calculateTotal(
+      array.filter((item) => item.type === '-'),
+      setTotalExpense
+    );
     getBalance(revenue, expense);
   }, [array]);
 
-  const setTotal = (arr, set) => {
-    let total = 0;
-    arr.forEach((element) => {
-      total = total + element.value;
-    });
-    set(total);
+  const calculateTotal = (transactions, setter) => {
+    const total = transactions.reduce(
+      (acc, current) => acc + Number(current.value),
+      0
+    );
+    setter(total);
     return total;
   };
 
@@ -35,25 +32,45 @@ const StatusBar = ({ array }) => {
   };
 
   return (
-    <div className="row">
-      <div className="col s6 m3">
-        <span>Lançamentos: </span>
-        {array.length}
-      </div>
-      <div className="col s6 m3">
-        <span>Receita: </span>
-        R${totalRevenue}
-      </div>
-      <div className="col s6 m3">
-        <span>Despesa: </span>
-        R${totalExpense}
-      </div>
-      <div className="col s6 m3">
-        <span>Saldo: </span>
-        R${balance}
-      </div>
-    </div>
+    <Box sx={{ flexGrow: 1 }}>
+      <Grid
+        container
+        spacing={2}>
+        <Grid
+          item
+          xs={6}
+          sm={3}>
+          <Typography variant='body1'>Lançamentos: {array.length}</Typography>
+        </Grid>
+        <Grid
+          item
+          xs={6}
+          sm={3}>
+          <Typography variant='body1'>
+            Receita: R${totalRevenue.toFixed(2)}
+          </Typography>
+        </Grid>
+        <Grid
+          item
+          xs={6}
+          sm={3}>
+          <Typography variant='body1'>
+            Despesa: R${totalExpense.toFixed(2)}
+          </Typography>
+        </Grid>
+        <Grid
+          item
+          xs={6}
+          sm={3}>
+          <Typography variant='body1'>Saldo: R${balance.toFixed(2)}</Typography>
+        </Grid>
+      </Grid>
+    </Box>
   );
 };
+
+// StatusBar.propTypes = {
+//   array: PropTypes.array.isRequired,
+// };
 
 export default StatusBar;

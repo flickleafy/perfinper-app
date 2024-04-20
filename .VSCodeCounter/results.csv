@@ -1,0 +1,19 @@
+"filename", "language", "JavaScript", "CSS", "comment", "blank", "total"
+"z:\[Personal Finance Helper]\perfinper-app\src\App.css", "CSS", 0, 283, 4, 24, 311
+"z:\[Personal Finance Helper]\perfinper-app\src\App.js", "JavaScript", 48, 0, 19, 5, 72
+"z:\[Personal Finance Helper]\perfinper-app\src\components\EditTransaction.js", "JavaScript", 186, 0, 5, 19, 210
+"z:\[Personal Finance Helper]\perfinper-app\src\components\InsertTransaction.js", "JavaScript", 138, 0, 1, 10, 149
+"z:\[Personal Finance Helper]\perfinper-app\src\components\LoadingIndicator.js", "JavaScript", 13, 0, 1, 2, 16
+"z:\[Personal Finance Helper]\perfinper-app\src\components\PeriodSelector.js", "JavaScript", 62, 0, 2, 8, 72
+"z:\[Personal Finance Helper]\perfinper-app\src\components\SearchBar.js", "JavaScript", 43, 0, 1, 7, 51
+"z:\[Personal Finance Helper]\perfinper-app\src\components\StatusBar.js", "JavaScript", 53, 0, 0, 7, 60
+"z:\[Personal Finance Helper]\perfinper-app\src\components\TransactionsList.js", "JavaScript", 257, 0, 5, 23, 285
+"z:\[Personal Finance Helper]\perfinper-app\src\helpers\designHelpers.js", "JavaScript", 15, 0, 3, 1, 19
+"z:\[Personal Finance Helper]\perfinper-app\src\helpers\objectsBuilder.js", "JavaScript", 49, 0, 2, 7, 58
+"z:\[Personal Finance Helper]\perfinper-app\src\helpers\searchers.js", "JavaScript", 29, 0, 0, 9, 38
+"z:\[Personal Finance Helper]\perfinper-app\src\http-common.js", "JavaScript", 7, 0, 3, 3, 13
+"z:\[Personal Finance Helper]\perfinper-app\src\index.css", "CSS", 0, 12, 0, 2, 14
+"z:\[Personal Finance Helper]\perfinper-app\src\index.js", "JavaScript", 12, 0, 0, 4, 16
+"z:\[Personal Finance Helper]\perfinper-app\src\serviceWorker.js", "JavaScript", 98, 0, 31, 13, 142
+"z:\[Personal Finance Helper]\perfinper-app\src\services\TransactionsService.js", "JavaScript", 40, 0, 0, 11, 51
+"Total", "-", 1050, 295, 77, 155, 1577

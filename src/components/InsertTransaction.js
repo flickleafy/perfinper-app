@@ -1,10 +1,22 @@
 import React, { useState } from 'react';
 import { transactionBuilder } from '../helpers/objectsBuilder.js';
-import TransactionsDataService from '../services/TransactionsService';
-import { RadioGroup } from 'react-materialize';
+import TransactionsDataService from '../services/TransactionsService.js';
 
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
+// MUI Components
+import {
+  TextField,
+  Button,
+  Radio,
+  RadioGroup,
+  FormControlLabel,
+  FormControl,
+  FormLabel,
+  Typography,
+  Box,
+} from '@mui/material';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
+import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
+import { ptBR } from 'date-fns/locale';
 
 const InsertTransaction = () => {
   const initialTransactionState = {
@@ -21,8 +33,7 @@ const InsertTransaction = () => {
   };
   const [transaction, setTransaction] = useState(initialTransactionState);
   const [submitted, setSubmitted] = useState(false);
-
-  const [startDate, setStartDate] = useState(''); // datepicker
+  const [startDate, setStartDate] = useState(null);
   const [transactionType, setTransactionType] = useState('');
 
   const handleInputChange = (event) => {
@@ -42,7 +53,7 @@ const InsertTransaction = () => {
           console.log(response.data);
         })
         .catch((e) => {
-          console.log(e);
+          console.error(e);
         });
     }
   };
@@ -51,97 +62,100 @@ const InsertTransaction = () => {
     setTransaction(initialTransactionState);
     setSubmitted(false);
   };
+
   const handleTypeChange = (event) => {
     setTransactionType(event.target.value);
   };
 
   return (
-    <div>
+    <Box sx={{ p: 3 }}>
       {submitted ? (
-        <div>
-          <h4>O lançamento foi inserido com sucesso!</h4>
-          <button className="btn btn-success" onClick={newTransaction}>
+        <Box>
+          <Typography variant='h4'>
+            O lançamento foi inserido com sucesso!
+          </Typography>
+          <Button
+            variant='contained'
+            color='success'
+            onClick={newTransaction}>
             Inserir Outro
-          </button>
-        </div>
+          </Button>
+        </Box>
       ) : (
-        <div className="row">
-          <div className="col s12">
-            <h4>Inserir Lançamento</h4>
-            <div className="form-group">
-              <label htmlFor="name">Categoria</label>
-              <input
-                type="text"
-                className="form-control"
-                id="category"
-                name="category"
-                required
-                value={transaction.category}
-                onChange={handleInputChange}
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="subject">Descrição</label>
-              <input
-                type="text"
-                className="form-control"
-                id="description"
-                name="description"
-                required
-                value={transaction.description}
-                onChange={handleInputChange}
-              />
-            </div>
-            {/* - */}
+        <Box>
+          <Typography variant='h4'>Inserir Lançamento</Typography>
+          <TextField
+            label='Categoria'
+            variant='outlined'
+            fullWidth
+            name='category'
+            required
+            value={transaction.category}
+            onChange={handleInputChange}
+            sx={{ mb: 2 }}
+          />
+          <TextField
+            label='Descrição'
+            variant='outlined'
+            fullWidth
+            name='description'
+            required
+            value={transaction.description}
+            onChange={handleInputChange}
+            sx={{ mb: 2 }}
+          />
+          <FormControl
+            component='fieldset'
+            sx={{ mb: 2 }}>
+            <FormLabel component='legend'>Tipo</FormLabel>
             <RadioGroup
-              label="Tipo"
-              onChange={handleTypeChange}
+              row
+              name='transactionType'
               value={transactionType}
-              radioClassNames="typeRadio"
-              options={[
-                {
-                  label: 'Despesa',
-                  value: '-',
-                },
-                {
-                  label: 'Receita',
-                  value: '+',
-                },
-              ]}
+              onChange={handleTypeChange}>
+              <FormControlLabel
+                value='-'
+                control={<Radio />}
+                label='Despesa'
+              />
+              <FormControlLabel
+                value='+'
+                control={<Radio />}
+                label='Receita'
+              />
+            </RadioGroup>
+          </FormControl>
+          <TextField
+            label='Valor'
+            type='number'
+            variant='outlined'
+            fullWidth
+            name='value'
+            required
+            value={transaction.value}
+            onChange={handleInputChange}
+            sx={{ mb: 2 }}
+          />
+          <LocalizationProvider
+            dateAdapter={AdapterDateFns}
+            adapterLocale={ptBR}>
+            <DatePicker
+              label='Data'
+              value={startDate}
+              onChange={setStartDate}
+              renderInput={(params) => <TextField {...params} />}
             />
-            {/* - */}
-            <div className="form-group">
-              <label htmlFor="value">Valor</label>
-              <input
-                type="Number"
-                className="form-control"
-                id="value"
-                name="value"
-                required
-                value={transaction.value}
-                onChange={handleInputChange}
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="date">Data</label>
-              <DatePicker
-                selected={startDate}
-                onChange={(date) => setStartDate(date)}
-              />
-            </div>
-            <div className="footerbuttongroup">
-              <button
-                onClick={insertTransaction}
-                className="waves-effect waves-light btn teal darken-1"
-              >
-                Inserir
-              </button>
-            </div>
-          </div>
-        </div>
+          </LocalizationProvider>
+          <Button
+            variant='contained'
+            color='primary'
+            onClick={insertTransaction}
+            sx={{ mt: 2 }}>
+            Inserir
+          </Button>
+        </Box>
       )}
-    </div>
+    </Box>
   );
 };
 
