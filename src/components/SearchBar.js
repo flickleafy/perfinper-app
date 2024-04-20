@@ -38,6 +38,8 @@ const SearchBar = ({ array, onDataChange }) => {
             }}
             sx={{
               width: '50%',
+              background: theme.palette.background.paper, // Set the background color to match the theme's paper color
+              borderRadius: '4px', // Match border radius to theme standards
               [theme.breakpoints.down('sm')]: { width: '100%' },
             }}
           />

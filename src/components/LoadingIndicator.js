@@ -1,15 +1,21 @@
 import React from 'react';
-//Loader
 import { usePromiseTracker } from 'react-promise-tracker';
+import { CircularProgress, LinearProgress, Box } from '@mui/material';
 
 const LoadingIndicator = (props) => {
   const { promiseInProgress } = usePromiseTracker();
+
   return (
     promiseInProgress && (
-      <div className="progress brown lighten-5">
-        <div className="indeterminate brown lighten-2"></div>
-      </div>
+      <Box
+        display='flex'
+        justifyContent='center'
+        alignItems='center'
+        minHeight='100vh'>
+        <CircularProgress color='primary' />
+      </Box>
     )
   );
 };
+
 export default LoadingIndicator;

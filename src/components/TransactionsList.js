@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Fragment } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 //Data load and processing
 import localStorage from 'local-storage';
@@ -15,6 +15,18 @@ import {
   transactionTypeColorIcon,
   iconByCategory,
 } from '../helpers/designHelpers.js';
+
+import {
+  List,
+  ListItem,
+  ListItemText,
+  ListItemIcon,
+  IconButton,
+  Typography,
+  Grid,
+  Button,
+} from '@mui/material';
+import { Edit, Delete } from '@mui/icons-material';
 
 const TransactionList = () => {
   const [fullTransactionsList, setFullTransactionsList] = useState([]);
@@ -38,7 +50,7 @@ const TransactionList = () => {
         console.log(response.data);
       })
       .catch((e) => {
-        console.log(e);
+        console.error(e);
       });
   };
 
@@ -54,9 +66,8 @@ const TransactionList = () => {
       setSearchTerm(tmpST);
       setPeriodSelected(tmpPS);
       return true;
-    } else {
-      return null;
     }
+    return false;
   };
 
   const refreshList = () => {
@@ -163,7 +174,7 @@ const TransactionList = () => {
   };
 
   return (
-    <Fragment>
+    <>
       <PeriodSelector
         currentPeriod={periodSelected}
         onDataChange={handleDataChangePeriodSelector}
@@ -174,104 +185,91 @@ const TransactionList = () => {
         onDataChange={handleDataChangeSearchBar}
       />
 
-      <div className='row'>
-        <div className='col s12'>
-          <h4 className='center'>Lançamentos</h4>
+      <Grid
+        container
+        spacing={2}
+        sx={{ mt: 2 }}>
+        <Grid
+          item
+          xs={12}>
+          {/*  */}
+          <Typography
+            variant='h4'
+            align='center'>
+            Lançamentos
+          </Typography>
+          {/*  */}
+          <List>
+            {transactionsPrintList.map((transaction, index) => (
+              <ListItem
+                key={index}
+                divider
+                style={{
+                  backgroundColor: transactionTypeColor(transaction.type),
+                }}>
+                <ListItemText
+                  primary={`${checkSingleDigit(
+                    transaction.day
+                  )}/${checkSingleDigit(transaction.month)}`}
+                  primaryTypographyProps={{ variant: 'body2' }}
+                />
+                <ListItemIcon>
+                  <IconButton
+                    component={Link}
+                    to='/'
+                    onClick={() =>
+                      handleCategorySelection(transaction.category)
+                    }>
+                    <span
+                      className={transactionTypeColorIcon(transaction.type)}>
+                      {iconByCategory(transaction.category)}
+                    </span>
+                  </IconButton>
+                </ListItemIcon>
+                <ListItemText
+                  primary={`${transaction.category} - ${transaction.description}`}
+                  secondary={`R$${transaction.value}`}
+                  primaryTypographyProps={{ variant: 'h6' }}
+                />
 
-          <ul className='collection'>
-            {transactionsPrintList &&
-              transactionsPrintList.map((transaction, index) => (
-                <li
-                  className={transactionTypeColor(transaction.type)}
-                  // onClick={() => setActiveTransaction(transaction, index)}
-                  key={index}>
-                  <div className='col s1 m1 l1'>
-                    <div className='datepad'>
-                      <h5 className='date'>
-                        {checkSingleDigit(transaction.day)}
-                      </h5>
-                      <h5 className='date bar'>/</h5>
-                      <h5 className='date'>
-                        {checkSingleDigit(transaction.month)}
-                      </h5>
-                    </div>
-                  </div>
-                  <div className='col s8 m10 l9'>
-                    <div className='descriptioncontainer'>
-                      <div className='iconcontainer'>
-                        <div className='midgrid'>
-                          <Link
-                            to='/'
-                            onClick={() =>
-                              handleCategorySelection(transaction.category)
-                            }>
-                            <i
-                              className={
-                                'material-icons category circle ' +
-                                transactionTypeColorIcon(transaction.type)
-                              }>
-                              {iconByCategory(transaction.category)}
-                            </i>
-                          </Link>
-                        </div>
-                      </div>
-
-                      <h5 className='category'>{transaction.category}</h5>
-                      <span className='description'>
-                        {transaction.description}{' '}
-                      </span>
-                    </div>
-
-                    <h5 className='value'>R${transaction.value}</h5>
-                  </div>
-
-                  <div className='col s2 m1 l2'>
-                    <div className='actionsgroup'>
-                      <Link
-                        to={'/editar/' + transaction._id}
-                        className=''>
-                        <i
-                          className={
-                            'material-icons actions circle ' +
-                            transactionTypeColorIcon(transaction.type)
-                          }>
-                          edit
-                        </i>
-                      </Link>
-                      <Link
-                        to='/'
-                        onClick={() =>
-                          handleDeleteSingleTransaction(transaction._id)
-                        }>
-                        <i
-                          className={
-                            'material-icons actions circle ' +
-                            transactionTypeColorIcon(transaction.type)
-                          }>
-                          delete
-                        </i>
-                      </Link>
-                    </div>
-                  </div>
-                </li>
-              ))}
-          </ul>
-          <LoadingIndicator />
-          <div className='footerbuttongroup'>
-            <button
-              className='waves-effect waves-light btn red darken-4'
-              onClick={deleteAllTransactions}>
-              Deletar Itens Listados
-            </button>
-            <button
-              className='waves-effect waves-light btn teal darken-1'
-              onClick={restoreToFullTransactionsList}>
-              Voltar Para Lista
-            </button>
-          </div>
-        </div>
-      </div>
-    </Fragment>
+                <ListItemIcon>
+                  <IconButton
+                    component={Link}
+                    to={`/editar/${transaction._id}`}>
+                    <Edit color='primary' />
+                  </IconButton>
+                  <IconButton
+                    onClick={() =>
+                      handleDeleteSingleTransaction(transaction._id)
+                    }>
+                    <Delete color='error' />
+                  </IconButton>
+                </ListItemIcon>
+              </ListItem>
+            ))}
+          </List>
+          {/*  */}
+        </Grid>
+      </Grid>
+      <LoadingIndicator />
+      <Grid
+        container
+        justifyContent='center'
+        spacing={2}>
+        <Button
+          variant='contained'
+          color='error'
+          onClick={deleteAllTransactions}>
+          Deletar Itens Listados
+        </Button>
+        <Button
+          variant='contained'
+          color='primary'
+          onClick={restoreToFullTransactionsList}>
+          Voltar Para Lista
+        </Button>
+      </Grid>
+    </>
   );
 };
 
