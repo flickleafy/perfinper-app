@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { numberDateToExtenseDate } from '../helpers/objectsBuilder.js';
 import TransactionsDataService from '../services/TransactionsService.js';
-import { Select } from 'react-materialize';
+// import { Select } from 'react-materialize';
 
 const PeriodSelector = ({ onDataChange }) => {
   //const [currentPeriod, setCurrentPeriod] = useState('');
@@ -39,8 +39,8 @@ const PeriodSelector = ({ onDataChange }) => {
 
   return (
     <Select
-      className="blue-grey-text lighten-1"
-      id="Select-9"
+      className='blue-grey-text lighten-1'
+      id='Select-9'
       multiple={false}
       onChange={(event) => handlePeriodChange(event)}
       options={{
@@ -59,8 +59,7 @@ const PeriodSelector = ({ onDataChange }) => {
           onOpenStart: null,
           outDuration: 250,
         },
-      }}
-    >
+      }}>
       {periodsName.map((periodName, key) => (
         <option value={periodsList[key]}>{periodName}</option>
       ))}
