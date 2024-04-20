@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { numberDateToExtenseDate } from '../helpers/objectsBuilder.js';
 import TransactionsDataService from '../services/TransactionsService.js';
-// import { Select } from 'react-materialize';
+import { FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 
 const PeriodSelector = ({ onDataChange }) => {
   //const [currentPeriod, setCurrentPeriod] = useState('');
-  const [periodsList, setPeriodsList] = useState(['']);
+  const [periodsList, setPeriodsList] = useState([]);
 
   useEffect(() => {
     // ????????? get from local storage first ?????????????
@@ -24,47 +24,36 @@ const PeriodSelector = ({ onDataChange }) => {
       });
   };
 
-  const periodsName = periodsList.map((period) => {
-    if (period.length > 0) {
-      return numberDateToExtenseDate(period);
-    } else {
-      return 'Selecione uma opção';
-    }
-  });
-
   const handlePeriodChange = (event) => {
     console.log(event.target.value);
     onDataChange(event.target.value);
   };
 
   return (
-    <Select
-      className='blue-grey-text lighten-1'
-      id='Select-9'
-      multiple={false}
-      onChange={(event) => handlePeriodChange(event)}
-      options={{
-        classes: '',
-        dropdownOptions: {
-          alignment: 'left',
-          autoTrigger: true,
-          closeOnClick: true,
-          constrainWidth: true,
-          coverTrigger: true,
-          hover: false,
-          inDuration: 150,
-          onCloseEnd: null,
-          onCloseStart: null,
-          onOpenEnd: null,
-          onOpenStart: null,
-          outDuration: 250,
-        },
-      }}>
-      {periodsName.map((periodName, key) => (
-        <option value={periodsList[key]}>{periodName}</option>
-      ))}
-    </Select>
+    <FormControl fullWidth>
+      <InputLabel id='period-select-label'>Período</InputLabel>
+      <Select
+        labelId='period-select-label'
+        id='period-select'
+        value={periodsList[0]} // Assuming you want to control the current period
+        label='Período'
+        onChange={handlePeriodChange}>
+        {periodsList.map((period) => (
+          <MenuItem
+            key={period}
+            value={period}>
+            {period.length > 0
+              ? numberDateToExtenseDate(period)
+              : 'Selecione uma opção'}
+          </MenuItem>
+        ))}
+      </Select>
+    </FormControl>
   );
 };
+
+// PeriodSelector.propTypes = {
+//   onDataChange: PropTypes.func.isRequired,
+// };
 
 export default PeriodSelector;

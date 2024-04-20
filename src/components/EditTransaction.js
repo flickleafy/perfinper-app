@@ -1,12 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import TransactionsDataService from '../services/TransactionsService.js';
-// import { RadioGroup } from 'react-materialize';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
-
-import { buildDateObj, transactionBuilder } from '../helpers/objectsBuilder.js';
+import { transactionBuilder, buildDateObj } from '../helpers/objectsBuilder.js';
 import { searchByID, getIndexOfElement } from '../helpers/searchers.js';
 import localStorage from 'local-storage';
+
+// MUI Imports
+import {
+  TextField,
+  Button,
+  Radio,
+  RadioGroup,
+  FormControlLabel,
+  FormControl,
+  FormLabel,
+  Box,
+  Typography,
+} from '@mui/material';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
+import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
+import { ptBR } from 'date-fns/locale';
 
 const EditTransaction = (props) => {
   const initialTransactionState = {
@@ -21,11 +33,12 @@ const EditTransaction = (props) => {
     yearMonth: '',
     yearMonthDay: '',
   };
+
   const [currentTransaction, setCurrentTransaction] = useState(
     initialTransactionState
   );
   const [message, setMessage] = useState('');
-  const [transactionDate, setTransactionDate] = useState(''); // datepicker
+  const [transactionDate, setTransactionDate] = useState(null);
   const [transactionType, setTransactionType] = useState('');
 
   useEffect(() => {
@@ -49,16 +62,14 @@ const EditTransaction = (props) => {
 
   const initializeFromLocalStorage = () => {
     let tmpFTL = localStorage.get('fullTransactionsList');
-
     if (tmpFTL) {
       let tmpTrans = searchByID(props.match.params.id, tmpFTL);
       setCurrentTransaction(tmpTrans);
       setTransactionDate(buildDateObj(tmpTrans));
       setTransactionType(tmpTrans.type);
       return true;
-    } else {
-      return null;
     }
+    return false;
   };
 
   const storeToLocalStorage = (updatedTransaction) => {
@@ -78,9 +89,8 @@ const EditTransaction = (props) => {
       localStorage.set('fullTransactionsList', tmpFTL);
       localStorage.set('transactionsPrintList', tmpTPL);
       return true;
-    } else {
-      return null;
     }
+    return false;
   };
 
   const handleInputChange = (event) => {
@@ -100,7 +110,7 @@ const EditTransaction = (props) => {
       currentTransaction._id,
       updatedTransaction
     )
-      .then((response) => {
+      .then(() => {
         storeToLocalStorage(updatedTransaction);
         setMessage('O lançamento foi atualizado com sucesso!');
       })
@@ -120,88 +130,88 @@ const EditTransaction = (props) => {
   };
 
   return (
-    <div>
-      <div className='row'>
-        <div className='col s12'>
-          <h4>Editar Lançamento</h4>
-          <form action='#'>
-            <div className='form-group'>
-              <label htmlFor='name'>Categoria</label>
-              <input
-                type='text'
-                className='form-control'
-                id='category'
-                name='category'
-                value={currentTransaction.category}
-                onChange={handleInputChange}
-              />
-            </div>
-            <div className='form-group'>
-              <label htmlFor='subject'>Descrição</label>
-              <input
-                type='text'
-                className='form-control'
-                id='description'
-                name='description'
-                value={currentTransaction.description}
-                onChange={handleInputChange}
-              />
-            </div>
-            {/* - */}
-            <RadioGroup
-              label='Tipo'
-              onChange={handleTypeChange}
-              value={transactionType}
-              radioClassNames='typeRadio'
-              disabled
-              options={[
-                {
-                  label: 'Despesa',
-                  value: '-',
-                },
-                {
-                  label: 'Receita',
-                  value: '+',
-                },
-              ]}
+    <Box p={3}>
+      <Typography variant='h4'>Editar Lançamento</Typography>
+      <Box
+        component='form'
+        noValidate
+        autoComplete='off'>
+        <TextField
+          fullWidth
+          label='Categoria'
+          name='category'
+          value={currentTransaction.category}
+          onChange={handleInputChange}
+          margin='normal'
+          variant='outlined'
+        />
+        <TextField
+          fullWidth
+          label='Descrição'
+          name='description'
+          value={currentTransaction.description}
+          onChange={handleInputChange}
+          margin='normal'
+          variant='outlined'
+        />
+        <FormControl
+          component='fieldset'
+          margin='normal'>
+          <FormLabel component='legend'>Tipo</FormLabel>
+          <RadioGroup
+            row
+            name='type'
+            value={transactionType}
+            onChange={handleTypeChange}>
+            <FormControlLabel
+              value='-'
+              control={<Radio />}
+              label='Despesa'
             />
-            {/* - */}
-            <div className='form-group'>
-              <label htmlFor='value'>Valor</label>
-              <input
-                type='number'
-                className='form-control'
-                id='value'
-                name='value'
-                value={currentTransaction.value}
-                onChange={handleInputChange}
-              />
-            </div>
-            <div className='form-group'>
-              <label htmlFor='date'>Data</label>
-              <DatePicker
-                selected={transactionDate}
-                onChange={(date) => setTransactionDate(date)}
-              />
-            </div>
-          </form>
-
-          <div className='footerbuttongroup'>
-            <button className='waves-effect waves-light btn red darken-4'>
-              Deletar
-            </button>
-
-            <button
-              type='submit'
-              className='waves-effect waves-light btn teal darken-1'
-              onClick={updateTransaction}>
-              Atualizar
-            </button>
-          </div>
-          <p>{message}</p>
-        </div>
-      </div>
-    </div>
+            <FormControlLabel
+              value='+'
+              control={<Radio />}
+              label='Receita'
+            />
+          </RadioGroup>
+        </FormControl>
+        <TextField
+          fullWidth
+          label='Valor'
+          name='value'
+          type='number'
+          value={currentTransaction.value}
+          onChange={handleInputChange}
+          margin='normal'
+          variant='outlined'
+        />
+        <LocalizationProvider
+          dateAdapter={AdapterDateFns}
+          adapterLocale={ptBR}>
+          <DatePicker
+            label='Data'
+            value={transactionDate}
+            onChange={setTransactionDate}
+            renderInput={(params) => <TextField {...params} />}
+          />
+        </LocalizationProvider>
+        <Box mt={2}>
+          <Button
+            color='error'
+            variant='outlined'
+            sx={{ ml: 2 }}>
+            Deletar
+          </Button>
+          <Button
+            color='primary'
+            variant='contained'
+            onClick={updateTransaction}>
+            Atualizar
+          </Button>
+        </Box>
+        {message && <Typography color='textPrimary'>{message}</Typography>}
+      </Box>
+    </Box>
   );
 };
 
