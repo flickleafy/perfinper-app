@@ -2,19 +2,19 @@ import React, { useState, useEffect, Fragment } from 'react';
 import { Link } from 'react-router-dom';
 //Data load and processing
 import localStorage from 'local-storage';
-import TransactionsDataService from '../services/TransactionsService';
+import TransactionsDataService from '../services/TransactionsService.js';
 import { checkSingleDigit } from '../helpers/objectsBuilder.js';
 import { searchCategory, getIndexOfElement } from '../helpers/searchers.js';
 //List Elements
-import SearchBar from './SearchBar';
-import StatusBar from './StatusBar';
-import PeriodSelector from './PeriodSelector';
-import LoadingIndicator from './LoadingIndicator';
+import SearchBar from './SearchBar.js';
+import StatusBar from './StatusBar.js';
+import PeriodSelector from './PeriodSelector.js';
+import LoadingIndicator from './LoadingIndicator.js';
 import {
   transactionTypeColor,
   transactionTypeColorIcon,
   iconByCategory,
-} from '../helpers/designHelpers';
+} from '../helpers/designHelpers.js';
 
 const TransactionList = () => {
   const [fullTransactionsList, setFullTransactionsList] = useState([]);
@@ -174,84 +174,80 @@ const TransactionList = () => {
         onDataChange={handleDataChangeSearchBar}
       />
 
-      <div className="row">
-        <div className="col s12">
-          <h4 className="center">Lançamentos</h4>
+      <div className='row'>
+        <div className='col s12'>
+          <h4 className='center'>Lançamentos</h4>
 
-          <ul className="collection">
+          <ul className='collection'>
             {transactionsPrintList &&
               transactionsPrintList.map((transaction, index) => (
                 <li
                   className={transactionTypeColor(transaction.type)}
                   // onClick={() => setActiveTransaction(transaction, index)}
-                  key={index}
-                >
-                  <div className="col s1 m1 l1">
-                    <div className="datepad">
-                      <h5 className="date">
+                  key={index}>
+                  <div className='col s1 m1 l1'>
+                    <div className='datepad'>
+                      <h5 className='date'>
                         {checkSingleDigit(transaction.day)}
                       </h5>
-                      <h5 className="date bar">/</h5>
-                      <h5 className="date">
+                      <h5 className='date bar'>/</h5>
+                      <h5 className='date'>
                         {checkSingleDigit(transaction.month)}
                       </h5>
                     </div>
                   </div>
-                  <div className="col s8 m10 l9">
-                    <div className="descriptioncontainer">
-                      <div className="iconcontainer">
-                        <div className="midgrid">
+                  <div className='col s8 m10 l9'>
+                    <div className='descriptioncontainer'>
+                      <div className='iconcontainer'>
+                        <div className='midgrid'>
                           <Link
-                            to="/"
+                            to='/'
                             onClick={() =>
                               handleCategorySelection(transaction.category)
-                            }
-                          >
+                            }>
                             <i
                               className={
                                 'material-icons category circle ' +
                                 transactionTypeColorIcon(transaction.type)
-                              }
-                            >
+                              }>
                               {iconByCategory(transaction.category)}
                             </i>
                           </Link>
                         </div>
                       </div>
 
-                      <h5 className="category">{transaction.category}</h5>
-                      <span className="description">
+                      <h5 className='category'>{transaction.category}</h5>
+                      <span className='description'>
                         {transaction.description}{' '}
                       </span>
                     </div>
 
-                    <h5 className="value">R${transaction.value}</h5>
+                    <h5 className='value'>R${transaction.value}</h5>
                   </div>
 
-                  <div className="col s2 m1 l2">
-                    <div className="actionsgroup">
-                      <Link to={'/editar/' + transaction._id} className="">
+                  <div className='col s2 m1 l2'>
+                    <div className='actionsgroup'>
+                      <Link
+                        to={'/editar/' + transaction._id}
+                        className=''>
                         <i
                           className={
                             'material-icons actions circle ' +
                             transactionTypeColorIcon(transaction.type)
-                          }
-                        >
+                          }>
                           edit
                         </i>
                       </Link>
                       <Link
-                        to="/"
+                        to='/'
                         onClick={() =>
                           handleDeleteSingleTransaction(transaction._id)
-                        }
-                      >
+                        }>
                         <i
                           className={
                             'material-icons actions circle ' +
                             transactionTypeColorIcon(transaction.type)
-                          }
-                        >
+                          }>
                           delete
                         </i>
                       </Link>
@@ -261,17 +257,15 @@ const TransactionList = () => {
               ))}
           </ul>
           <LoadingIndicator />
-          <div className="footerbuttongroup">
+          <div className='footerbuttongroup'>
             <button
-              className="waves-effect waves-light btn red darken-4"
-              onClick={deleteAllTransactions}
-            >
+              className='waves-effect waves-light btn red darken-4'
+              onClick={deleteAllTransactions}>
               Deletar Itens Listados
             </button>
             <button
-              className="waves-effect waves-light btn teal darken-1"
-              onClick={restoreToFullTransactionsList}
-            >
+              className='waves-effect waves-light btn teal darken-1'
+              onClick={restoreToFullTransactionsList}>
               Voltar Para Lista
             </button>
           </div>

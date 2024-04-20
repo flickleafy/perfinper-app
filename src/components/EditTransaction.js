@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import TransactionsDataService from '../services/TransactionsService';
-import { RadioGroup } from 'react-materialize';
+import TransactionsDataService from '../services/TransactionsService.js';
+// import { RadioGroup } from 'react-materialize';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
 import { buildDateObj, transactionBuilder } from '../helpers/objectsBuilder.js';
-import { searchByID, getIndexOfElement } from '../helpers/searchers';
+import { searchByID, getIndexOfElement } from '../helpers/searchers.js';
 import localStorage from 'local-storage';
 
 const EditTransaction = (props) => {
@@ -121,38 +121,38 @@ const EditTransaction = (props) => {
 
   return (
     <div>
-      <div className="row">
-        <div className="col s12">
+      <div className='row'>
+        <div className='col s12'>
           <h4>Editar Lançamento</h4>
-          <form action="#">
-            <div className="form-group">
-              <label htmlFor="name">Categoria</label>
+          <form action='#'>
+            <div className='form-group'>
+              <label htmlFor='name'>Categoria</label>
               <input
-                type="text"
-                className="form-control"
-                id="category"
-                name="category"
+                type='text'
+                className='form-control'
+                id='category'
+                name='category'
                 value={currentTransaction.category}
                 onChange={handleInputChange}
               />
             </div>
-            <div className="form-group">
-              <label htmlFor="subject">Descrição</label>
+            <div className='form-group'>
+              <label htmlFor='subject'>Descrição</label>
               <input
-                type="text"
-                className="form-control"
-                id="description"
-                name="description"
+                type='text'
+                className='form-control'
+                id='description'
+                name='description'
                 value={currentTransaction.description}
                 onChange={handleInputChange}
               />
             </div>
             {/* - */}
             <RadioGroup
-              label="Tipo"
+              label='Tipo'
               onChange={handleTypeChange}
               value={transactionType}
-              radioClassNames="typeRadio"
+              radioClassNames='typeRadio'
               disabled
               options={[
                 {
@@ -166,19 +166,19 @@ const EditTransaction = (props) => {
               ]}
             />
             {/* - */}
-            <div className="form-group">
-              <label htmlFor="value">Valor</label>
+            <div className='form-group'>
+              <label htmlFor='value'>Valor</label>
               <input
-                type="number"
-                className="form-control"
-                id="value"
-                name="value"
+                type='number'
+                className='form-control'
+                id='value'
+                name='value'
                 value={currentTransaction.value}
                 onChange={handleInputChange}
               />
             </div>
-            <div className="form-group">
-              <label htmlFor="date">Data</label>
+            <div className='form-group'>
+              <label htmlFor='date'>Data</label>
               <DatePicker
                 selected={transactionDate}
                 onChange={(date) => setTransactionDate(date)}
@@ -186,16 +186,15 @@ const EditTransaction = (props) => {
             </div>
           </form>
 
-          <div className="footerbuttongroup">
-            <button className="waves-effect waves-light btn red darken-4">
+          <div className='footerbuttongroup'>
+            <button className='waves-effect waves-light btn red darken-4'>
               Deletar
             </button>
 
             <button
-              type="submit"
-              className="waves-effect waves-light btn teal darken-1"
-              onClick={updateTransaction}
-            >
+              type='submit'
+              className='waves-effect waves-light btn teal darken-1'
+              onClick={updateTransaction}>
               Atualizar
             </button>
           </div>

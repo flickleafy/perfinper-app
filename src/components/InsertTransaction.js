@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { transactionBuilder } from '../helpers/objectsBuilder.js';
-import TransactionsDataService from '../services/TransactionsService';
-import { RadioGroup } from 'react-materialize';
+import TransactionsDataService from '../services/TransactionsService.js';
+// import { RadioGroup } from 'react-materialize';
 
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -60,34 +60,36 @@ const InsertTransaction = () => {
       {submitted ? (
         <div>
           <h4>O lançamento foi inserido com sucesso!</h4>
-          <button className="btn btn-success" onClick={newTransaction}>
+          <button
+            className='btn btn-success'
+            onClick={newTransaction}>
             Inserir Outro
           </button>
         </div>
       ) : (
-        <div className="row">
-          <div className="col s12">
+        <div className='row'>
+          <div className='col s12'>
             <h4>Inserir Lançamento</h4>
-            <div className="form-group">
-              <label htmlFor="name">Categoria</label>
+            <div className='form-group'>
+              <label htmlFor='name'>Categoria</label>
               <input
-                type="text"
-                className="form-control"
-                id="category"
-                name="category"
+                type='text'
+                className='form-control'
+                id='category'
+                name='category'
                 required
                 value={transaction.category}
                 onChange={handleInputChange}
               />
             </div>
 
-            <div className="form-group">
-              <label htmlFor="subject">Descrição</label>
+            <div className='form-group'>
+              <label htmlFor='subject'>Descrição</label>
               <input
-                type="text"
-                className="form-control"
-                id="description"
-                name="description"
+                type='text'
+                className='form-control'
+                id='description'
+                name='description'
                 required
                 value={transaction.description}
                 onChange={handleInputChange}
@@ -95,10 +97,10 @@ const InsertTransaction = () => {
             </div>
             {/* - */}
             <RadioGroup
-              label="Tipo"
+              label='Tipo'
               onChange={handleTypeChange}
               value={transactionType}
-              radioClassNames="typeRadio"
+              radioClassNames='typeRadio'
               options={[
                 {
                   label: 'Despesa',
@@ -111,30 +113,29 @@ const InsertTransaction = () => {
               ]}
             />
             {/* - */}
-            <div className="form-group">
-              <label htmlFor="value">Valor</label>
+            <div className='form-group'>
+              <label htmlFor='value'>Valor</label>
               <input
-                type="Number"
-                className="form-control"
-                id="value"
-                name="value"
+                type='Number'
+                className='form-control'
+                id='value'
+                name='value'
                 required
                 value={transaction.value}
                 onChange={handleInputChange}
               />
             </div>
-            <div className="form-group">
-              <label htmlFor="date">Data</label>
+            <div className='form-group'>
+              <label htmlFor='date'>Data</label>
               <DatePicker
                 selected={startDate}
                 onChange={(date) => setStartDate(date)}
               />
             </div>
-            <div className="footerbuttongroup">
+            <div className='footerbuttongroup'>
               <button
                 onClick={insertTransaction}
-                className="waves-effect waves-light btn teal darken-1"
-              >
+                className='waves-effect waves-light btn teal darken-1'>
                 Inserir
               </button>
             </div>

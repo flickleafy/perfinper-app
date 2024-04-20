@@ -1,71 +1,83 @@
 import React from 'react';
-import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
-import 'materialize-css/dist/css/materialize.min.css';
-import './App.css';
-import { Navbar } from 'react-materialize';
-import { NavItem } from 'react-materialize';
-import { Icon } from 'react-materialize';
+import { Link } from 'react-router-dom';
+import { Routes, Route, BrowserRouter } from 'react-router-dom';
+import {
+  AppBar,
+  Toolbar,
+  IconButton,
+  Typography,
+  Button,
+  Box,
+} from '@mui/material';
+import { Home } from '@mui/icons-material';
 
-import InsertTransaction from './components/InsertTransaction';
-import EditTransaction from './components/EditTransaction';
-import TransactionsList from './components/TransactionsList';
+import TransactionsList from './components/TransactionsList.js';
+import InsertTransaction from './components/InsertTransaction.js';
+import EditTransaction from './components/EditTransaction.js';
 
 function App() {
   return (
-    <Router>
-      <div>
-        <Navbar
-          className="brown lighten-1 z-depth-3"
-          alignLinks="left"
-          brand={<Icon>home</Icon>}
-          id="mobile-nav"
-          centerChildren={true}
-          centerLogo={true}
-          options={{
-            draggable: true,
-            edge: 'left',
-            inDuration: 250,
-            onCloseEnd: null,
-            onCloseStart: null,
-            onOpenEnd: null,
-            onOpenStart: null,
-            outDuration: 200,
-            preventScrolling: true,
-          }}
-        >
-          <NavItem href="/lista">Lançamentos</NavItem>
-          <NavItem href="/inserir">Novo Lançamento</NavItem>
-        </Navbar>
-        <div className="container">
-          <Switch>
-            <Route exact path={['/', '/lista']} component={TransactionsList} />
-            <Route exact path="/inserir" component={InsertTransaction} />
-            <Route path="/editar/:id" component={EditTransaction} />
-          </Switch>
-        </div>
-      </div>
-    </Router>
+    <BrowserRouter>
+      <Box>
+        <AppBar
+          position='static'
+          color='primary'
+          sx={{ zIndex: 3 }}>
+          <Toolbar>
+            <IconButton
+              size='large'
+              edge='start'
+              color='inherit'
+              aria-label='home'
+              sx={{ mr: 2 }}>
+              <Home />
+            </IconButton>
+            <Typography
+              variant='h6'
+              component='div'
+              sx={{ flexGrow: 1 }}>
+              My App
+            </Typography>
+            <Button
+              color='inherit'
+              component={Link}
+              to='/lista'>
+              Lançamentos
+            </Button>
+            <Button
+              color='inherit'
+              component={Link}
+              to='/inserir'>
+              Novo Lançamento
+            </Button>
+          </Toolbar>
+        </AppBar>
+        <Box
+          component='div'
+          className='container'
+          sx={{ marginTop: 2 }}>
+          <Routes>
+            <Route
+              path='/'
+              element={<TransactionsList />}
+            />
+            <Route
+              path='/lista'
+              element={<TransactionsList />}
+            />
+            <Route
+              path='/inserir'
+              element={<InsertTransaction />}
+            />
+            <Route
+              path='/editar/:id'
+              element={<EditTransaction />}
+            />
+          </Routes>
+        </Box>
+      </Box>
+    </BrowserRouter>
   );
 }
 
 export default App;
-
-/*
-<nav className="navbar navbar-expand navbar-dark bg-dark">
-          <a href="/" className="navbar-brand">
-            Aplicativo
-          </a>
-          <div className="navbar-nav mr-auto">
-            <li className="nav-item">
-              <Link to={'/lista'} className="nav-link">
-                Lançamentos
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link to={'/inserir'} className="nav-link">
-                Novo Lançamento
-              </Link>
-            </li>
-          </div>
-        </nav>
- */
