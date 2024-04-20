@@ -1,4 +1,4 @@
-import http from '../http-common';
+import http from '../http-common.js';
 import { trackPromise } from 'react-promise-tracker';
 
 const insertTransaction = (data) => {

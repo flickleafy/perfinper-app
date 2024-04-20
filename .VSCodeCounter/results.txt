@@ -1,0 +1,45 @@
+Date : 2020-09-08 15:18:51
+Directory : z:\[Personal Finance Helper]\perfinper-app\src
+Total : 17 files,  1345 codes, 77 comments, 155 blanks, all 1577 lines
+
+Languages
++------------+------------+------------+------------+------------+------------+
+| language   | files      | code       | comment    | blank      | total      |
++------------+------------+------------+------------+------------+------------+
+| JavaScript |         15 |      1,050 |         73 |        129 |      1,252 |
+| CSS        |          2 |        295 |          4 |         26 |        325 |
++------------+------------+------------+------------+------------+------------+
+
+Directories
++--------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                           | files      | code       | comment    | blank      | total      |
++--------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                              |         17 |      1,345 |         77 |        155 |      1,577 |
+| components                                                                     |          7 |        752 |         15 |         76 |        843 |
+| helpers                                                                        |          3 |         93 |          5 |         17 |        115 |
+| services                                                                       |          1 |         40 |          0 |         11 |         51 |
++--------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++--------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| filename                                                                       | language   | code       | comment    | blank      | total      |
++--------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| z:\[Personal Finance Helper]\perfinper-app\src\App.css                         | CSS        |        283 |          4 |         24 |        311 |
+| z:\[Personal Finance Helper]\perfinper-app\src\App.js                          | JavaScript |         48 |         19 |          5 |         72 |
+| z:\[Personal Finance Helper]\perfinper-app\src\components\EditTransaction.js   | JavaScript |        186 |          5 |         19 |        210 |
+| z:\[Personal Finance Helper]\perfinper-app\src\components\InsertTransaction.js | JavaScript |        138 |          1 |         10 |        149 |
+| z:\[Personal Finance Helper]\perfinper-app\src\components\LoadingIndicator.js  | JavaScript |         13 |          1 |          2 |         16 |
+| z:\[Personal Finance Helper]\perfinper-app\src\components\PeriodSelector.js    | JavaScript |         62 |          2 |          8 |         72 |
+| z:\[Personal Finance Helper]\perfinper-app\src\components\SearchBar.js         | JavaScript |         43 |          1 |          7 |         51 |
+| z:\[Personal Finance Helper]\perfinper-app\src\components\StatusBar.js         | JavaScript |         53 |          0 |          7 |         60 |
+| z:\[Personal Finance Helper]\perfinper-app\src\components\TransactionsList.js  | JavaScript |        257 |          5 |         23 |        285 |
+| z:\[Personal Finance Helper]\perfinper-app\src\helpers\designHelpers.js        | JavaScript |         15 |          3 |          1 |         19 |
+| z:\[Personal Finance Helper]\perfinper-app\src\helpers\objectsBuilder.js       | JavaScript |         49 |          2 |          7 |         58 |
+| z:\[Personal Finance Helper]\perfinper-app\src\helpers\searchers.js            | JavaScript |         29 |          0 |          9 |         38 |
+| z:\[Personal Finance Helper]\perfinper-app\src\http-common.js                  | JavaScript |          7 |          3 |          3 |         13 |
+| z:\[Personal Finance Helper]\perfinper-app\src\index.css                       | CSS        |         12 |          0 |          2 |         14 |
+| z:\[Personal Finance Helper]\perfinper-app\src\index.js                        | JavaScript |         12 |          0 |          4 |         16 |
+| z:\[Personal Finance Helper]\perfinper-app\src\serviceWorker.js                | JavaScript |         98 |         31 |         13 |        142 |
+| z:\[Personal Finance Helper]\perfinper-app\src\services\TransactionsService.js | JavaScript |         40 |          0 |         11 |         51 |
+| Total                                                                          |            |      1,345 |         77 |        155 |      1,577 |
++--------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
