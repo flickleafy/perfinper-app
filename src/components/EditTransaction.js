@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import TransactionsDataService from '../services/TransactionsService.js';
 import { transactionBuilder, buildDateObj } from '../helpers/objectsBuilder.js';
 import { searchByID, getIndexOfElement } from '../helpers/searchers.js';
@@ -213,6 +214,10 @@ const EditTransaction = (props) => {
       </Box>
     </Box>
   );
+};
+
+EditTransaction.propTypes = {
+  match: PropTypes.object.isRequired,
 };
 
 export default EditTransaction;
