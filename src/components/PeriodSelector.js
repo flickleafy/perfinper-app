@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { numberDateToExtenseDate } from '../helpers/objectsBuilder.js';
 import TransactionsDataService from '../services/TransactionsService.js';
 import { FormControl, InputLabel, Select, MenuItem } from '@mui/material';
@@ -52,8 +53,8 @@ const PeriodSelector = ({ onDataChange }) => {
   );
 };
 
-// PeriodSelector.propTypes = {
-//   onDataChange: PropTypes.func.isRequired,
-// };
+PeriodSelector.propTypes = {
+  onDataChange: PropTypes.func.isRequired,
+};
 
 export default PeriodSelector;

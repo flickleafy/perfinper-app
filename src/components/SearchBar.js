@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 import { searchDescription } from '../helpers/searchers.js';
 import { AppBar, Toolbar, TextField, Box } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
@@ -49,9 +50,9 @@ const SearchBar = ({ array, onDataChange }) => {
   );
 };
 
-// SearchBar.propTypes = {
-//   array: PropTypes.array.isRequired,
-//   onDataChange: PropTypes.func.isRequired,
-// };
+SearchBar.propTypes = {
+  array: PropTypes.array.isRequired,
+  onDataChange: PropTypes.func.isRequired,
+};
 
 export default SearchBar;
