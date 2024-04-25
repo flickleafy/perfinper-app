@@ -18,3 +18,10 @@ export function useTransactionTypeColor(type) {
     highlightColor,
   };
 }
+
+export const transactionTypeColor = (type, primary, secundary) => {
+  if (type === '-') {
+    return primary;
+  }
+  return secundary;
+};
