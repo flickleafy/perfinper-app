@@ -1,10 +1,16 @@
 import React from 'react';
 import { Routes, Route, BrowserRouter, Link } from 'react-router-dom';
-import { AppBar, Toolbar, IconButton, Button, Box } from '@mui/material';
+import {
+  AppBar,
+  Toolbar,
+  IconButton,
+  Button,
+  Box,
+  CssBaseline,
+} from '@mui/material';
 import { Home } from '@mui/icons-material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { blueGrey, teal, red, brown, common } from '@mui/material/colors';
-import { CssBaseline } from '@mui/material';
 
 import TransactionsList from './components/TransactionsList.js';
 import InsertTransaction from './components/InsertTransaction.js';
@@ -31,6 +37,13 @@ const theme = createTheme({
     },
   },
   typography: {
+    fontFamily: [
+      'Fira Sans', // Primary font
+      'Roboto', // Fallback font
+      '"Helvetica Neue"',
+      'Arial',
+      'sans-serif',
+    ].join(','),
     // Define your typography adjustments here
   },
 });

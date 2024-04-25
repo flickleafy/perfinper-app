@@ -41,29 +41,41 @@ const StatusBar = ({ array }) => {
           item
           xs={6}
           sm={3}>
-          <Typography variant='body1'>Lançamentos: {array.length}</Typography>
-        </Grid>
-        <Grid
-          item
-          xs={6}
-          sm={3}>
-          <Typography variant='body1'>
-            Receita: R${totalRevenue.toFixed(2)}
+          <Typography
+            sx={{ textAlign: 'center' }}
+            variant='body1'>
+            Lançamentos: {array.length}
           </Typography>
         </Grid>
         <Grid
           item
           xs={6}
           sm={3}>
-          <Typography variant='body1'>
-            Despesa: R${totalExpense.toFixed(2)}
+          <Typography
+            sx={{ textAlign: 'center' }}
+            variant='body1'>
+            Receita: R$ {totalRevenue.toFixed(2)}
           </Typography>
         </Grid>
         <Grid
           item
           xs={6}
           sm={3}>
-          <Typography variant='body1'>Saldo: R${balance.toFixed(2)}</Typography>
+          <Typography
+            sx={{ textAlign: 'center' }}
+            variant='body1'>
+            Despesa: R$ {totalExpense.toFixed(2)}
+          </Typography>
+        </Grid>
+        <Grid
+          item
+          xs={6}
+          sm={3}>
+          <Typography
+            sx={{ textAlign: 'center' }}
+            variant='body1'>
+            Saldo: R$ {balance.toFixed(2)}
+          </Typography>
         </Grid>
       </Grid>
     </Box>
