@@ -1,12 +1,53 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+import { Box } from '@mui/material';
+import { styled, alpha } from '@mui/material/styles';
+import SearchIcon from '@mui/icons-material/Search';
+import InputBase from '@mui/material/InputBase';
 import { searchDescription } from '../helpers/searchers.js';
-import { TextField, Box } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
+
+const Search = styled('div')(({ theme }) => ({
+  position: 'relative',
+  borderRadius: theme.shape.borderRadius,
+  backgroundColor: alpha(theme.palette.common.white, 0.15),
+  '&:hover': {
+    backgroundColor: alpha(theme.palette.common.white, 0.25),
+  },
+  marginRight: theme.spacing(2),
+  marginLeft: 0,
+  width: '100%',
+  [theme.breakpoints.up('sm')]: {
+    marginLeft: theme.spacing(3),
+    width: 'auto',
+  },
+}));
+
+const SearchIconWrapper = styled('div')(({ theme }) => ({
+  padding: theme.spacing(0, 2),
+  height: '100%',
+  position: 'absolute',
+  pointerEvents: 'none',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+}));
+
+const StyledInputBase = styled(InputBase)(({ theme }) => ({
+  color: 'inherit',
+  '& .MuiInputBase-input': {
+    padding: theme.spacing(1, 1, 1, 0),
+    // vertical padding + font size from searchIcon
+    paddingLeft: `calc(1em + ${theme.spacing(4)})`,
+    transition: theme.transitions.create('width'),
+    width: '100%',
+    [theme.breakpoints.up('md')]: {
+      width: '20ch',
+    },
+  },
+}));
 
 const SearchBar = ({ array, onDataChange }) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const theme = useTheme();
 
   const onChangeSearchTransaction = (searchName) => {
     let transactionsSearchList = searchDescription(searchName, array);
@@ -19,27 +60,28 @@ const SearchBar = ({ array, onDataChange }) => {
   };
 
   return (
-    <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'flex-end' }}>
-      <TextField
-        variant='outlined'
-        placeholder='Buscar por descrição'
-        value={searchTerm}
-        onChange={(event) => {
-          const { value } = event.target;
-          setSearchTerm(value);
-          if (value.length >= 3) {
-            onChangeSearchTransaction(value);
-          } else {
-            onDataChange('', []);
-          }
-        }}
-        sx={{
-          width: '50%',
-          background: theme.palette.background.paper, // Set the background color to match the theme's paper color
-          borderRadius: '4px', // Match border radius to theme standards
-          [theme.breakpoints.down('sm')]: { width: '100%' },
-        }}
-      />
+    <Box
+      sx={{ width: '50%', margin: 'auto' }}
+      fullWidth>
+      <Search sx={{ borderRadius: 2 }}>
+        <SearchIconWrapper>
+          <SearchIcon />
+        </SearchIconWrapper>
+        <StyledInputBase
+          placeholder='Buscar...'
+          inputProps={{ 'aria-label': 'search' }}
+          value={searchTerm}
+          onChange={(event) => {
+            const { value } = event.target;
+            setSearchTerm(value);
+            if (value.length >= 3) {
+              onChangeSearchTransaction(value);
+            } else {
+              onDataChange('', []);
+            }
+          }}
+        />
+      </Search>
     </Box>
   );
 };

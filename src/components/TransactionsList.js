@@ -8,10 +8,7 @@ import {
   IconButton,
   Typography,
   Grid,
-  Button,
   Box,
-  AppBar,
-  Toolbar,
   useTheme,
 } from '@mui/material';
 import { Edit, Delete } from '@mui/icons-material';
@@ -21,12 +18,11 @@ import TransactionsDataService from '../services/TransactionsService.js';
 import { checkSingleDigit } from '../helpers/objectsBuilder.js';
 import { searchCategory, getIndexOfElement } from '../helpers/searchers.js';
 //List Elements
-import SearchBar from './SearchBar.js';
-import StatusBar from './StatusBar.js';
-import PeriodSelector from './PeriodSelector.js';
 import LoadingIndicator from './LoadingIndicator.js';
 import { transactionTypeColor } from '../helpers/useTransactionTypeColor.hook.jsx';
 import { IconByCategory } from './Buttons/IconByCategory.jsx';
+import { TransactionsListFooter } from './TransactionsListFooter.js';
+import { TransactionsListHeader } from './TransactionsListHeader.js';
 
 const TransactionList = () => {
   const theme = useTheme();
@@ -188,29 +184,13 @@ const TransactionList = () => {
     <Box
       paddingLeft={8}
       paddingRight={8}>
-      <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-        <Box sx={{ display: 'flex', flexDirection: 'row' }}>
-          <AppBar
-            position='static'
-            color='primary'>
-            <Toolbar>
-              <PeriodSelector
-                sx={{ width: '50%' }}
-                currentPeriod={periodSelected}
-                onDataChange={handleDataChangePeriodSelector}
-              />
-              <SearchBar
-                sx={{ width: '50%' }}
-                array={fullTransactionsList}
-                onDataChange={handleDataChangeSearchBar}
-              />
-            </Toolbar>
-          </AppBar>
-        </Box>
-        <Box marginTop={2}>
-          <StatusBar array={transactionsPrintList} />
-        </Box>
-      </Box>
+      <TransactionsListHeader
+        periodSelected={periodSelected}
+        handleDataChangePeriodSelector={handleDataChangePeriodSelector}
+        fullTransactionsList={fullTransactionsList}
+        handleDataChangeSearchBar={handleDataChangeSearchBar}
+        transactionsPrintList={transactionsPrintList}
+      />
       <Grid
         container
         spacing={2}
@@ -284,26 +264,11 @@ const TransactionList = () => {
         </Grid>
       </Grid>
       <LoadingIndicator />
-      <Grid
-        container
-        justifyContent='right'
-        sx={{ paddingTop: 2 }}>
-        <Button
-          variant='contained'
-          color='error'
-          disabled={transactionsPrintList.length === 0}
-          onClick={deleteAllTransactions}
-          sx={{ marginRight: 2 }}>
-          Deletar Itens Listados
-        </Button>
-        <Button
-          variant='contained'
-          color='primary'
-          disabled={transactionsPrintList.length === 0}
-          onClick={restoreToFullTransactionsList}>
-          Resetar Lista
-        </Button>
-      </Grid>
+      <TransactionsListFooter
+        disabled={transactionsPrintList.length === 0}
+        deleteAllTransactions={deleteAllTransactions}
+        restoreToFullTransactionsList={restoreToFullTransactionsList}
+      />
     </Box>
   );
 };
