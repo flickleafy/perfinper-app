@@ -20,12 +20,10 @@ export function TransactionsListHeader({
           color='primary'>
           <Toolbar>
             <PeriodSelector
-              sx={{ width: '50%' }}
               currentPeriod={periodSelected}
               onDataChange={handleDataChangePeriodSelector}
             />
             <SearchBar
-              sx={{ width: '50%' }}
               array={fullTransactionsList}
               onDataChange={handleDataChangeSearchBar}
             />
