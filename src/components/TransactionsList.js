@@ -1,5 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import {
+  List,
+  ListItem,
+  ListItemText,
+  ListItemIcon,
+  IconButton,
+  Typography,
+  Grid,
+  Button,
+  Box,
+  AppBar,
+  Toolbar,
+  useTheme,
+} from '@mui/material';
+import { Edit, Delete } from '@mui/icons-material';
 //Data load and processing
 import localStorage from 'local-storage';
 import TransactionsDataService from '../services/TransactionsService.js';
@@ -10,25 +25,11 @@ import SearchBar from './SearchBar.js';
 import StatusBar from './StatusBar.js';
 import PeriodSelector from './PeriodSelector.js';
 import LoadingIndicator from './LoadingIndicator.js';
-import {
-  transactionTypeColor,
-  transactionTypeColorIcon,
-  iconByCategory,
-} from '../helpers/designHelpers.js';
-
-import {
-  List,
-  ListItem,
-  ListItemText,
-  ListItemIcon,
-  IconButton,
-  Typography,
-  Grid,
-  Button,
-} from '@mui/material';
-import { Edit, Delete } from '@mui/icons-material';
+import { transactionTypeColor } from '../helpers/useTransactionTypeColor.hook.jsx';
+import { IconByCategory } from './Buttons/IconByCategory.jsx';
 
 const TransactionList = () => {
+  const theme = useTheme();
   const [fullTransactionsList, setFullTransactionsList] = useState([]);
   const [transactionsPrintList, setTransactionsPrintList] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -40,18 +41,28 @@ const TransactionList = () => {
     }
   }, [periodSelected]);
 
+  /**
+   * Retrieves all transactions for a specified period and updates both the full and printable lists of transactions.
+   * The function fetches data asynchronously from the TransactionsDataService and handles the response or errors accordingly.
+   * If transactions are found, they are saved to both local component state and localStorage.
+   *
+   * @param {string} period - The period for which to retrieve transactions.
+   */
   const retrieveAllTransactions = (period) => {
-    TransactionsDataService.findAllTransactionsInPeriod(period)
-      .then((response) => {
-        setFullTransactionsList(response.data);
-        setTransactionsPrintList(response.data);
-        localStorage.set('fullTransactionsList', response.data);
-        localStorage.set('transactionsPrintList', response.data);
-        console.log(response.data);
-      })
-      .catch((e) => {
-        console.error(e);
-      });
+    console.log('period retrieve all trans', period);
+    if (period) {
+      TransactionsDataService.findAllTransactionsInPeriod(period)
+        .then((response) => {
+          setFullTransactionsList(response.data);
+          setTransactionsPrintList(response.data);
+          localStorage.set('fullTransactionsList', response.data);
+          localStorage.set('transactionsPrintList', response.data);
+          console.log(response.data);
+        })
+        .catch((e) => {
+          console.error(e);
+        });
+    }
   };
 
   const initializeFromLocalStorage = () => {
@@ -174,17 +185,32 @@ const TransactionList = () => {
   };
 
   return (
-    <>
-      <PeriodSelector
-        currentPeriod={periodSelected}
-        onDataChange={handleDataChangePeriodSelector}
-      />
-      <StatusBar array={transactionsPrintList} />
-      <SearchBar
-        array={fullTransactionsList}
-        onDataChange={handleDataChangeSearchBar}
-      />
-
+    <Box
+      paddingLeft={8}
+      paddingRight={8}>
+      <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+        <Box sx={{ display: 'flex', flexDirection: 'row' }}>
+          <AppBar
+            position='static'
+            color='primary'>
+            <Toolbar>
+              <PeriodSelector
+                sx={{ width: '50%' }}
+                currentPeriod={periodSelected}
+                onDataChange={handleDataChangePeriodSelector}
+              />
+              <SearchBar
+                sx={{ width: '50%' }}
+                array={fullTransactionsList}
+                onDataChange={handleDataChangeSearchBar}
+              />
+            </Toolbar>
+          </AppBar>
+        </Box>
+        <Box marginTop={2}>
+          <StatusBar array={transactionsPrintList} />
+        </Box>
+      </Box>
       <Grid
         container
         spacing={2}
@@ -200,38 +226,44 @@ const TransactionList = () => {
           </Typography>
           {/*  */}
           <List>
-            {transactionsPrintList.map((transaction, index) => (
+            {transactionsPrintList?.map((transaction, index) => (
               <ListItem
-                key={index}
+                key={transaction._id}
                 divider
                 style={{
-                  backgroundColor: transactionTypeColor(transaction.type),
+                  backgroundColor: transactionTypeColor(
+                    transaction.type,
+                    theme?.palette.primary.light,
+                    theme?.palette.secondary.light
+                  ),
                 }}>
                 <ListItemText
+                  sx={{ flexGrow: 0, paddingRight: 2 }}
                   primary={`${checkSingleDigit(
                     transaction.day
                   )}/${checkSingleDigit(transaction.month)}`}
-                  primaryTypographyProps={{ variant: 'body2' }}
+                  primaryTypographyProps={{ variant: 'h5' }}
                 />
                 <ListItemIcon>
-                  <IconButton
-                    component={Link}
-                    to='/'
+                  <IconByCategory
+                    category={transaction.category}
+                    type={transaction.type}
+                    destination='/'
                     onClick={() =>
                       handleCategorySelection(transaction.category)
-                    }>
-                    <span
-                      className={transactionTypeColorIcon(transaction.type)}>
-                      {iconByCategory(transaction.category)}
-                    </span>
-                  </IconButton>
+                    }
+                  />
                 </ListItemIcon>
                 <ListItemText
-                  primary={`${transaction.category} - ${transaction.description}`}
-                  secondary={`R$${transaction.value}`}
+                  primary={`${transaction.category}`}
+                  secondary={`${transaction.description}`}
                   primaryTypographyProps={{ variant: 'h6' }}
                 />
-
+                <ListItemText
+                  sx={{ flexGrow: 0, paddingRight: 2 }}
+                  primary={`R$ ${transaction.value}`}
+                  primaryTypographyProps={{ variant: 'h6' }}
+                />
                 <ListItemIcon>
                   <IconButton
                     component={Link}
@@ -254,22 +286,25 @@ const TransactionList = () => {
       <LoadingIndicator />
       <Grid
         container
-        justifyContent='center'
-        spacing={2}>
+        justifyContent='right'
+        sx={{ paddingTop: 2 }}>
         <Button
           variant='contained'
           color='error'
-          onClick={deleteAllTransactions}>
+          disabled={transactionsPrintList.length === 0}
+          onClick={deleteAllTransactions}
+          sx={{ marginRight: 2 }}>
           Deletar Itens Listados
         </Button>
         <Button
           variant='contained'
           color='primary'
+          disabled={transactionsPrintList.length === 0}
           onClick={restoreToFullTransactionsList}>
-          Voltar Para Lista
+          Resetar Lista
         </Button>
       </Grid>
-    </>
+    </Box>
   );
 };
 

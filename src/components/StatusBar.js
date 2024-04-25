@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { Grid, Typography, Box } from '@mui/material';
 
 const StatusBar = ({ array }) => {
@@ -69,8 +70,8 @@ const StatusBar = ({ array }) => {
   );
 };
 
-// StatusBar.propTypes = {
-//   array: PropTypes.array.isRequired,
-// };
+StatusBar.propTypes = {
+  array: PropTypes.array.isRequired,
+};
 
 export default StatusBar;
