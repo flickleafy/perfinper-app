@@ -1,6 +1,6 @@
 import React from 'react';
 import { usePromiseTracker } from 'react-promise-tracker';
-import { CircularProgress, LinearProgress, Box } from '@mui/material';
+import { CircularProgress, Box } from '@mui/material'; //LinearProgress
 
 const LoadingIndicator = () => {
   const { promiseInProgress } = usePromiseTracker();

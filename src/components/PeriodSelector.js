@@ -38,7 +38,8 @@ const PeriodSelector = ({ onDataChange }) => {
         id='period-select'
         value={periodsList[0]} // Assuming you want to control the current period
         label='Período'
-        onChange={handlePeriodChange}>
+        onChange={handlePeriodChange}
+        sx={{}}>
         {periodsList.map((period) => (
           <MenuItem
             key={period}
