@@ -31,7 +31,9 @@ const PeriodSelector = ({ onDataChange }) => {
   };
 
   return (
-    <FormControl fullWidth>
+    <FormControl
+      sx={{ width: '50%', margin: 'auto' }}
+      fullWidth>
       <InputLabel id='period-select-label'>Período</InputLabel>
       <Select
         labelId='period-select-label'
