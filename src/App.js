@@ -1,24 +1,45 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { Routes, Route, BrowserRouter } from 'react-router-dom';
-import {
-  AppBar,
-  Toolbar,
-  IconButton,
-  Typography,
-  Button,
-  Box,
-} from '@mui/material';
+import { Routes, Route, BrowserRouter, Link } from 'react-router-dom';
+import { AppBar, Toolbar, IconButton, Button, Box } from '@mui/material';
 import { Home } from '@mui/icons-material';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { blueGrey, teal, red, brown, common } from '@mui/material/colors';
+import { CssBaseline } from '@mui/material';
 
 import TransactionsList from './components/TransactionsList.js';
 import InsertTransaction from './components/InsertTransaction.js';
 import EditTransaction from './components/EditTransaction.js';
 
+// Create a theme instance.
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: blueGrey[600],
+      light: blueGrey[50],
+    },
+    secondary: {
+      main: teal[600],
+      light: teal[50],
+    },
+    error: {
+      main: red[800],
+      light: red[100],
+    },
+    background: {
+      default: common.white,
+      paper: brown[50],
+    },
+  },
+  typography: {
+    // Define your typography adjustments here
+  },
+});
+
 function App() {
   return (
-    <BrowserRouter>
-      <Box>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <BrowserRouter>
         <AppBar
           position='static'
           color='primary'
@@ -28,16 +49,9 @@ function App() {
               size='large'
               edge='start'
               color='inherit'
-              aria-label='home'
-              sx={{ mr: 2 }}>
+              aria-label='home'>
               <Home />
             </IconButton>
-            <Typography
-              variant='h6'
-              component='div'
-              sx={{ flexGrow: 1 }}>
-              My App
-            </Typography>
             <Button
               color='inherit'
               component={Link}
@@ -75,8 +89,8 @@ function App() {
             />
           </Routes>
         </Box>
-      </Box>
-    </BrowserRouter>
+      </BrowserRouter>
+    </ThemeProvider>
   );
 }
 
