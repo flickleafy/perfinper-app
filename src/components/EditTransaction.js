@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import TransactionsDataService from '../services/TransactionsService.js';
 import { transactionBuilder, buildDateObj } from '../helpers/objectsBuilder.js';
@@ -42,11 +42,28 @@ const EditTransaction = (props) => {
   const [transactionDate, setTransactionDate] = useState(null);
   const [transactionType, setTransactionType] = useState('');
 
+  const initializeFromLocalStorage = useCallback(() => {
+    let tmpFTL = localStorage.get('fullTransactionsList');
+    if (tmpFTL) {
+      let tmpTrans = searchByID(props.match.params.id, tmpFTL);
+      setCurrentTransaction(tmpTrans);
+      setTransactionDate(buildDateObj(tmpTrans));
+      setTransactionType(tmpTrans.type);
+      return true;
+    }
+    return false;
+  }, [
+    props.match.params.id,
+    setCurrentTransaction,
+    setTransactionDate,
+    setTransactionType,
+  ]);
+
   useEffect(() => {
     if (!initializeFromLocalStorage()) {
       getTransaction(props.match.params.id);
     }
-  }, [props.match.params.id]);
+  }, [props.match.params.id, initializeFromLocalStorage]);
 
   const getTransaction = (id) => {
     TransactionsDataService.findTransactionById(id)
@@ -59,18 +76,6 @@ const EditTransaction = (props) => {
       .catch((e) => {
         console.log(e);
       });
-  };
-
-  const initializeFromLocalStorage = () => {
-    let tmpFTL = localStorage.get('fullTransactionsList');
-    if (tmpFTL) {
-      let tmpTrans = searchByID(props.match.params.id, tmpFTL);
-      setCurrentTransaction(tmpTrans);
-      setTransactionDate(buildDateObj(tmpTrans));
-      setTransactionType(tmpTrans.type);
-      return true;
-    }
-    return false;
   };
 
   const storeToLocalStorage = (updatedTransaction) => {
