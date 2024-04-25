@@ -43,7 +43,10 @@ const InsertTransaction = () => {
 
   const insertTransaction = () => {
     transaction.type = transactionType;
+    console.log('insertTransaction transaction', transaction);
+    console.log('insertTransaction startDate', startDate);
     let transactionData = transactionBuilder(transaction, startDate);
+    console.log('insertTransaction transactionData', transactionData);
     if (transactionData) {
       TransactionsDataService.insertTransaction(transactionData)
         .then((response) => {
