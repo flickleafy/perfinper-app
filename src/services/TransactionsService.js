@@ -37,14 +37,16 @@ const findByNameDEPRECATED = (name) => {
   return http.get(`/grade?name=${name}`);
 };
 
-export default {
-  insertTransaction: insertTransaction,
-  findTransactionById: findTransactionById,
-  updateTransactionById: updateTransactionById,
-  deleteTransactionById: deleteTransactionById,
-  findAllTransactionsInPeriod: findAllTransactionsInPeriod,
-  removeAllTransactionsInPeriod: removeAllTransactionsInPeriod,
-  findUniquePeriods: findUniquePeriods,
-  removeAllByNameDEPRECATED: removeAllByNameDEPRECATED,
-  findByNameDEPRECATED: findByNameDEPRECATED,
+const ApiService = {
+  insertTransaction,
+  findTransactionById,
+  updateTransactionById,
+  deleteTransactionById,
+  findAllTransactionsInPeriod,
+  removeAllTransactionsInPeriod,
+  findUniquePeriods,
+  removeAllByNameDEPRECATED,
+  findByNameDEPRECATED,
 };
+
+export default ApiService;
