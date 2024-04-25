@@ -32,6 +32,7 @@ export function getIndexOfElement(_id, elementList) {
     if (element._id === _id) {
       return element;
     }
+    return null;
   });
   return index;
 }
