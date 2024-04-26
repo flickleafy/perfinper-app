@@ -21,6 +21,7 @@ import {
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
 import { ptBR } from 'date-fns/locale';
+import { currencyFormat } from '../helpers/currencyFormat.js';
 
 const EditTransaction = () => {
   const { id } = useParams();
@@ -100,7 +101,7 @@ const EditTransaction = () => {
   const handleInputChange = (event) => {
     let { name, value } = event.target;
     if (name === 'value') {
-      value = parseInt(value);
+      value = currencyFormat(value);
     }
     setCurrentTransaction({ ...currentTransaction, [name]: value });
   };
@@ -185,7 +186,7 @@ const EditTransaction = () => {
           fullWidth
           label='Valor'
           name='value'
-          type='number'
+          type='text'
           value={currentTransaction.value}
           onChange={handleInputChange}
           margin='normal'

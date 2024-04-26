@@ -13,7 +13,7 @@ export function transactionBuilder(body, dateObj) {
     category: category,
     description: description,
     type: type,
-    value: value,
+    value: parseFloat(String(value).replace(',', '.')),
     day: day,
     month: month,
     year: year,
