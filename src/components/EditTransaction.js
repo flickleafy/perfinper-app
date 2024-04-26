@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import PropTypes from 'prop-types';
+import { useParams } from 'react-router-dom';
 import TransactionsDataService from '../services/TransactionsService.js';
 import { transactionBuilder, buildDateObj } from '../helpers/objectsBuilder.js';
 import { searchByID, getIndexOfElement } from '../helpers/searchers.js';
@@ -16,12 +16,15 @@ import {
   FormLabel,
   Box,
   Typography,
+  Grid,
 } from '@mui/material';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
 import { ptBR } from 'date-fns/locale';
 
-const EditTransaction = (props) => {
+const EditTransaction = () => {
+  const { id } = useParams();
+
   const initialTransactionState = {
     _id: null,
     category: '',
@@ -45,25 +48,20 @@ const EditTransaction = (props) => {
   const initializeFromLocalStorage = useCallback(() => {
     let tmpFTL = localStorage.get('fullTransactionsList');
     if (tmpFTL) {
-      let tmpTrans = searchByID(props.match.params.id, tmpFTL);
+      let tmpTrans = searchByID(id, tmpFTL);
       setCurrentTransaction(tmpTrans);
       setTransactionDate(buildDateObj(tmpTrans));
       setTransactionType(tmpTrans.type);
       return true;
     }
     return false;
-  }, [
-    props.match.params.id,
-    setCurrentTransaction,
-    setTransactionDate,
-    setTransactionType,
-  ]);
+  }, [id, setCurrentTransaction, setTransactionDate, setTransactionType]);
 
   useEffect(() => {
     if (!initializeFromLocalStorage()) {
-      getTransaction(props.match.params.id);
+      getTransaction(id);
     }
-  }, [props.match.params.id, initializeFromLocalStorage]);
+  }, [id, initializeFromLocalStorage]);
 
   const getTransaction = (id) => {
     TransactionsDataService.findTransactionById(id)
@@ -82,10 +80,10 @@ const EditTransaction = (props) => {
     let tmpFTL = localStorage.get('fullTransactionsList');
     let tmpTPL = localStorage.get('transactionsPrintList');
 
-    updatedTransaction._id = props.match.params.id;
+    updatedTransaction._id = id;
     if (tmpFTL && tmpTPL) {
-      let indexFTL = getIndexOfElement(props.match.params.id, tmpFTL);
-      let indexTPL = getIndexOfElement(props.match.params.id, tmpTPL);
+      let indexFTL = getIndexOfElement(id, tmpFTL);
+      let indexTPL = getIndexOfElement(id, tmpTPL);
 
       tmpFTL[indexFTL] = updatedTransaction;
       if (indexTPL > -1) {
@@ -136,12 +134,14 @@ const EditTransaction = (props) => {
   };
 
   return (
-    <Box p={3}>
+    <Box
+      paddingLeft={8}
+      paddingRight={8}>
       <Typography variant='h4'>Editar Lançamento</Typography>
       <Box
         component='form'
         noValidate
-        autoComplete='off'>
+        autoComplete='on'>
         <TextField
           fullWidth
           label='Categoria'
@@ -198,14 +198,18 @@ const EditTransaction = (props) => {
             label='Data'
             value={transactionDate}
             onChange={setTransactionDate}
+            sx={{ marginTop: 2, marginBottom: 1, width: '100%' }}
             renderInput={(params) => <TextField {...params} />}
           />
         </LocalizationProvider>
-        <Box mt={2}>
+        <Grid
+          container
+          justifyContent='right'
+          sx={{ paddingTop: 2 }}>
           <Button
             color='error'
-            variant='outlined'
-            sx={{ ml: 2 }}>
+            variant='contained'
+            sx={{ marginRight: 2 }}>
             Deletar
           </Button>
           <Button
@@ -214,15 +218,11 @@ const EditTransaction = (props) => {
             onClick={updateTransaction}>
             Atualizar
           </Button>
-        </Box>
+        </Grid>
         {message && <Typography color='textPrimary'>{message}</Typography>}
       </Box>
     </Box>
   );
-};
-
-EditTransaction.propTypes = {
-  match: PropTypes.object.isRequired,
 };
 
 export default EditTransaction;
