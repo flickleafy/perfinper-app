@@ -84,7 +84,7 @@ const StyledSelect = styled(Select)(({ theme }) => ({
   },
   '& .MuiSelect-select': {
     width: '100%',
-    borderRadius: theme.shape.borderRadius,
+    borderRadius: theme.shape.borderRadius * 3,
   },
   '& .MuiOutlinedInput-notchedOutline': {
     border: 0,
