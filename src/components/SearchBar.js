@@ -22,7 +22,7 @@ const SearchBar = ({ array, onDataChange }) => {
     <Box
       sx={{ width: '50%', margin: 'auto' }}
       fullWidth>
-      <Search sx={{ borderRadius: 2 }}>
+      <Search>
         <SearchIconWrapper>
           <SearchIcon />
         </SearchIconWrapper>
