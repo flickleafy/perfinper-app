@@ -1,10 +1,54 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Box } from '@mui/material';
+import { Box, InputBase } from '@mui/material';
 import { styled, alpha } from '@mui/material/styles';
 import SearchIcon from '@mui/icons-material/Search';
-import InputBase from '@mui/material/InputBase';
 import { searchDescription } from '../helpers/searchers.js';
+
+const SearchBar = ({ array, onDataChange }) => {
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const onChangeSearchTransaction = (searchName) => {
+    let transactionsSearchList = searchDescription(searchName, array);
+
+    if (transactionsSearchList.length > 0) {
+      onDataChange(searchName, transactionsSearchList);
+    } else {
+      onDataChange(searchName, []);
+    }
+  };
+
+  return (
+    <Box
+      sx={{ width: '50%', margin: 'auto' }}
+      fullWidth>
+      <Search>
+        <SearchIconWrapper>
+          <SearchIcon />
+        </SearchIconWrapper>
+        <StyledInputBase
+          placeholder='Buscar...'
+          inputProps={{ 'aria-label': 'search' }}
+          value={searchTerm}
+          onChange={(event) => {
+            const { value } = event.target;
+            setSearchTerm(value);
+            if (value.length >= 3) {
+              onChangeSearchTransaction(value);
+            } else {
+              onDataChange('', []);
+            }
+          }}
+        />
+      </Search>
+    </Box>
+  );
+};
+
+SearchBar.propTypes = {
+  array: PropTypes.array.isRequired,
+  onDataChange: PropTypes.func.isRequired,
+};
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -45,50 +89,5 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
     },
   },
 }));
-
-const SearchBar = ({ array, onDataChange }) => {
-  const [searchTerm, setSearchTerm] = useState('');
-
-  const onChangeSearchTransaction = (searchName) => {
-    let transactionsSearchList = searchDescription(searchName, array);
-
-    if (transactionsSearchList.length > 0) {
-      onDataChange(searchName, transactionsSearchList);
-    } else {
-      onDataChange(searchName, []);
-    }
-  };
-
-  return (
-    <Box
-      sx={{ width: '50%', margin: 'auto' }}
-      fullWidth>
-      <Search sx={{ borderRadius: 2 }}>
-        <SearchIconWrapper>
-          <SearchIcon />
-        </SearchIconWrapper>
-        <StyledInputBase
-          placeholder='Buscar...'
-          inputProps={{ 'aria-label': 'search' }}
-          value={searchTerm}
-          onChange={(event) => {
-            const { value } = event.target;
-            setSearchTerm(value);
-            if (value.length >= 3) {
-              onChangeSearchTransaction(value);
-            } else {
-              onDataChange('', []);
-            }
-          }}
-        />
-      </Search>
-    </Box>
-  );
-};
-
-SearchBar.propTypes = {
-  array: PropTypes.array.isRequired,
-  onDataChange: PropTypes.func.isRequired,
-};
 
 export default SearchBar;
