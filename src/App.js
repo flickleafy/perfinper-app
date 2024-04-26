@@ -18,6 +18,9 @@ import EditTransaction from './components/EditTransaction.js';
 
 // Create a theme instance.
 const theme = createTheme({
+  shape: {
+    borderRadius: '8px',
+  },
   palette: {
     primary: {
       main: blueGrey[600],

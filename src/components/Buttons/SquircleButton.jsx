@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import { IconButton } from '@mui/material';
+import { IconButton, useTheme } from '@mui/material';
 
 export function SquircleButton({
   destination = '',
@@ -8,6 +8,7 @@ export function SquircleButton({
   backgroundColor = '#7f7f7f',
   children = <></>,
 }) {
+  const theme = useTheme();
   return (
     <IconButton
       component={Link}
@@ -15,7 +16,7 @@ export function SquircleButton({
       onClick={onClick}
       sx={{
         backgroundColor: backgroundColor,
-        borderRadius: 2,
+        borderRadius: theme.shape.borderRadius,
         padding: 1,
         display: 'inline-flex',
         alignItems: 'center',
