@@ -9,11 +9,11 @@ const StatusBar = ({ array }) => {
 
   useEffect(() => {
     const revenue = calculateTotal(
-      array.filter((item) => item.type === '+'),
+      array.filter((item) => item.transactionType === 'credit'),
       setTotalRevenue
     );
     const expense = calculateTotal(
-      array.filter((item) => item.type === '-'),
+      array.filter((item) => item.transactionType === 'debit'),
       setTotalExpense
     );
     getBalance(revenue, expense);
@@ -21,7 +21,7 @@ const StatusBar = ({ array }) => {
 
   const calculateTotal = (transactions, setter) => {
     const total = transactions.reduce(
-      (acc, current) => acc + Number(current.value),
+      (acc, current) => acc + Number(parseFloat(current.totalValue)),
       0
     );
     setter(total);
@@ -54,7 +54,7 @@ const StatusBar = ({ array }) => {
           <Typography
             sx={{ textAlign: 'center' }}
             variant='body1'>
-            Receita: R$ {totalRevenue.toFixed(2)}
+            Receita: R$ {totalRevenue.toFixed(2).replace('.', ',')}
           </Typography>
         </Grid>
         <Grid
@@ -64,7 +64,7 @@ const StatusBar = ({ array }) => {
           <Typography
             sx={{ textAlign: 'center' }}
             variant='body1'>
-            Despesa: R$ {totalExpense.toFixed(2)}
+            Despesa: R$ {totalExpense.toFixed(2).replace('.', ',')}
           </Typography>
         </Grid>
         <Grid
@@ -74,7 +74,7 @@ const StatusBar = ({ array }) => {
           <Typography
             sx={{ textAlign: 'center' }}
             variant='body1'>
-            Saldo: R$ {balance.toFixed(2)}
+            Saldo: R$ {balance.toFixed(2).replace('.', ',')}
           </Typography>
         </Grid>
       </Grid>
