@@ -25,16 +25,12 @@ export function transactionBuilder(body, date) {
   let object;
 
   if (date) {
-    const dateObj = new Date(date);
-    transactionDate = dateObj.getTime();
-    const month = dateObj.getMonth() + 1;
-    const year = dateObj.getFullYear();
-    transactionPeriod = `${year}-${checkSingleDigit(month)}`;
+    ({ transactionDate, transactionPeriod } = formatDatePeriod(date));
   }
 
-  totalValue = String(totalValue).replace(',', '.');
-  individualValue = String(individualValue).replace(',', '.');
-  freightValue = String(freightValue).replace(',', '.');
+  totalValue = String(totalValue).replace('.', ',');
+  individualValue = String(individualValue).replace('.', ',');
+  freightValue = String(freightValue).replace('.', ',');
 
   object = {
     id: null,
@@ -61,6 +57,24 @@ export function transactionBuilder(body, date) {
   };
 
   return object;
+}
+
+function formatDatePeriod(date) {
+  const dateObj = new Date(date);
+  const transactionDate = dateObj.getTime();
+  const month = dateObj.getMonth() + 1;
+  const year = dateObj.getFullYear();
+  const transactionPeriod = `${year}-${checkSingleDigit(month)}`;
+  return { transactionDate, transactionPeriod };
+}
+
+export function formatDate(date) {
+  const dateObj = new Date(date);
+  const day = dateObj.getDate();
+  const month = dateObj.getMonth() + 1;
+  const year = dateObj.getFullYear();
+  const transactionDate = `${checkSingleDigit(day)}/${checkSingleDigit(month)}`;
+  return transactionDate;
 }
 
 export function checkSingleDigit(number) {
