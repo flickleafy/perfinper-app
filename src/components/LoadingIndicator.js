@@ -1,6 +1,6 @@
 import React from 'react';
 import { usePromiseTracker } from 'react-promise-tracker';
-import { CircularProgress, Box } from '@mui/material'; //LinearProgress
+import { LinearProgress, Box } from '@mui/material';
 
 const LoadingIndicator = () => {
   const { promiseInProgress } = usePromiseTracker();
@@ -12,7 +12,7 @@ const LoadingIndicator = () => {
         justifyContent='center'
         alignItems='center'
         minHeight='100vh'>
-        <CircularProgress color='primary' />
+        <LinearProgress color='primary' />
       </Box>
     )
   );
