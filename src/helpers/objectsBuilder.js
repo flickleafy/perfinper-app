@@ -1,27 +1,66 @@
 // helper functions
-export function transactionBuilder(body, dateObj) {
-  let { description, value, category, year, month, day, type } = body;
-  let json;
-  if (dateObj) {
-    day = dateObj.getDate();
-    month = dateObj.getMonth() + 1;
-    year = dateObj.getFullYear();
+export function transactionBuilder(body, date) {
+  let {
+    transactionDate,
+    transactionPeriod,
+    totalValue,
+    individualValue,
+    freightValue,
+    itemName,
+    itemDescription,
+    itemUnits,
+    transactionLocation,
+    transactionType,
+    transactionCategory,
+    groupedItem,
+    groupedItemsReference,
+    transactionFiscalNote,
+    transactionId,
+    transactionStatus,
+    companyName,
+    companySellerName,
+    companyCnpj,
+    transactionOrigin,
+  } = body;
+  let object;
+
+  if (date) {
+    const dateObj = new Date(date);
+    transactionDate = dateObj.getTime();
+    const month = dateObj.getMonth() + 1;
+    const year = dateObj.getFullYear();
+    transactionPeriod = `${year}-${checkSingleDigit(month)}`;
   }
 
-  json = {
-    _id: null,
-    category: category,
-    description: description,
-    type: type,
-    value: parseFloat(String(value).replace(',', '.')),
-    day: day,
-    month: month,
-    year: year,
-    yearMonth: `${year}-${checkSingleDigit(month)}`,
-    yearMonthDay: `${year}-${checkSingleDigit(month)}-${checkSingleDigit(day)}`,
+  totalValue = String(totalValue).replace(',', '.');
+  individualValue = String(individualValue).replace(',', '.');
+  freightValue = String(freightValue).replace(',', '.');
+
+  object = {
+    id: null,
+    transactionDate,
+    transactionPeriod,
+    totalValue,
+    individualValue,
+    freightValue,
+    itemName,
+    itemDescription,
+    itemUnits,
+    transactionLocation,
+    transactionType,
+    transactionCategory,
+    groupedItem,
+    groupedItemsReference,
+    transactionFiscalNote,
+    transactionId,
+    transactionStatus,
+    companyName,
+    companySellerName,
+    companyCnpj,
+    transactionOrigin,
   };
 
-  return json;
+  return object;
 }
 
 export function checkSingleDigit(number) {
