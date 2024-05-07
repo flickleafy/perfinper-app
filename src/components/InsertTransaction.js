@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { transactionBuilder } from '../helpers/objectsBuilder.js';
-import TransactionsDataService from '../services/TransactionsService.js';
+import { insertTransaction } from '../services/transactionService.js';
+import { getCategories } from '../services/categoryService.js';
 
 // MUI Components
 import {
@@ -20,35 +21,56 @@ import { ptBR } from 'date-fns/locale';
 
 const InsertTransaction = () => {
   const initialTransactionState = {
-    _id: null,
-    category: '',
-    description: '',
-    type: '',
-    value: '',
-    day: '',
-    month: '',
-    year: '',
-    yearMonth: '',
-    yearMonthDay: '',
+    id: null,
+    transactionDate: new Date(),
+    transactionPeriod: '',
+    totalValue: '0.0',
+    individualValue: '0.0',
+    freightValue: '0.0',
+    itemName: '',
+    itemDescription: '',
+    itemUnits: 1,
+    transactionLocation: '',
+    transactionType: '',
+    transactionCategory: '',
+    groupedItem: false,
+    groupedItemsReference: '',
+    transactionFiscalNote: '',
+    transactionId: '',
+    transactionStatus: '',
+    companyName: '',
+    companySellerName: '',
+    companyCnpj: '',
+    transactionOrigin: '',
   };
   const [transaction, setTransaction] = useState(initialTransactionState);
   const [submitted, setSubmitted] = useState(false);
-  const [startDate, setStartDate] = useState(null);
+  const [startDate, setStartDate] = useState(new Date());
   const [transactionType, setTransactionType] = useState('');
+  const [categories, setCategories] = useState([]); // Add state for categories
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const data = await getCategories();
+      setCategories(data.data);
+    };
+
+    fetchCategories();
+  }, []); // Empty dependency array to fetch categories only on initial render
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
     setTransaction({ ...transaction, [name]: value });
   };
 
-  const insertTransaction = () => {
-    transaction.type = transactionType;
+  const insertTransactionApi = () => {
+    transaction.transactionType = transactionType;
     console.log('insertTransaction transaction', transaction);
     console.log('insertTransaction startDate', startDate);
     let transactionData = transactionBuilder(transaction, startDate);
     console.log('insertTransaction transactionData', transactionData);
     if (transactionData) {
-      TransactionsDataService.insertTransaction(transactionData)
+      insertTransaction(transactionData)
         .then((response) => {
           // ????????? insert local storage too ?????????????
           setTransaction(response.data);
@@ -91,9 +113,9 @@ const InsertTransaction = () => {
             label='Categoria'
             variant='outlined'
             fullWidth
-            name='category'
+            name='transactionCategory'
             required
-            value={transaction.category}
+            value={transaction.transactionCategory}
             onChange={handleInputChange}
             sx={{ mb: 2 }}
           />
@@ -101,9 +123,9 @@ const InsertTransaction = () => {
             label='Descrição'
             variant='outlined'
             fullWidth
-            name='description'
+            name='itemDescription'
             required
-            value={transaction.description}
+            value={transaction.itemDescription}
             onChange={handleInputChange}
             sx={{ mb: 2 }}
           />
@@ -117,12 +139,12 @@ const InsertTransaction = () => {
               value={transactionType}
               onChange={handleTypeChange}>
               <FormControlLabel
-                value='-'
+                value='debit'
                 control={<Radio />}
                 label='Despesa'
               />
               <FormControlLabel
-                value='+'
+                value='credit'
                 control={<Radio />}
                 label='Receita'
               />
@@ -133,9 +155,9 @@ const InsertTransaction = () => {
             type='number'
             variant='outlined'
             fullWidth
-            name='value'
+            name='totalValue'
             required
-            value={transaction.value}
+            value={transaction.totalValue}
             onChange={handleInputChange}
             sx={{ mb: 2 }}
           />
@@ -152,7 +174,7 @@ const InsertTransaction = () => {
           <Button
             variant='contained'
             color='primary'
-            onClick={insertTransaction}
+            onClick={insertTransactionApi}
             sx={{ mt: 2 }}>
             Inserir
           </Button>
