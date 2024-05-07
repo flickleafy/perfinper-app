@@ -20,7 +20,8 @@ import {
   removeAllTransactionsInPeriod,
   removeAllByNameDEPRECATED,
 } from '../services/transactionService.js';
-import { checkSingleDigit } from '../helpers/objectsBuilder.js';
+import { getCategories } from '../services/categoryService.js';
+import { formatDate } from '../helpers/objectsBuilder.js';
 import { searchCategory, getIndexOfElement } from '../helpers/searchers.js';
 //List Elements
 import LoadingIndicator from './LoadingIndicator.js';
@@ -35,6 +36,16 @@ const TransactionList = () => {
   const [transactionsPrintList, setTransactionsPrintList] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [periodSelected, setPeriodSelected] = useState('');
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const data = await getCategories();
+      setCategories(data.data);
+    };
+
+    fetchCategories();
+  }, []);
 
   useEffect(() => {
     if (!initializeFromLocalStorage()) {
@@ -86,18 +97,18 @@ const TransactionList = () => {
     retrieveAllTransactions(periodSelected);
   };
 
-  const handleDeleteSingleTransaction = (_id) => {
-    deleteTransactionById(_id)
+  const handleDeleteSingleTransaction = (id) => {
+    deleteTransactionById(id)
       .then((response) => {
         // for each, achar pelo id, remover do vetor local
         removeElementFromList(
-          _id,
+          id,
           fullTransactionsList,
           setFullTransactionsList,
           'fullTransactionsList'
         );
         removeElementFromList(
-          _id,
+          id,
           transactionsPrintList,
           setTransactionsPrintList,
           'transactionsPrintList'
@@ -108,8 +119,8 @@ const TransactionList = () => {
       });
   };
 
-  function removeElementFromList(_id, elementList, setListCB, listName) {
-    let index = getIndexOfElement(_id, elementList);
+  function removeElementFromList(id, elementList, setListCB, listName) {
+    let index = getIndexOfElement(id, elementList);
     elementList.splice(index, 1); // remove the object by index
     let modifiedElementList = [...elementList];
     setListCB(modifiedElementList);
@@ -185,6 +196,13 @@ const TransactionList = () => {
     }
   };
 
+  const categoryIdToName = (cateogryId) => {
+    const selectedCategory = categories.filter(
+      (category) => category.id === cateogryId
+    )[0];
+    return selectedCategory.name;
+  };
+
   return (
     <Box
       paddingLeft={8}
@@ -211,53 +229,53 @@ const TransactionList = () => {
           </Typography>
           {/*  */}
           <List>
-            {transactionsPrintList?.map((transaction, index) => (
+            {transactionsPrintList?.map((transaction) => (
               <ListItem
-                key={transaction._id}
+                key={transaction.id}
                 divider
                 style={{
                   backgroundColor: transactionTypeColor(
-                    transaction.type,
+                    transaction.transactionType,
                     theme?.palette.primary.light,
                     theme?.palette.secondary.light
                   ),
                 }}>
                 <ListItemText
                   sx={{ flexGrow: 0, paddingRight: 2 }}
-                  primary={`${checkSingleDigit(
-                    transaction.day
-                  )}/${checkSingleDigit(transaction.month)}`}
+                  primary={`${formatDate(transaction.transactionDate)}`}
                   primaryTypographyProps={{ variant: 'h5' }}
                 />
                 <ListItemIcon>
                   <IconByCategory
-                    category={transaction.category}
-                    type={transaction.type}
+                    category={transaction.transactionCategory}
+                    type={transaction.transactionType}
                     destination='/'
                     onClick={() =>
-                      handleCategorySelection(transaction.category)
+                      handleCategorySelection(transaction.transactionCategory)
                     }
                   />
                 </ListItemIcon>
                 <ListItemText
-                  primary={`${transaction.category}`}
-                  secondary={`${transaction.description}`}
+                  primary={`${categoryIdToName(
+                    transaction.transactionCategory
+                  )}`}
+                  secondary={`${transaction.itemDescription}`}
                   primaryTypographyProps={{ variant: 'h6' }}
                 />
                 <ListItemText
                   sx={{ flexGrow: 0, paddingRight: 2 }}
-                  primary={`R$ ${transaction.value}`}
+                  primary={`R$ ${transaction.totalValue}`}
                   primaryTypographyProps={{ variant: 'h6' }}
                 />
                 <ListItemIcon>
                   <IconButton
                     component={Link}
-                    to={`/editar/${transaction._id}`}>
+                    to={`/editar/${transaction.id}`}>
                     <Edit color='primary' />
                   </IconButton>
                   <IconButton
                     onClick={() =>
-                      handleDeleteSingleTransaction(transaction._id)
+                      handleDeleteSingleTransaction(transaction.id)
                     }>
                     <Delete color='error' />
                   </IconButton>
