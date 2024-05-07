@@ -18,5 +18,5 @@ export const deleteCategoryById = (id) => {
 };
 
 export const getCategories = () => {
-  return trackPromise(http.post(`/api/category/all/`));
+  return trackPromise(http.get(`/api/category/all/itens`));
 };
