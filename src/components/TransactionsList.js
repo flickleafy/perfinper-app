@@ -231,59 +231,60 @@ const TransactionList = () => {
           </Typography>
           {/*  */}
           <List>
-            {transactionsPrintList?.map((transaction) => (
-              <ListItem
-                key={transaction.id}
-                divider
-                style={{
-                  backgroundColor: transactionTypeColor(
-                    transaction.transactionType,
-                    theme?.palette.primary.light,
-                    theme?.palette.secondary.light
-                  ),
-                }}>
-                <ListItemText
-                  sx={{ flexGrow: 0, paddingRight: 2 }}
-                  primary={`${formatDate(transaction.transactionDate)}`}
-                  primaryTypographyProps={{ variant: 'h5' }}
-                />
-                <ListItemIcon>
-                  <IconByCategory
-                    category={transaction.transactionCategory}
-                    type={transaction.transactionType}
-                    destination='/'
-                    onClick={() =>
-                      handleCategorySelection(transaction.transactionCategory)
-                    }
+            {categories.length > 0 &&
+              transactionsPrintList?.map((transaction) => (
+                <ListItem
+                  key={transaction.id}
+                  divider
+                  style={{
+                    backgroundColor: transactionTypeColor(
+                      transaction.transactionType,
+                      theme?.palette.primary.light,
+                      theme?.palette.secondary.light
+                    ),
+                  }}>
+                  <ListItemText
+                    sx={{ flexGrow: 0, paddingRight: 2 }}
+                    primary={`${formatDate(transaction.transactionDate)}`}
+                    primaryTypographyProps={{ variant: 'h5' }}
                   />
-                </ListItemIcon>
-                <ListItemText
-                  primary={`${categoryIdToName(
-                    transaction.transactionCategory
-                  )}`}
-                  secondary={`${transaction.itemDescription}`}
-                  primaryTypographyProps={{ variant: 'h6' }}
-                />
-                <ListItemText
-                  sx={{ flexGrow: 0, paddingRight: 2 }}
-                  primary={`R$ ${transaction.totalValue}`}
-                  primaryTypographyProps={{ variant: 'h6' }}
-                />
-                <ListItemIcon>
-                  <IconButton
-                    component={Link}
-                    to={`/editar/${transaction.id}`}>
-                    <Edit color='primary' />
-                  </IconButton>
-                  <IconButton
-                    onClick={() =>
-                      handleDeleteSingleTransaction(transaction.id)
-                    }>
-                    <Delete color='error' />
-                  </IconButton>
-                </ListItemIcon>
-              </ListItem>
-            ))}
+                  <ListItemIcon>
+                    <IconByCategory
+                      category={transaction.transactionCategory}
+                      type={transaction.transactionType}
+                      destination='/'
+                      onClick={() =>
+                        handleCategorySelection(transaction.transactionCategory)
+                      }
+                    />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={`${categoryIdToName(
+                      transaction.transactionCategory
+                    )}`}
+                    secondary={`${transaction.itemDescription}`}
+                    primaryTypographyProps={{ variant: 'h6' }}
+                  />
+                  <ListItemText
+                    sx={{ flexGrow: 0, paddingRight: 2 }}
+                    primary={`R$ ${transaction.totalValue}`}
+                    primaryTypographyProps={{ variant: 'h6' }}
+                  />
+                  <ListItemIcon>
+                    <IconButton
+                      component={Link}
+                      to={`/editar/${transaction.id}`}>
+                      <Edit color='primary' />
+                    </IconButton>
+                    <IconButton
+                      onClick={() =>
+                        handleDeleteSingleTransaction(transaction.id)
+                      }>
+                      <Delete color='error' />
+                    </IconButton>
+                  </ListItemIcon>
+                </ListItem>
+              ))}
           </List>
           {/*  */}
         </Grid>
