@@ -197,10 +197,12 @@ const TransactionList = () => {
   };
 
   const categoryIdToName = (cateogryId) => {
-    const selectedCategory = categories.filter(
-      (category) => category.id === cateogryId
-    )[0];
-    return selectedCategory.name;
+    if (cateogryId && categories.length) {
+      const selectedCategory = categories.filter(
+        (category) => category.id === cateogryId
+      )[0];
+      return selectedCategory.name;
+    }
   };
 
   return (
