@@ -14,6 +14,9 @@ import {
   FormLabel,
   Typography,
   Box,
+  MenuItem,
+  InputLabel,
+  Select,
 } from '@mui/material';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
@@ -24,9 +27,9 @@ const InsertTransaction = () => {
     id: null,
     transactionDate: new Date(),
     transactionPeriod: '',
-    totalValue: '0.0',
-    individualValue: '0.0',
-    freightValue: '0.0',
+    totalValue: '0,0',
+    individualValue: '0,0',
+    freightValue: '0,0',
     itemName: '',
     itemDescription: '',
     itemUnits: 1,
@@ -46,8 +49,7 @@ const InsertTransaction = () => {
   const [transaction, setTransaction] = useState(initialTransactionState);
   const [submitted, setSubmitted] = useState(false);
   const [startDate, setStartDate] = useState(new Date());
-  const [transactionType, setTransactionType] = useState('');
-  const [categories, setCategories] = useState([]); // Add state for categories
+  const [categories, setCategories] = useState([]);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -56,19 +58,16 @@ const InsertTransaction = () => {
     };
 
     fetchCategories();
-  }, []); // Empty dependency array to fetch categories only on initial render
+  }, []);
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
     setTransaction({ ...transaction, [name]: value });
+    console.log('transaction obj', transaction);
   };
 
   const insertTransactionApi = () => {
-    transaction.transactionType = transactionType;
-    console.log('insertTransaction transaction', transaction);
-    console.log('insertTransaction startDate', startDate);
     let transactionData = transactionBuilder(transaction, startDate);
-    console.log('insertTransaction transactionData', transactionData);
     if (transactionData) {
       insertTransaction(transactionData)
         .then((response) => {
@@ -88,10 +87,6 @@ const InsertTransaction = () => {
     setSubmitted(false);
   };
 
-  const handleTypeChange = (event) => {
-    setTransactionType(event.target.value);
-  };
-
   return (
     <Box sx={{ p: 3 }}>
       {submitted ? (
@@ -109,16 +104,27 @@ const InsertTransaction = () => {
       ) : (
         <Box>
           <Typography variant='h4'>Inserir Lançamento</Typography>
-          <TextField
-            label='Categoria'
-            variant='outlined'
+          <FormControl
             fullWidth
-            name='transactionCategory'
-            required
-            value={transaction.transactionCategory}
-            onChange={handleInputChange}
-            sx={{ mb: 2 }}
-          />
+            component='fieldset'
+            sx={{ mb: 2 }}>
+            <InputLabel id='categoria-select-label'>Categoria</InputLabel>
+            <Select
+              labelId='categoria-select-label'
+              id='categoria'
+              value={transaction.transactionCategory}
+              label='Categoria'
+              name='transactionCategory'
+              onChange={handleInputChange}>
+              {categories.map((category) => (
+                <MenuItem
+                  key={category.id}
+                  value={category.id}>
+                  {category.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
           <TextField
             label='Descrição'
             variant='outlined'
@@ -136,8 +142,8 @@ const InsertTransaction = () => {
             <RadioGroup
               row
               name='transactionType'
-              value={transactionType}
-              onChange={handleTypeChange}>
+              value={transaction.transactionType}
+              onChange={handleInputChange}>
               <FormControlLabel
                 value='debit'
                 control={<Radio />}
