@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { transactionBuilder } from '../helpers/objectsBuilder.js';
+import { currencyFormat } from '../helpers/currencyFormat.js';
 import { insertTransaction } from '../services/transactionService.js';
 import { getCategories } from '../services/categoryService.js';
 
@@ -61,9 +62,11 @@ const InsertTransaction = () => {
   }, []);
 
   const handleInputChange = (event) => {
-    const { name, value } = event.target;
+    let { name, value } = event.target;
+    if (name === 'totalValue') {
+      value = currencyFormat(value);
+    }
     setTransaction({ ...transaction, [name]: value });
-    console.log('transaction obj', transaction);
   };
 
   const insertTransactionApi = () => {
@@ -158,7 +161,7 @@ const InsertTransaction = () => {
           </FormControl>
           <TextField
             label='Valor'
-            type='number'
+            type='string'
             variant='outlined'
             fullWidth
             name='totalValue'
