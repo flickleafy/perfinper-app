@@ -7,7 +7,7 @@ import { GroceryButton } from './GroceryButton';
 export const CategoriesMap = {
   Mercado: GroceryButton,
   Receita: IncomeButton,
-  Salario: IncomeButton,
+  Salário: IncomeButton,
   Transporte: TransportButton,
   Saúde: HealthButton,
   Lazer: EntertainmentButton,
