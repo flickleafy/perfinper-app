@@ -19,17 +19,17 @@ export function searchDescription(searchName, array) {
   return searchList;
 }
 
-export function searchByID(_id, array) {
+export function searchByID(id, array) {
   let element = null;
 
-  element = array.find((element) => element._id.indexOf(_id) !== -1);
+  element = array.find((element) => element.id.indexOf(id) !== -1);
 
   return element;
 }
 
-export function getIndexOfElement(_id, elementList) {
+export function getIndexOfElement(id, elementList) {
   let index = elementList.findIndex((element) => {
-    if (element._id === _id) {
+    if (element.id === id) {
       return element;
     }
     return null;
