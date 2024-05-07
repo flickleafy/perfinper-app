@@ -4,6 +4,7 @@ import {
   findTransactionById,
   updateTransactionById,
 } from '../services/transactionService.js';
+import { getCategories } from '../services/categoryService.js';
 import { transactionBuilder, buildDateObj } from '../helpers/objectsBuilder.js';
 import { searchByID, getIndexOfElement } from '../helpers/searchers.js';
 import localStorage from 'local-storage';
@@ -20,6 +21,9 @@ import {
   Box,
   Typography,
   Grid,
+  InputLabel,
+  Select,
+  MenuItem,
 } from '@mui/material';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
@@ -30,16 +34,27 @@ const EditTransaction = () => {
   const { id } = useParams();
 
   const initialTransactionState = {
-    _id: null,
-    category: '',
-    description: '',
-    type: '',
-    value: '',
-    day: '',
-    month: '',
-    year: '',
-    yearMonth: '',
-    yearMonthDay: '',
+    id: null,
+    transactionDate: new Date(),
+    transactionPeriod: '',
+    totalValue: '0,0',
+    individualValue: '0,0',
+    freightValue: '0,0',
+    itemName: '',
+    itemDescription: '',
+    itemUnits: 1,
+    transactionLocation: '',
+    transactionType: '',
+    transactionCategory: '',
+    groupedItem: false,
+    groupedItemsReference: '',
+    transactionFiscalNote: '',
+    transactionId: '',
+    transactionStatus: '',
+    companyName: '',
+    companySellerName: '',
+    companyCnpj: '',
+    transactionOrigin: '',
   };
 
   const [currentTransaction, setCurrentTransaction] = useState(
@@ -47,19 +62,27 @@ const EditTransaction = () => {
   );
   const [message, setMessage] = useState('');
   const [transactionDate, setTransactionDate] = useState(null);
-  const [transactionType, setTransactionType] = useState('');
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const data = await getCategories();
+      setCategories(data.data);
+    };
+
+    fetchCategories();
+  }, []);
 
   const initializeFromLocalStorage = useCallback(() => {
-    let tmpFTL = localStorage.get('fullTransactionsList');
+    const tmpFTL = localStorage.get('fullTransactionsList');
     if (tmpFTL) {
-      let tmpTrans = searchByID(id, tmpFTL);
+      const tmpTrans = searchByID(id, tmpFTL);
       setCurrentTransaction(tmpTrans);
-      setTransactionDate(buildDateObj(tmpTrans));
-      setTransactionType(tmpTrans.type);
+      setTransactionDate(new Date(tmpTrans.transactionDate));
       return true;
     }
     return false;
-  }, [id, setCurrentTransaction, setTransactionDate, setTransactionType]);
+  }, [id, setCurrentTransaction, setTransactionDate]);
 
   useEffect(() => {
     if (!initializeFromLocalStorage()) {
@@ -72,7 +95,6 @@ const EditTransaction = () => {
       .then((response) => {
         setCurrentTransaction(response.data);
         setTransactionDate(buildDateObj(response.data));
-        setTransactionType(response.data.type);
         console.log(response.data);
       })
       .catch((e) => {
@@ -84,7 +106,7 @@ const EditTransaction = () => {
     let tmpFTL = localStorage.get('fullTransactionsList');
     let tmpTPL = localStorage.get('transactionsPrintList');
 
-    updatedTransaction._id = id;
+    updatedTransaction.id = id;
     if (tmpFTL && tmpTPL) {
       let indexFTL = getIndexOfElement(id, tmpFTL);
       let indexTPL = getIndexOfElement(id, tmpTPL);
@@ -103,7 +125,7 @@ const EditTransaction = () => {
 
   const handleInputChange = (event) => {
     let { name, value } = event.target;
-    if (name === 'value') {
+    if (name === 'totalValue') {
       value = currencyFormat(value);
     }
     setCurrentTransaction({ ...currentTransaction, [name]: value });
@@ -114,7 +136,7 @@ const EditTransaction = () => {
       currentTransaction,
       transactionDate
     );
-    updateTransactionById(currentTransaction._id, updatedTransaction)
+    updateTransactionById(currentTransaction.id, updatedTransaction)
       .then(() => {
         storeToLocalStorage(updatedTransaction);
         setMessage('O lançamento foi atualizado com sucesso!');
@@ -122,16 +144,6 @@ const EditTransaction = () => {
       .catch((e) => {
         console.log(e);
       });
-  };
-
-  // const ExampleCustomInput = ({ value, onClick }) => (
-  //   <button className="example-custom-input" onClick={onClick}>
-  //     {value}
-  //   </button>
-  // );
-
-  const handleTypeChange = (event) => {
-    setTransactionType(event.target.value);
   };
 
   return (
@@ -143,20 +155,32 @@ const EditTransaction = () => {
         component='form'
         noValidate
         autoComplete='on'>
-        <TextField
+        <FormControl
           fullWidth
-          label='Categoria'
-          name='category'
-          value={currentTransaction.category}
-          onChange={handleInputChange}
-          margin='normal'
-          variant='outlined'
-        />
+          component='fieldset'
+          sx={{ mb: 2 }}>
+          <InputLabel id='categoria-select-label'>Categoria</InputLabel>
+          <Select
+            labelId='categoria-select-label'
+            id='categoria'
+            value={currentTransaction.transactionCategory}
+            label='Categoria'
+            name='transactionCategory'
+            onChange={handleInputChange}>
+            {categories.map((category) => (
+              <MenuItem
+                key={category.id}
+                value={category.id}>
+                {category.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
         <TextField
           fullWidth
           label='Descrição'
-          name='description'
-          value={currentTransaction.description}
+          name='itemDescription'
+          value={currentTransaction.itemDescription}
           onChange={handleInputChange}
           margin='normal'
           variant='outlined'
@@ -167,16 +191,16 @@ const EditTransaction = () => {
           <FormLabel component='legend'>Tipo</FormLabel>
           <RadioGroup
             row
-            name='type'
-            value={transactionType}
-            onChange={handleTypeChange}>
+            name='transactionType'
+            value={currentTransaction.transactionType}
+            onChange={handleInputChange}>
             <FormControlLabel
-              value='-'
+              value='debit'
               control={<Radio />}
               label='Despesa'
             />
             <FormControlLabel
-              value='+'
+              value='credit'
               control={<Radio />}
               label='Receita'
             />
@@ -185,9 +209,9 @@ const EditTransaction = () => {
         <TextField
           fullWidth
           label='Valor'
-          name='value'
+          name='totalValue'
           type='text'
-          value={currentTransaction.value}
+          value={currentTransaction.totalValue}
           onChange={handleInputChange}
           margin='normal'
           variant='outlined'
