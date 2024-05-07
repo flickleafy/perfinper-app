@@ -5,7 +5,7 @@ export function useTransactionTypeColor(type) {
   let backgroundColor;
   let highlightColor;
 
-  if (type === '-') {
+  if (type === 'debit') {
     backgroundColor = theme.palette.primary.main;
     highlightColor = theme.palette.primary.light;
   } else {
@@ -20,7 +20,7 @@ export function useTransactionTypeColor(type) {
 }
 
 export const transactionTypeColor = (type, primary, secundary) => {
-  if (type === '-') {
+  if (type === 'debit') {
     return primary;
   }
   return secundary;
