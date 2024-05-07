@@ -14,7 +14,12 @@ import {
 import { Edit, Delete } from '@mui/icons-material';
 //Data load and processing
 import localStorage from 'local-storage';
-import TransactionsDataService from '../services/TransactionsService.js';
+import {
+  findAllTransactionsInPeriod,
+  deleteTransactionById,
+  removeAllTransactionsInPeriod,
+  removeAllByNameDEPRECATED,
+} from '../services/transactionService.js';
 import { checkSingleDigit } from '../helpers/objectsBuilder.js';
 import { searchCategory, getIndexOfElement } from '../helpers/searchers.js';
 //List Elements
@@ -47,7 +52,7 @@ const TransactionList = () => {
   const retrieveAllTransactions = (period) => {
     console.log('period retrieve all trans', period);
     if (period) {
-      TransactionsDataService.findAllTransactionsInPeriod(period)
+      findAllTransactionsInPeriod(period)
         .then((response) => {
           setFullTransactionsList(response.data);
           setTransactionsPrintList(response.data);
@@ -82,7 +87,7 @@ const TransactionList = () => {
   };
 
   const handleDeleteSingleTransaction = (_id) => {
-    TransactionsDataService.deleteTransactionById(_id)
+    deleteTransactionById(_id)
       .then((response) => {
         // for each, achar pelo id, remover do vetor local
         removeElementFromList(
@@ -120,7 +125,7 @@ const TransactionList = () => {
   };
 
   const deleteAllTransactionsInPeriod = () => {
-    TransactionsDataService.removeAllTransactionsInPeriod()
+    removeAllTransactionsInPeriod()
       .then((response) => {
         console.log(response.data);
         refreshList();
@@ -131,7 +136,7 @@ const TransactionList = () => {
   };
 
   const deleteAllTransactionsByName = () => {
-    TransactionsDataService.removeAllByNameDEPRECATED(searchTerm)
+    removeAllByNameDEPRECATED(searchTerm)
       .then((response) => {
         console.log(response.data);
         refreshList();

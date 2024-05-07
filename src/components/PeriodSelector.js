@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 import { numberDateToExtenseDate } from '../helpers/objectsBuilder.js';
-import TransactionsDataService from '../services/TransactionsService.js';
+import { findUniquePeriods } from '../services/transactionService.js';
 import {
   FormControl,
   InputLabel,
@@ -22,7 +22,7 @@ const PeriodSelector = ({ onDataChange }) => {
   }, []);
 
   const findPeriods = () => {
-    TransactionsDataService.findUniquePeriods()
+    findUniquePeriods()
       .then((response) => {
         const allPeriods = ['', ...response.data];
         setPeriodsList(allPeriods);

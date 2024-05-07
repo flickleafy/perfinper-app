@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
-import TransactionsDataService from '../services/TransactionsService.js';
+import {
+  findTransactionById,
+  updateTransactionById,
+} from '../services/transactionService.js';
 import { transactionBuilder, buildDateObj } from '../helpers/objectsBuilder.js';
 import { searchByID, getIndexOfElement } from '../helpers/searchers.js';
 import localStorage from 'local-storage';
@@ -65,7 +68,7 @@ const EditTransaction = () => {
   }, [id, initializeFromLocalStorage]);
 
   const getTransaction = (id) => {
-    TransactionsDataService.findTransactionById(id)
+    findTransactionById(id)
       .then((response) => {
         setCurrentTransaction(response.data);
         setTransactionDate(buildDateObj(response.data));
@@ -111,10 +114,7 @@ const EditTransaction = () => {
       currentTransaction,
       transactionDate
     );
-    TransactionsDataService.updateTransactionById(
-      currentTransaction._id,
-      updatedTransaction
-    )
+    updateTransactionById(currentTransaction._id, updatedTransaction)
       .then(() => {
         storeToLocalStorage(updatedTransaction);
         setMessage('O lançamento foi atualizado com sucesso!');
