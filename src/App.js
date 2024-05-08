@@ -12,6 +12,7 @@ import { Home } from '@mui/icons-material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { blueGrey, teal, red, brown, common } from '@mui/material/colors';
 
+import TransactionsImporter from './components/TransactionsImporter.js';
 import TransactionsList from './components/TransactionsList.js';
 import InsertTransaction from './components/InsertTransaction.js';
 import EditTransaction from './components/EditTransaction.js';
@@ -72,13 +73,19 @@ function App() {
               color='inherit'
               component={Link}
               to='/lista'>
-              Lançamentos
+              Transações
             </Button>
             <Button
               color='inherit'
               component={Link}
               to='/inserir'>
-              Novo Lançamento
+              Nova Transação
+            </Button>
+            <Button
+              color='inherit'
+              component={Link}
+              to='/importar'>
+              Importar Transações
             </Button>
           </Toolbar>
         </AppBar>
@@ -102,6 +109,10 @@ function App() {
             <Route
               path='/editar/:id'
               element={<EditTransaction />}
+            />
+            <Route
+              path='/importar'
+              element={<TransactionsImporter />}
             />
           </Routes>
         </Box>
