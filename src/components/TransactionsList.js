@@ -227,7 +227,7 @@ const TransactionList = () => {
           <Typography
             variant='h4'
             align='center'>
-            Lançamentos
+            Transações
           </Typography>
           {/*  */}
           <List>
