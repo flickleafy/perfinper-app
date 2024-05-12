@@ -106,5 +106,8 @@ export function monthNameByNumber(month) {
 export function numberDateToExtenseDate(period) {
   let split = period.split('-');
   const [year, month] = split;
+  if (!month) {
+    return `Ano de ${year}`;
+  }
   return `${monthNameByNumber(month)} de ${year}`;
 }
