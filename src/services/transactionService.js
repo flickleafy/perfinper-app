@@ -29,6 +29,10 @@ export const findUniquePeriods = () => {
   return http.post(`/api/transaction/periods/`);
 };
 
+export const findUniqueYears = () => {
+  return http.post(`/api/transaction/years/`);
+};
+
 export const removeAllByNameDEPRECATED = (name) => {
   return http.delete(`/grade?name=${name}`);
 };

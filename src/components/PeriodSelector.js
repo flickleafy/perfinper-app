@@ -2,7 +2,10 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 import { numberDateToExtenseDate } from '../helpers/objectsBuilder.js';
-import { findUniquePeriods } from '../services/transactionService.js';
+import {
+  findUniquePeriods,
+  findUniqueYears,
+} from '../services/transactionService.js';
 import { FormControl, MenuItem } from '@mui/material';
 import { StyledSelect } from './StyledSelect.js';
 import { StyledInputLabel } from './StyledInputLabel.js';
@@ -16,16 +19,19 @@ const PeriodSelector = ({ onDataChange }) => {
     findPeriods();
   }, []);
 
-  const findPeriods = () => {
-    findUniquePeriods()
-      .then((response) => {
-        const allPeriods = ['', ...response.data];
-        setPeriodsList(allPeriods);
-        console.log(response.data);
-      })
-      .catch((e) => {
-        console.log(e);
-      });
+  const findPeriods = async () => {
+    try {
+      const [yearsResponse, periodsResponse] = await Promise.all([
+        findUniqueYears(),
+        findUniquePeriods(),
+      ]);
+
+      const allPeriods = ['', ...yearsResponse.data, ...periodsResponse.data];
+
+      setPeriodsList(allPeriods);
+    } catch (error) {
+      console.error('Error fetching periods:', error);
+    }
   };
 
   const handlePeriodChange = (event) => {
