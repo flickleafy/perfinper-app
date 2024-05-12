@@ -1,46 +1,76 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Box, AppBar, Toolbar } from '@mui/material';
-import SearchBar from './SearchBar.js';
-import StatusBar from './StatusBar.js';
-import PeriodSelector from './PeriodSelector.js';
+import {
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableSortLabel,
+  Box,
+} from '@mui/material';
 
-export function TransactionsListHeader({
-  periodSelected,
-  handleDataChangePeriodSelector,
-  fullTransactionsList,
-  handleDataChangeSearchBar,
-  transactionsPrintList,
-}) {
+export const TransactionsListHeader = ({ onSortChange }) => {
+  const [orderDirection, setOrderDirection] = useState({
+    transactionDate: 'asc',
+    transactionCategory: 'asc',
+    itemDescription: 'asc',
+    totalValue: 'asc',
+  });
+
+  const handleSort = (column) => {
+    const columnIsNumeric = column === 'totalValue';
+    const isAsc = orderDirection[column] === 'asc';
+    setOrderDirection({
+      ...orderDirection,
+      [column]: isAsc ? 'desc' : 'asc',
+    });
+    onSortChange(column, isAsc ? 'desc' : 'asc', columnIsNumeric);
+  };
+
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-      <Box sx={{ display: 'flex', flexDirection: 'row' }}>
-        <AppBar
-          position='static'
-          color='primary'>
-          <Toolbar>
-            <PeriodSelector
-              currentPeriod={periodSelected}
-              onDataChange={handleDataChangePeriodSelector}
-            />
-            <SearchBar
-              array={fullTransactionsList}
-              onDataChange={handleDataChangeSearchBar}
-            />
-          </Toolbar>
-        </AppBar>
-      </Box>
-      <Box marginTop={2}>
-        <StatusBar array={transactionsPrintList} />
-      </Box>
+    <Box sx={{ width: '100%', overflowX: 'auto' }}>
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell sortDirection={orderDirection.transactionDate}>
+              <TableSortLabel
+                active={true}
+                direction={orderDirection.transactionDate}
+                onClick={() => handleSort('transactionDate')}>
+                Date
+              </TableSortLabel>
+            </TableCell>
+            <TableCell>
+              <TableSortLabel
+                active={true}
+                direction={orderDirection.transactionCategory}
+                onClick={() => handleSort('transactionCategory')}>
+                Category
+              </TableSortLabel>
+            </TableCell>
+            <TableCell>
+              <TableSortLabel
+                active={true}
+                direction={orderDirection.itemDescription}
+                onClick={() => handleSort('itemDescription')}>
+                Description
+              </TableSortLabel>
+            </TableCell>
+            <TableCell>
+              <TableSortLabel
+                active={true}
+                direction={orderDirection.totalValue}
+                onClick={() => handleSort('totalValue')}>
+                Total Value
+              </TableSortLabel>
+            </TableCell>
+          </TableRow>
+        </TableHead>
+      </Table>
     </Box>
   );
-}
+};
 
 TransactionsListHeader.propTypes = {
-  periodSelected: PropTypes.string,
-  handleDataChangePeriodSelector: PropTypes.func,
-  fullTransactionsList: PropTypes.array,
-  handleDataChangeSearchBar: PropTypes.func,
-  transactionsPrintList: PropTypes.array,
+  onSortChange: PropTypes.func,
 };
