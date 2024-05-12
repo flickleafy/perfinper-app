@@ -72,5 +72,5 @@ export const TransactionsListHeader = ({ onSortChange }) => {
 };
 
 TransactionsListHeader.propTypes = {
-  onSortChange: PropTypes.func,
+  onSortChange: PropTypes.func.isRequired,
 };
