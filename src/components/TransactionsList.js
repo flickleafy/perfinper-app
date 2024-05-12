@@ -6,7 +6,6 @@ import {
   ListItemText,
   ListItemIcon,
   IconButton,
-  Typography,
   Grid,
   Box,
   useTheme,
@@ -28,6 +27,7 @@ import LoadingIndicator from './LoadingIndicator.js';
 import { transactionTypeColor } from '../helpers/useTransactionTypeColor.hook.jsx';
 import { IconByCategory } from './Buttons/IconByCategory.jsx';
 import { TransactionsListFooter } from './TransactionsListFooter.js';
+import { TransactionsListToolBar } from './TransactionsListToolBar.js';
 import { TransactionsListHeader } from './TransactionsListHeader.js';
 
 const TransactionList = () => {
@@ -205,11 +205,41 @@ const TransactionList = () => {
     }
   };
 
+  /**
+   * Sorts data based on the given column and order. Includes type handling for numerical values.
+   *
+   * @param {string} column - The column identifier to sort by.
+   * @param {string} order - The order ('asc' or 'desc') to sort by.
+   * @param {boolean} isNumeric - Indicates if the sorting should be done numerically.
+   */
+  const sortData = (column, order, isNumeric = false) => {
+    const sortedData = [...transactionsPrintList].sort((a, b) => {
+      let first = a[column];
+      let second = b[column];
+
+      // Parse values as numbers if the column data is numeric.
+      if (isNumeric) {
+        first = parseFloat(first);
+        second = parseFloat(second);
+      }
+
+      if (first < second) {
+        return order === 'asc' ? -1 : 1;
+      }
+      if (first > second) {
+        return order === 'asc' ? 1 : -1;
+      }
+      return 0;
+    });
+
+    setTransactionsPrintList(sortedData);
+  };
+
   return (
     <Box
       paddingLeft={8}
       paddingRight={8}>
-      <TransactionsListHeader
+      <TransactionsListToolBar
         periodSelected={periodSelected}
         handleDataChangePeriodSelector={handleDataChangePeriodSelector}
         fullTransactionsList={fullTransactionsList}
@@ -223,13 +253,7 @@ const TransactionList = () => {
         <Grid
           item
           xs={12}>
-          {/*  */}
-          <Typography
-            variant='h4'
-            align='center'>
-            Transações
-          </Typography>
-          {/*  */}
+          <TransactionsListHeader onSortChange={sortData} />
           <List>
             {categories.length > 0 &&
               transactionsPrintList?.map((transaction) => (
