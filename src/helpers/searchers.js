@@ -3,7 +3,9 @@ export function searchCategory(searchName, array) {
 
   searchList = array.filter(
     (element) =>
-      element.category.toLowerCase().indexOf(searchName.toLowerCase()) !== -1
+      element.transactionCategory
+        .toLowerCase()
+        .indexOf(searchName.toLowerCase()) !== -1
   );
 
   return searchList;
@@ -14,7 +16,9 @@ export function searchDescription(searchName, array) {
 
   searchList = array.filter(
     (element) =>
-      element.description.toLowerCase().indexOf(searchName.toLowerCase()) !== -1
+      element.itemDescription
+        .toLowerCase()
+        .indexOf(searchName.toLowerCase()) !== -1
   );
   return searchList;
 }
