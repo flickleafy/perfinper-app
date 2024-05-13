@@ -37,28 +37,36 @@ export const TransactionsListHeader = ({ onSortChange }) => {
             cursor: 'pointer',
           }}
           onClick={() => handleSort('transactionDate')}>
-          <TableSortLabel direction={orderDirection.transactionDate}>
+          <TableSortLabel
+            active={true}
+            direction={orderDirection.transactionDate}>
             Data
           </TableSortLabel>
         </Typography>
         <Typography
           style={{ flexGrow: 0, cursor: 'pointer' }}
           onClick={() => handleSort('transactionCategory')}>
-          <TableSortLabel direction={orderDirection.transactionCategory}>
+          <TableSortLabel
+            active={true}
+            direction={orderDirection.transactionCategory}>
             Categoria
           </TableSortLabel>
         </Typography>
         <Typography
           style={{ flexGrow: 1, paddingLeft: 8, cursor: 'pointer' }}
           onClick={() => handleSort('itemDescription')}>
-          <TableSortLabel direction={orderDirection.itemDescription}>
+          <TableSortLabel
+            active={true}
+            direction={orderDirection.itemDescription}>
             Descrição
           </TableSortLabel>
         </Typography>
         <Typography
           style={{ flexGrow: 0, paddingRight: 164, cursor: 'pointer' }}
           onClick={() => handleSort('totalValue')}>
-          <TableSortLabel direction={orderDirection.totalValue}>
+          <TableSortLabel
+            active={true}
+            direction={orderDirection.totalValue}>
             Valor
           </TableSortLabel>
         </Typography>
