@@ -14,12 +14,21 @@ export function searchCategory(searchName, array) {
 export function searchDescription(searchName, array) {
   let searchList = [];
 
-  searchList = array.filter(
-    (element) =>
-      element.itemDescription
-        .toLowerCase()
-        .indexOf(searchName.toLowerCase()) !== -1
-  );
+  if (searchName.startsWith('-')) {
+    // Extract the word to exclude from the search term by removing the hyphen
+    const wordToExclude = searchName.slice(1).toLowerCase();
+    // Filter out items that contain the word to exclude
+    searchList = array.filter(
+      (element) =>
+        !element.itemDescription.toLowerCase().includes(wordToExclude)
+    );
+  } else {
+    // Include items that contain the search term
+    searchList = array.filter((element) =>
+      element.itemDescription.toLowerCase().includes(searchName.toLowerCase())
+    );
+  }
+
   return searchList;
 }
 
