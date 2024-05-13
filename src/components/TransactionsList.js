@@ -254,13 +254,16 @@ const TransactionList = () => {
           item
           xs={12}>
           <TransactionsListHeader onSortChange={sortData} />
-          <List>
+          <List
+            sx={{
+              paddingTop: 0,
+            }}>
             {categories.length > 0 &&
               transactionsPrintList?.map((transaction) => (
                 <ListItem
                   key={transaction.id}
                   divider
-                  style={{
+                  sx={{
                     backgroundColor: transactionTypeColor(
                       transaction.transactionType,
                       theme?.palette.primary.light,
@@ -268,11 +271,11 @@ const TransactionList = () => {
                     ),
                   }}>
                   <ListItemText
-                    sx={{ flexGrow: 0, paddingRight: 2 }}
+                    sx={{ flexGrow: 0, minWidth: 64 }}
                     primary={`${formatDate(transaction.transactionDate)}`}
                     primaryTypographyProps={{ variant: 'h5' }}
                   />
-                  <ListItemIcon>
+                  <ListItemIcon sx={{ paddingLeft: 6, paddingRight: 6 }}>
                     <IconByCategory
                       category={transaction.transactionCategory}
                       type={transaction.transactionType}
@@ -283,6 +286,7 @@ const TransactionList = () => {
                     />
                   </ListItemIcon>
                   <ListItemText
+                    sx={{ paddingRight: 4 }}
                     primary={`${categoryIdToName(
                       transaction.transactionCategory
                     )}`}
@@ -290,7 +294,7 @@ const TransactionList = () => {
                     primaryTypographyProps={{ variant: 'h6' }}
                   />
                   <ListItemText
-                    sx={{ flexGrow: 0, paddingRight: 2 }}
+                    sx={{ flexGrow: 0, paddingRight: 2, minWidth: 140 }}
                     primary={`R$ ${transaction.totalValue}`}
                     primaryTypographyProps={{ variant: 'h6' }}
                   />
