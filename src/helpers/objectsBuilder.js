@@ -20,7 +20,7 @@ export function transactionBuilder(body, date) {
     companyName,
     companySellerName,
     companyCnpj,
-    transactionOrigin,
+    transactionSource,
   } = body;
   let object;
 
@@ -53,7 +53,7 @@ export function transactionBuilder(body, date) {
     companyName,
     companySellerName,
     companyCnpj,
-    transactionOrigin,
+    transactionSource,
   };
 
   return object;
@@ -72,7 +72,7 @@ export function formatDate(date) {
   const dateObj = new Date(date);
   const day = dateObj.getDate();
   const month = dateObj.getMonth() + 1;
-  const year = dateObj.getFullYear();
+  // const year = dateObj.getFullYear();
   const transactionDate = `${checkSingleDigit(day)}/${checkSingleDigit(month)}`;
   return transactionDate;
 }
