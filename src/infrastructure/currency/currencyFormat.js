@@ -1,38 +1,21 @@
-// export function currencyFormat(input) {
-//   let result = '';
-//   let commaAdded = false; // Flag to track if a comma has already been added
-
-//   for (const element of input) {
-//     const char = element;
-//     if (char === ',' && !commaAdded) {
-//       result += char;
-//       commaAdded = true; // Set the flag once the first comma is added
-//     } else if (char >= '0' && char <= '9') {
-//       result += char;
-//     }
-//   }
-//   return result;
-// }
-
 export function currencyFormat(input) {
-  let result = '';
-  let commaAdded = false; // Flag to track if a comma has already been added
-  let removeLeadingZeros = true; // Flag to track if leading zeros should be removed
+  // Remove all non-numeric characters except dots
+  input = input.replace(/[^\d,]/g, '');
 
-  for (const element of input) {
-    const char = element;
-    if (char === ',') {
-      result += char;
-      commaAdded = true;
-      removeLeadingZeros = false; // Stop removing leading zeros after comma
-    } else if (char >= '0' && char <= '9') {
-      if (removeLeadingZeros && char !== '0') {
-        removeLeadingZeros = false; // Stop removing leading zeros after first non-zero digit
-      }
-      if (!removeLeadingZeros) {
-        result += char;
-      }
-    }
-  }
+  // Split the input into whole and fractional parts
+  let [whole, fraction = ''] = input.split(',');
+
+  // Remove leading zeros and ensure at least one leading zero if the whole number part is empty
+  whole = whole.replace(/^0+/, '') || '0';
+
+  // Format the whole number part with dots as thousand separators
+  // whole = whole.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+  // Ensure two decimal places in the fraction part
+  fraction = (fraction + '00').slice(0, 2);
+
+  // Combine the whole and fractional parts
+  let result = `${whole},${fraction}`;
+
   return result;
 }
