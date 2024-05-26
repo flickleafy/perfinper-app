@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { transactionBuilder } from '../helpers/objectsBuilder.js';
-import { currencyFormat } from '../helpers/currencyFormat.js';
+import { currencyFormat } from '../infrastructure/currency/currencyFormat.js';
 import { insertTransaction } from '../services/transactionService.js';
 import { getCategories } from '../services/categoryService.js';
 

@@ -5,8 +5,12 @@ import {
   updateTransactionById,
 } from '../services/transactionService.js';
 import { getCategories } from '../services/categoryService.js';
-import { transactionBuilder, buildDateObj } from '../helpers/objectsBuilder.js';
-import { searchByID, getIndexOfElement } from '../helpers/searchers.js';
+import { transactionBuilder } from '../helpers/objectsBuilder.js';
+import { buildDateObj } from '../infrastructure/date/buildDateObj.js';
+import {
+  searchByID,
+  getIndexOfElement,
+} from '../infrastructure/searcher/searchers.js';
 import localStorage from 'local-storage';
 
 // MUI Imports
@@ -28,7 +32,7 @@ import {
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
 import { ptBR } from 'date-fns/locale';
-import { currencyFormat } from '../helpers/currencyFormat.js';
+import { currencyFormat } from '../infrastructure/currency/currencyFormat.js';
 
 const EditTransaction = () => {
   const { id } = useParams();

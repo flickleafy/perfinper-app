@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
-import { numberDateToExtenseDate } from '../helpers/objectsBuilder.js';
 import {
   findUniquePeriods,
   findUniqueYears,
@@ -9,6 +8,7 @@ import {
 import { FormControl, MenuItem } from '@mui/material';
 import { StyledSelect } from './StyledSelect.js';
 import { StyledInputLabel } from './StyledInputLabel.js';
+import { numberDateToExtenseDate } from '../infrastructure/date/numberDateToExtenseDate.js';
 
 const PeriodSelector = ({ onDataChange }) => {
   //const [currentPeriod, setCurrentPeriod] = useState('');

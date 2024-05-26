@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Box, InputBase } from '@mui/material';
 import { styled, alpha } from '@mui/material/styles';
 import SearchIcon from '@mui/icons-material/Search';
-import { searchDescription } from '../helpers/searchers.js';
+import { searchDescription } from '../infrastructure/searcher/searchers.js';
 
 const SearchBar = ({ array, onDataChange }) => {
   const [searchTerm, setSearchTerm] = useState('');
