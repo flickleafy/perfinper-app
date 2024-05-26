@@ -36,25 +36,25 @@ const EditTransaction = () => {
   const initialTransactionState = {
     id: null,
     transactionDate: new Date(),
-    transactionPeriod: '',
+    transactionPeriod: '', // month and year of transaction
     totalValue: '0,0',
-    individualValue: '0,0',
-    freightValue: '0,0',
-    itemName: '',
-    itemDescription: '',
+    individualValue: '0,0', // only applicable for grouped item
+    freightValue: '0,0', // only applicable for online transaction of physical product
+    itemName: '', // brief description, or name
+    itemDescription: '', // detailed information about the transaction
     itemUnits: 1,
-    transactionLocation: '',
-    transactionType: '',
-    transactionCategory: '',
-    groupedItem: false,
-    groupedItemsReference: '',
-    transactionFiscalNote: '',
-    transactionId: '',
-    transactionStatus: '',
-    companyName: '',
-    companySellerName: '',
-    companyCnpj: '',
-    transactionOrigin: '',
+    transactionLocation: '', // online / local
+    transactionType: '', // credit / debit
+    transactionCategory: '', // category id
+    groupedItem: false, // if it is part of grouped transaction
+    groupedItemsReference: '', // reference of the grouped transaction
+    transactionFiscalNote: '', // fiscal note key
+    transactionId: '', // transaction id from the transaction source
+    transactionStatus: '', // concluded, refunded, started
+    companyName: '', // company name
+    companySellerName: '', // seller name from the company
+    companyCnpj: '', // company identification key
+    transactionSource: '', // manual, nubank, mercadolivre, digio
   };
 
   const [currentTransaction, setCurrentTransaction] = useState(
@@ -85,9 +85,11 @@ const EditTransaction = () => {
   }, [id, setCurrentTransaction, setTransactionDate]);
 
   useEffect(() => {
-    if (!initializeFromLocalStorage()) {
+    // if (!initializeFromLocalStorage()) {
+    if (id) {
       getTransaction(id);
     }
+    // }
   }, [id, initializeFromLocalStorage]);
 
   const getTransaction = (id) => {

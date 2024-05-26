@@ -45,7 +45,7 @@ const InsertTransaction = () => {
     companyName: '',
     companySellerName: '',
     companyCnpj: '',
-    transactionOrigin: '',
+    transactionSource: 'manual',
   };
   const [transaction, setTransaction] = useState(initialTransactionState);
   const [submitted, setSubmitted] = useState(false);
