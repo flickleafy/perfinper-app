@@ -20,8 +20,11 @@ import {
   removeAllByNameDEPRECATED,
 } from '../services/transactionService.js';
 import { getCategories } from '../services/categoryService.js';
-import { formatDate } from '../helpers/objectsBuilder.js';
-import { searchCategory, getIndexOfElement } from '../helpers/searchers.js';
+
+import {
+  searchCategory,
+  getIndexOfElement,
+} from '../infrastructure/searcher/searchers.js';
 //List Elements
 import LoadingIndicator from './LoadingIndicator.js';
 import { transactionTypeColor } from '../helpers/useTransactionTypeColor.hook.jsx';
@@ -29,6 +32,7 @@ import { IconByCategory } from './Buttons/IconByCategory.jsx';
 import { TransactionsListFooter } from './TransactionsListFooter.js';
 import { TransactionsListToolBar } from './TransactionsListToolBar.js';
 import { TransactionsListHeader } from './TransactionsListHeader.js';
+import { formatDate } from '../infrastructure/date/formatDate.js';
 
 const TransactionList = () => {
   const theme = useTheme();
