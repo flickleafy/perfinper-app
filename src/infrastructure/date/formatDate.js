@@ -1,10 +1,15 @@
-import { checkSingleDigit } from './checkSingleDigit';
-
 export function formatDate(date) {
-  const dateObj = new Date(date);
-  const day = dateObj.getDate();
-  const month = dateObj.getMonth() + 1;
-  // const year = dateObj.getFullYear();
-  const transactionDate = `${checkSingleDigit(day)}/${checkSingleDigit(month)}`;
-  return transactionDate;
+  // Step 1: Get the current timezone of the computer
+  const currentTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+  // Step 2: Assume you have a UTC time you want to format
+  const utcDate = new Date(date);
+
+  // Step 3: Format this UTC date to the current timezone
+  const formattedDate = new Intl.DateTimeFormat('pt-BR', {
+    month: '2-digit',
+    day: '2-digit',
+    timeZone: currentTimezone,
+  }).format(utcDate);
+  return formattedDate;
 }
