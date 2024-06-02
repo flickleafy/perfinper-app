@@ -28,7 +28,7 @@ const InsertTransaction = () => {
 
   const handleInputChange = (event) => {
     let { name, value } = event.target;
-    if (name === 'transactionValue') {
+    if (name === 'transactionValue' || name === 'freightValue') {
       value = currencyFormat(value);
     }
     setTransaction({ ...transaction, [name]: value });
@@ -58,7 +58,8 @@ const InsertTransaction = () => {
   return (
     <Box
       paddingLeft={8}
-      paddingRight={8}>
+      paddingRight={8}
+      paddingBottom={8}>
       {submitted ? (
         <Box>
           <Typography variant='h4'>
