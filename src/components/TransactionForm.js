@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import {
   TextField,
@@ -12,7 +12,10 @@ import {
   FormLabel,
   Box,
   Typography,
+  IconButton,
+  Button,
 } from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { ptBR } from 'date-fns/locale';
@@ -59,6 +62,34 @@ const TransactionForm = ({
     { id: 'refunded', name: 'Estornado' },
     { id: 'started', name: 'Iniciado' },
   ];
+  const [items, setItems] = useState([]);
+
+  const handleAddItem = () => {
+    setItems([
+      ...items,
+      {
+        itemName: '',
+        itemDescription: '',
+        itemValue: '',
+        itemUnits: 1,
+      },
+    ]);
+  };
+
+  const handleRemoveItem = (index) => {
+    const newItems = [...items];
+    newItems.splice(index, 1);
+    setItems(newItems);
+  };
+
+  const handleItemChange = (index, e) => {
+    const newItems = [...items];
+    newItems[index] = {
+      ...newItems[index],
+      [e.target.name]: e.target.value,
+    };
+    setItems(newItems);
+  };
   return (
     <Box
       component='form'
@@ -289,6 +320,65 @@ const TransactionForm = ({
         margin='normal'
         variant='outlined'
       />
+      {/* Itens da compra */}
+      {items.map((item, index) => (
+        <Box
+          key={`item${index + 1}`}
+          sx={{ border: '1px dashed grey', padding: 2, marginBottom: 2 }}>
+          <Typography variant='h6'>Item {index + 1}</Typography>
+          <IconButton
+            aria-label='delete'
+            onClick={() => handleRemoveItem(index)}
+            sx={{ float: 'right' }}>
+            <DeleteIcon />
+          </IconButton>
+          <TextField
+            fullWidth
+            label='Nome do Item'
+            name='itemName'
+            value={item.itemName}
+            onChange={(e) => handleItemChange(index, e)}
+            margin='normal'
+            variant='outlined'
+          />
+          <TextField
+            fullWidth
+            label='Descrição do Item'
+            name='itemDescription'
+            value={item.itemDescription}
+            onChange={(e) => handleItemChange(index, e)}
+            margin='normal'
+            variant='outlined'
+          />
+          <TextField
+            fullWidth
+            label='Valor do Item'
+            name='itemValue'
+            type='text'
+            value={item.itemValue}
+            onChange={(e) => handleItemChange(index, e)}
+            margin='normal'
+            variant='outlined'
+          />
+          <TextField
+            fullWidth
+            label='Unidades do Item'
+            name='itemUnits'
+            type='number'
+            value={item.itemUnits}
+            onChange={(e) => handleItemChange(index, e)}
+            margin='normal'
+            variant='outlined'
+          />
+        </Box>
+      ))}
+      <Button
+        variant='contained'
+        color='primary'
+        onClick={handleAddItem}
+        sx={{ mb: 2 }}>
+        Adicionar Item
+      </Button>
     </Box>
   );
 };
