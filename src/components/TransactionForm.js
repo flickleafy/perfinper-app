@@ -252,7 +252,12 @@ TransactionForm.propTypes = {
   transaction: PropTypes.any,
   handleInputChange: PropTypes.func,
   handleDateChange: PropTypes.func,
-  categories: PropTypes.arrayOf(PropTypes.string),
+  categories: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      name: PropTypes.string.isRequired,
+    })
+  ),
   dateValue: PropTypes.any,
 };
 
