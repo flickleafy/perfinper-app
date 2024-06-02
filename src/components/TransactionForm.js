@@ -33,6 +33,32 @@ const TransactionForm = ({
   categories,
   dateValue,
 }) => {
+  const paymentMethods = [
+    { id: 'money', name: 'Dinheiro' },
+    { id: 'pix', name: 'Pix' },
+    { id: 'boleto', name: 'Boleto' },
+    { id: 'debit card', name: 'Cartão de débito' },
+    { id: 'credit card', name: 'Cartão de crédito' },
+    { id: 'benefit card', name: 'Cartão de benefício' },
+    { id: 'other', name: 'Outro' },
+  ];
+  const transactionLocations = [
+    { id: 'online', name: 'Online' },
+    { id: 'local', name: 'Local' },
+    { id: 'other', name: 'Outro' },
+  ];
+  const transactionSources = [
+    { id: 'manual', name: 'Manual' },
+    { id: 'nubank', name: 'Nubank' },
+    { id: 'digio', name: 'Digio' },
+    { id: 'mercadolivre', name: 'Mercado Livre' },
+    { id: 'flash', name: 'Flash' },
+  ];
+  const transactionStatuses = [
+    { id: 'concluded', name: 'Concluido' },
+    { id: 'refunded', name: 'Estornado' },
+    { id: 'started', name: 'Iniciado' },
+  ];
   return (
     <Box
       component='form'
@@ -104,6 +130,103 @@ const TransactionForm = ({
         margin='normal'
         variant='outlined'
       />
+      <TextField
+        fullWidth
+        label='Valor do Frete'
+        name='freightValue'
+        value={transaction.freightValue}
+        onChange={handleInputChange}
+        margin='normal'
+        disabled={transaction.transactionLocation === 'local'}
+        variant='outlined'
+      />
+      <FormControl
+        fullWidth
+        component='fieldset'
+        sx={{ mb: 2 }}>
+        <InputLabel id='source-select-label'>Origem</InputLabel>
+        <Select
+          labelId='source-select-label'
+          id='source'
+          value={transaction.transactionSource}
+          name='transactionSource'
+          label='Origem'
+          onChange={handleInputChange}>
+          {transactionSources.map((source) => (
+            <MenuItem
+              key={source.id}
+              value={source.id}>
+              {source.name}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+      <FormControl
+        fullWidth
+        component='fieldset'
+        sx={{ mb: 2 }}>
+        <InputLabel id='status-select-label'>Status</InputLabel>
+        <Select
+          labelId='status-select-label'
+          id='status'
+          value={transaction.transactionStatus}
+          name='transactionStatus'
+          label='Status'
+          onChange={handleInputChange}>
+          {transactionStatuses.map((status) => (
+            <MenuItem
+              key={status.id}
+              value={status.id}>
+              {status.name}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+
+      <FormControl
+        fullWidth
+        component='fieldset'
+        sx={{ mb: 2 }}>
+        <InputLabel id='payment-method-select-label'>
+          Método de Pagamento
+        </InputLabel>
+        <Select
+          labelId='payment-method-select-label'
+          id='paymentMethod'
+          value={transaction.paymentMethod}
+          name='paymentMethod'
+          label='Método de Pagamento'
+          onChange={handleInputChange}>
+          {paymentMethods.map((method) => (
+            <MenuItem
+              key={method.id}
+              value={method.id}>
+              {method.name}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+      <FormControl
+        fullWidth
+        component='fieldset'
+        sx={{ mb: 2 }}>
+        <InputLabel id='location-select-label'>Localização</InputLabel>
+        <Select
+          labelId='location-select-label'
+          id='location'
+          value={transaction.transactionLocation}
+          name='transactionLocation'
+          label='Localização'
+          onChange={handleInputChange}>
+          {transactionLocations.map((location) => (
+            <MenuItem
+              key={location.id}
+              value={location.id}>
+              {location.name}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
       <LocalizationProvider
         dateAdapter={AdapterDateFns}
         adapterLocale={ptBR}>
@@ -124,13 +247,13 @@ const TransactionForm = ({
   );
 };
 
-export default TransactionForm;
-
 TransactionForm.propTypes = {
   formTitle: PropTypes.string,
   transaction: PropTypes.any,
   handleInputChange: PropTypes.func,
   handleDateChange: PropTypes.func,
-  categories: PropTypes.array,
+  categories: PropTypes.arrayOf(PropTypes.string),
   dateValue: PropTypes.any,
 };
+
+export default TransactionForm;
