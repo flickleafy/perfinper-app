@@ -6,12 +6,12 @@ export const TransactionsListHeader = ({ onSortChange }) => {
   const [orderDirection, setOrderDirection] = useState({
     transactionDate: 'asc',
     transactionCategory: 'asc',
-    itemDescription: 'asc',
-    totalValue: 'asc',
+    transactionDescription: 'asc',
+    transactionValue: 'asc',
   });
 
   const handleSort = (column) => {
-    const columnIsNumeric = column === 'totalValue';
+    const columnIsNumeric = column === 'transactionValue';
     const isAsc = orderDirection[column] === 'asc';
     setOrderDirection({
       ...orderDirection,
@@ -54,19 +54,19 @@ export const TransactionsListHeader = ({ onSortChange }) => {
         </Typography>
         <Typography
           style={{ flexGrow: 1, paddingLeft: 8, cursor: 'pointer' }}
-          onClick={() => handleSort('itemDescription')}>
+          onClick={() => handleSort('transactionDescription')}>
           <TableSortLabel
             active={true}
-            direction={orderDirection.itemDescription}>
+            direction={orderDirection.transactionDescription}>
             Descrição
           </TableSortLabel>
         </Typography>
         <Typography
           style={{ flexGrow: 0, paddingRight: 164, cursor: 'pointer' }}
-          onClick={() => handleSort('totalValue')}>
+          onClick={() => handleSort('transactionValue')}>
           <TableSortLabel
             active={true}
-            direction={orderDirection.totalValue}>
+            direction={orderDirection.transactionValue}>
             Valor
           </TableSortLabel>
         </Typography>

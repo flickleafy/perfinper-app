@@ -20,12 +20,14 @@ export function searchDescription(searchName, array) {
     // Filter out items that contain the word to exclude
     searchList = array.filter(
       (element) =>
-        !element.itemDescription.toLowerCase().includes(wordToExclude)
+        !element.transactionDescription.toLowerCase().includes(wordToExclude)
     );
   } else {
     // Include items that contain the search term
     searchList = array.filter((element) =>
-      element.itemDescription.toLowerCase().includes(searchName.toLowerCase())
+      element.transactionDescription
+        .toLowerCase()
+        .includes(searchName.toLowerCase())
     );
   }
 

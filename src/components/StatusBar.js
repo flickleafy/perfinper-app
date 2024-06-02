@@ -21,7 +21,7 @@ const StatusBar = ({ array }) => {
 
   const calculateTotal = (transactions, setter) => {
     const total = transactions.reduce(
-      (acc, current) => acc + Number(parseFloat(current.totalValue)),
+      (acc, current) => acc + Number(parseFloat(current.transactionValue)),
       0
     );
     setter(total);
