@@ -5,48 +5,13 @@ import { insertTransaction } from '../services/transactionService.js';
 import { getCategories } from '../services/categoryService.js';
 
 // MUI Components
-import {
-  TextField,
-  Button,
-  Radio,
-  RadioGroup,
-  FormControlLabel,
-  FormControl,
-  FormLabel,
-  Typography,
-  Box,
-  MenuItem,
-  InputLabel,
-  Select,
-} from '@mui/material';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
-import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
-import { ptBR } from 'date-fns/locale';
+import { Button, Typography, Box, Grid } from '@mui/material';
+import { transactionPrototype } from './transactionPrototype.js';
+import TransactionForm from './TransactionForm.js';
 
 const InsertTransaction = () => {
-  const initialTransactionState = {
-    id: null,
-    transactionDate: new Date(),
-    transactionPeriod: '',
-    totalValue: '0,0',
-    individualValue: '0,0',
-    freightValue: '0,0',
-    itemName: '',
-    itemDescription: '',
-    itemUnits: 1,
-    transactionLocation: '',
-    transactionType: '',
-    transactionCategory: '',
-    groupedItem: false,
-    groupedItemsReference: '',
-    transactionFiscalNote: '',
-    transactionId: '',
-    transactionStatus: '',
-    companyName: '',
-    companySellerName: '',
-    companyCnpj: '',
-    transactionSource: 'manual',
-  };
+  const initialTransactionState = transactionPrototype();
+
   const [transaction, setTransaction] = useState(initialTransactionState);
   const [submitted, setSubmitted] = useState(false);
   const [startDate, setStartDate] = useState(new Date());
@@ -63,7 +28,7 @@ const InsertTransaction = () => {
 
   const handleInputChange = (event) => {
     let { name, value } = event.target;
-    if (name === 'totalValue') {
+    if (name === 'transactionValue') {
       value = currencyFormat(value);
     }
     setTransaction({ ...transaction, [name]: value });
@@ -91,7 +56,9 @@ const InsertTransaction = () => {
   };
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box
+      paddingLeft={8}
+      paddingRight={8}>
       {submitted ? (
         <Box>
           <Typography variant='h4'>
@@ -105,89 +72,36 @@ const InsertTransaction = () => {
           </Button>
         </Box>
       ) : (
-        <Box>
-          <Typography variant='h4'>Inserir Lançamento</Typography>
-          <FormControl
-            fullWidth
-            component='fieldset'
-            sx={{ mb: 2 }}>
-            <InputLabel id='categoria-select-label'>Categoria</InputLabel>
-            <Select
-              labelId='categoria-select-label'
-              id='categoria'
-              value={transaction.transactionCategory}
-              label='Categoria'
-              name='transactionCategory'
-              onChange={handleInputChange}>
-              {categories.map((category) => (
-                <MenuItem
-                  key={category.id}
-                  value={category.id}>
-                  {category.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <TextField
-            label='Descrição'
-            variant='outlined'
-            fullWidth
-            name='itemDescription'
-            required
-            value={transaction.itemDescription}
-            onChange={handleInputChange}
-            sx={{ mb: 2 }}
+        <>
+          <TransactionForm
+            formTitle={'Inserir Lançamentto'}
+            transaction={transaction}
+            handleInputChange={handleInputChange}
+            handleDateChange={setStartDate}
+            categories={categories}
+            dateValue={startDate}
           />
-          <FormControl
-            component='fieldset'
-            sx={{ mb: 2 }}>
-            <FormLabel component='legend'>Tipo</FormLabel>
-            <RadioGroup
-              row
-              name='transactionType'
-              value={transaction.transactionType}
-              onChange={handleInputChange}>
-              <FormControlLabel
-                value='debit'
-                control={<Radio />}
-                label='Despesa'
-              />
-              <FormControlLabel
-                value='credit'
-                control={<Radio />}
-                label='Receita'
-              />
-            </RadioGroup>
-          </FormControl>
-          <TextField
-            label='Valor'
-            type='string'
-            variant='outlined'
-            fullWidth
-            name='totalValue'
-            required
-            value={transaction.totalValue}
-            onChange={handleInputChange}
-            sx={{ mb: 2 }}
-          />
-          <LocalizationProvider
-            dateAdapter={AdapterDateFns}
-            adapterLocale={ptBR}>
-            <DatePicker
-              label='Data'
-              value={startDate}
-              onChange={setStartDate}
-              renderInput={(params) => <TextField {...params} />}
-            />
-          </LocalizationProvider>
-          <Button
-            variant='contained'
-            color='primary'
-            onClick={insertTransactionApi}
-            sx={{ mt: 2 }}>
-            Inserir
-          </Button>
-        </Box>
+
+          <Grid
+            container
+            justifyContent='right'
+            sx={{ paddingTop: 2 }}>
+            <Button
+              variant='contained'
+              color='secondary'
+              onClick={() => {}}
+              sx={{ marginRight: 2 }}>
+              Voltar
+            </Button>
+            <Button
+              variant='contained'
+              color='primary'
+              onClick={insertTransactionApi}>
+              Inserir
+            </Button>
+          </Grid>
+          {/* {message && <Typography color='textPrimary'>{message}</Typography>} */}
+        </>
       )}
     </Box>
   );
