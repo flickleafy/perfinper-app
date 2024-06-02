@@ -111,7 +111,8 @@ const EditTransaction = () => {
   return (
     <Box
       paddingLeft={8}
-      paddingRight={8}>
+      paddingRight={8}
+      paddingBottom={8}>
       <>
         <TransactionForm
           formTitle={'Editar Lançamentto'}
