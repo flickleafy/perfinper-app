@@ -92,6 +92,15 @@ const TransactionForm = ({
       </FormControl>
       <TextField
         fullWidth
+        label='Nome da Transação'
+        name='transactionName'
+        value={transaction.transactionName}
+        onChange={handleInputChange}
+        margin='normal'
+        variant='outlined'
+      />
+      <TextField
+        fullWidth
         label='Descrição'
         name='transactionDescription'
         value={transaction.transactionDescription}
@@ -122,6 +131,16 @@ const TransactionForm = ({
       </FormControl>
       <TextField
         fullWidth
+        label='Nota Fiscal'
+        name='transactionFiscalNote'
+        value={transaction.transactionFiscalNote}
+        onChange={handleInputChange}
+        margin='normal'
+        variant='outlined'
+        disabled={transaction.transactionType !== 'debit'}
+      />
+      <TextField
+        fullWidth
         label='Valor'
         name='transactionValue'
         type='text'
@@ -137,7 +156,7 @@ const TransactionForm = ({
         value={transaction.freightValue}
         onChange={handleInputChange}
         margin='normal'
-        disabled={transaction.transactionLocation === 'local'}
+        disabled={transaction.transactionLocation !== 'online'}
         variant='outlined'
       />
       <FormControl
@@ -182,7 +201,6 @@ const TransactionForm = ({
           ))}
         </Select>
       </FormControl>
-
       <FormControl
         fullWidth
         component='fieldset'
@@ -249,7 +267,34 @@ const TransactionForm = ({
 
 TransactionForm.propTypes = {
   formTitle: PropTypes.string,
-  transaction: PropTypes.any,
+  transaction: PropTypes.shape({
+    id: PropTypes.string,
+    transactionDate: PropTypes.any,
+    transactionPeriod: PropTypes.string, // month and year of transaction
+    transactionSource: PropTypes.string, // manual, nubank, digio, mercadolivre, flash
+    transactionValue: PropTypes.string,
+    transactionName: PropTypes.string, // brief description/name about the transaction
+    transactionDescription: PropTypes.string, // detailed information about the transaction
+    transactionFiscalNote: PropTypes.string, // fiscal note key
+    transactionId: PropTypes.string, // transaction id from the transaction source
+    transactionStatus: PropTypes.string, // concluded, refunded, started
+    transactionLocation: PropTypes.string, // 'online', 'local'
+    transactionType: PropTypes.string, // 'credit', 'debit'
+    transactionCategory: PropTypes.string, // category id
+    freightValue: PropTypes.string, // only applicable for online transaction of physical product
+    paymentMethod: PropTypes.string, // 'money', 'pix', 'boleto', 'debit card', 'credit card', 'benefit card', 'other'
+    items: PropTypes.arrayOf(
+      PropTypes.shape({
+        itemName: PropTypes.string, // brief description/name about the item
+        itemDescription: PropTypes.string, // detailed information about the item
+        itemValue: PropTypes.string, // individual value of item
+        itemUnits: PropTypes.number, // amount of units of the same item
+      })
+    ),
+    companyName: PropTypes.string, // company name
+    companySellerName: PropTypes.string, // seller name from the company
+    companyCnpj: PropTypes.string, // company identification key
+  }),
   handleInputChange: PropTypes.func,
   handleDateChange: PropTypes.func,
   categories: PropTypes.arrayOf(
