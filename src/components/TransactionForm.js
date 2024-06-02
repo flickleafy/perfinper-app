@@ -14,11 +14,13 @@ import {
   Typography,
   IconButton,
   Button,
+  Grid,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { ptBR } from 'date-fns/locale';
+import { currencyFormat } from '../infrastructure/currency/currencyFormat';
 
 // interface TransactionFormProps {
 //   transaction: any;
@@ -70,7 +72,7 @@ const TransactionForm = ({
       {
         itemName: '',
         itemDescription: '',
-        itemValue: '',
+        itemValue: '0,0',
         itemUnits: 1,
       },
     ]);
@@ -82,11 +84,15 @@ const TransactionForm = ({
     setItems(newItems);
   };
 
-  const handleItemChange = (index, e) => {
+  const handleItemChange = (index, event) => {
     const newItems = [...items];
+    let { name, value } = event.target;
+    if (name === 'itemValue') {
+      value = currencyFormat(value);
+    }
     newItems[index] = {
       ...newItems[index],
-      [e.target.name]: e.target.value,
+      [name]: value,
     };
     setItems(newItems);
   };
@@ -320,65 +326,96 @@ const TransactionForm = ({
         margin='normal'
         variant='outlined'
       />
+
       {/* Itens da compra */}
-      {items.map((item, index) => (
-        <Box
-          key={`item${index + 1}`}
-          sx={{ border: '1px dashed grey', padding: 2, marginBottom: 2 }}>
-          <Typography variant='h6'>Item {index + 1}</Typography>
-          <IconButton
-            aria-label='delete'
-            onClick={() => handleRemoveItem(index)}
-            sx={{ float: 'right' }}>
-            <DeleteIcon />
-          </IconButton>
-          <TextField
-            fullWidth
-            label='Nome do Item'
-            name='itemName'
-            value={item.itemName}
-            onChange={(e) => handleItemChange(index, e)}
-            margin='normal'
-            variant='outlined'
-          />
-          <TextField
-            fullWidth
-            label='Descrição do Item'
-            name='itemDescription'
-            value={item.itemDescription}
-            onChange={(e) => handleItemChange(index, e)}
-            margin='normal'
-            variant='outlined'
-          />
-          <TextField
-            fullWidth
-            label='Valor do Item'
-            name='itemValue'
-            type='text'
-            value={item.itemValue}
-            onChange={(e) => handleItemChange(index, e)}
-            margin='normal'
-            variant='outlined'
-          />
-          <TextField
-            fullWidth
-            label='Unidades do Item'
-            name='itemUnits'
-            type='number'
-            value={item.itemUnits}
-            onChange={(e) => handleItemChange(index, e)}
-            margin='normal'
-            variant='outlined'
-          />
-        </Box>
-      ))}
-      <Button
-        variant='contained'
-        color='primary'
-        onClick={handleAddItem}
-        sx={{ mb: 2 }}>
-        Adicionar Item
-      </Button>
+      {transaction.transactionType === 'debit' && (
+        <>
+          <Typography
+            variant='h5'
+            paddingTop={3}
+            paddingBottom={2}>
+            Itens inclusos na despesa
+          </Typography>
+          <Grid
+            container
+            spacing={2}>
+            {items.map((item, index) => (
+              <Grid
+                item
+                xs={12}
+                md={6}
+                key={`item${index + 1}`}>
+                <Box
+                  sx={{
+                    border: '1px dashed grey',
+                    padding: 2,
+                    marginBottom: 2,
+                    position: 'relative',
+                  }}>
+                  <Typography
+                    variant='h6'
+                    sx={{ display: 'inline-block', marginRight: '8px' }}>
+                    Item {index + 1}
+                  </Typography>
+                  <IconButton
+                    aria-label='delete'
+                    onClick={() => handleRemoveItem(index)}
+                    sx={{ position: 'absolute', top: '8px', right: '8px' }}>
+                    <DeleteIcon />
+                  </IconButton>
+                  {/*  */}
+                  <TextField
+                    fullWidth
+                    label='Nome do Item'
+                    name='itemName'
+                    value={item.itemName}
+                    onChange={(e) => handleItemChange(index, e)}
+                    margin='normal'
+                    variant='outlined'
+                  />
+                  <TextField
+                    fullWidth
+                    label='Descrição do Item'
+                    name='itemDescription'
+                    value={item.itemDescription}
+                    onChange={(e) => handleItemChange(index, e)}
+                    margin='normal'
+                    variant='outlined'
+                  />
+                  <TextField
+                    fullWidth
+                    label='Valor do Item'
+                    name='itemValue'
+                    type='text'
+                    value={item.itemValue}
+                    onChange={(e) => handleItemChange(index, e)}
+                    margin='normal'
+                    variant='outlined'
+                  />
+                  <TextField
+                    fullWidth
+                    label='Unidades do Item'
+                    name='itemUnits'
+                    type='number'
+                    value={item.itemUnits}
+                    onChange={(e) => handleItemChange(index, e)}
+                    margin='normal'
+                    variant='outlined'
+                    inputProps={{ min: '1', step: '1' }}
+                  />
+                </Box>
+              </Grid>
+            ))}
+          </Grid>
+          <Button
+            variant='contained'
+            color='primary'
+            onClick={handleAddItem}
+            sx={{ mt: 2, mb: 2 }}>
+            Adicionar Item
+          </Button>
+        </>
+      )}
     </Box>
   );
 };
