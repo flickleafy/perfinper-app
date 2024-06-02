@@ -5,58 +5,50 @@ export function transactionBuilder(body, date) {
   let {
     transactionDate,
     transactionPeriod,
-    totalValue,
-    individualValue,
-    freightValue,
-    itemName,
-    itemDescription,
-    itemUnits,
-    transactionLocation,
-    transactionType,
-    transactionCategory,
-    groupedItem,
-    groupedItemsReference,
+    transactionSource,
+    transactionValue,
+    transactionName,
+    transactionDescription,
     transactionFiscalNote,
     transactionId,
     transactionStatus,
+    transactionLocation,
+    transactionType,
+    transactionCategory,
+    freightValue,
+    paymentMethod,
+    items,
     companyName,
     companySellerName,
     companyCnpj,
-    transactionSource,
   } = body;
-  let object;
 
   if (date) {
     ({ transactionDate, transactionPeriod } = formatDatePeriod(date));
   }
 
-  totalValue = String(totalValue).replace('.', ',');
-  individualValue = String(individualValue).replace('.', ',');
+  transactionValue = String(transactionValue).replace('.', ',');
   freightValue = String(freightValue).replace('.', ',');
 
-  object = {
+  return {
     id: null,
     transactionDate,
     transactionPeriod,
-    totalValue,
-    individualValue,
-    freightValue,
-    itemName,
-    itemDescription,
-    itemUnits,
-    transactionLocation,
-    transactionType,
-    transactionCategory,
-    groupedItem,
-    groupedItemsReference,
+    transactionSource,
+    transactionValue,
+    transactionName,
+    transactionDescription,
     transactionFiscalNote,
     transactionId,
     transactionStatus,
+    transactionLocation,
+    transactionType,
+    transactionCategory,
+    freightValue,
+    paymentMethod,
+    items,
     companyName,
     companySellerName,
     companyCnpj,
-    transactionSource,
   };
-
-  return object;
 }
