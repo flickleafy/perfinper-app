@@ -101,7 +101,7 @@ const TransactionForm = ({
       />
       <TextField
         fullWidth
-        label='Descrição'
+        label='Descrição da Transação'
         name='transactionDescription'
         value={transaction.transactionDescription}
         onChange={handleInputChange}
@@ -261,6 +261,34 @@ const TransactionForm = ({
           )}
         />
       </LocalizationProvider>
+      <TextField
+        fullWidth
+        label='Nome da Empresa'
+        name='companyName'
+        value={transaction.companyName}
+        onChange={handleInputChange}
+        margin='normal'
+        variant='outlined'
+      />
+      <TextField
+        fullWidth
+        label='Nome do Vendedor da Empresa'
+        name='companySellerName'
+        value={transaction.companySellerName}
+        onChange={handleInputChange}
+        margin='normal'
+        variant='outlined'
+        disabled={transaction.transactionType !== 'debit'}
+      />
+      <TextField
+        fullWidth
+        label='CNPJ da Empresa'
+        name='companyCnpj'
+        value={transaction.companyCnpj}
+        onChange={handleInputChange}
+        margin='normal'
+        variant='outlined'
+      />
     </Box>
   );
 };
@@ -269,7 +297,7 @@ TransactionForm.propTypes = {
   formTitle: PropTypes.string,
   transaction: PropTypes.shape({
     id: PropTypes.string,
-    transactionDate: PropTypes.any,
+    transactionDate: PropTypes.instanceOf(Date),
     transactionPeriod: PropTypes.string, // month and year of transaction
     transactionSource: PropTypes.string, // manual, nubank, digio, mercadolivre, flash
     transactionValue: PropTypes.string,
@@ -303,7 +331,7 @@ TransactionForm.propTypes = {
       name: PropTypes.string.isRequired,
     })
   ),
-  dateValue: PropTypes.any,
+  dateValue: PropTypes.instanceOf(Date),
 };
 
 export default TransactionForm;
