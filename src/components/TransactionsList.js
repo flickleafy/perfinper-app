@@ -294,12 +294,24 @@ const TransactionList = () => {
                     primary={`${categoryIdToName(
                       transaction.transactionCategory
                     )}`}
-                    secondary={`${transaction.itemDescription}`}
+                    secondary={
+                      <div>
+                        <div>{transaction.transactionDescription}</div>
+                        {transaction.companyCnpj && (
+                          <>
+                            <div style={{ marginTop: '8px' }}>
+                              Cnpj: {transaction.companyCnpj}
+                            </div>
+                            <div>Nome: {transaction.companyName}</div>
+                          </>
+                        )}
+                      </div>
+                    }
                     primaryTypographyProps={{ variant: 'h6' }}
                   />
                   <ListItemText
                     sx={{ flexGrow: 0, paddingRight: 2, minWidth: 140 }}
-                    primary={`R$ ${transaction.totalValue}`}
+                    primary={`R$ ${transaction.transactionValue}`}
                     primaryTypographyProps={{ variant: 'h6' }}
                   />
                   <ListItemIcon>
