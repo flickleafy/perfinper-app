@@ -96,6 +96,13 @@ const EditTransaction = () => {
     setTransaction({ ...transaction, [name]: value });
   };
 
+  const handleItemsChange = (newItems) => {
+    setTransaction((prevTransaction) => ({
+      ...prevTransaction,
+      items: newItems,
+    }));
+  };
+
   const updateTransaction = () => {
     let updatedTransaction = transactionBuilder(transaction, transactionDate);
     updateTransactionById(transaction.id, updatedTransaction)
@@ -119,6 +126,7 @@ const EditTransaction = () => {
           transaction={transaction}
           handleInputChange={handleInputChange}
           handleDateChange={setTransactionDate}
+          handleItemsChange={handleItemsChange}
           categories={categories}
           dateValue={transactionDate}
         />
