@@ -34,6 +34,13 @@ const InsertTransaction = () => {
     setTransaction({ ...transaction, [name]: value });
   };
 
+  const handleItemsChange = (newItems) => {
+    setTransaction((prevTransaction) => ({
+      ...prevTransaction,
+      items: newItems,
+    }));
+  };
+
   const insertTransactionApi = () => {
     let transactionData = transactionBuilder(transaction, startDate);
     if (transactionData) {
@@ -79,6 +86,7 @@ const InsertTransaction = () => {
             transaction={transaction}
             handleInputChange={handleInputChange}
             handleDateChange={setStartDate}
+            handleItemsChange={handleItemsChange}
             categories={categories}
             dateValue={startDate}
           />

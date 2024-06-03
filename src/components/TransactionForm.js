@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import {
   TextField,
@@ -35,6 +35,7 @@ const TransactionForm = ({
   transaction,
   handleInputChange,
   handleDateChange,
+  handleItemsChange,
   categories,
   dateValue,
 }) => {
@@ -64,24 +65,31 @@ const TransactionForm = ({
     { id: 'refunded', name: 'Estornado' },
     { id: 'started', name: 'Iniciado' },
   ];
-  const [items, setItems] = useState([]);
+  const [items, setItems] = useState(transaction.items || []);
+
+  useEffect(() => {
+    if (transaction.items) {
+      setItems(transaction.items);
+    }
+  }, [transaction.items]);
 
   const handleAddItem = () => {
-    setItems([
-      ...items,
-      {
-        itemName: '',
-        itemDescription: '',
-        itemValue: '0,0',
-        itemUnits: 1,
-      },
-    ]);
+    const newItem = {
+      itemName: '',
+      itemDescription: '',
+      itemValue: '0,0',
+      itemUnits: 1,
+    };
+    const newItems = [...items, newItem];
+    setItems(newItems);
+    handleItemsChange(newItems);
   };
 
   const handleRemoveItem = (index) => {
     const newItems = [...items];
     newItems.splice(index, 1);
     setItems(newItems);
+    handleItemsChange(newItems);
   };
 
   const handleItemChange = (index, event) => {
@@ -95,6 +103,7 @@ const TransactionForm = ({
       [name]: value,
     };
     setItems(newItems);
+    handleItemsChange(newItems);
   };
   return (
     <Box
@@ -200,13 +209,13 @@ const TransactionForm = ({
         fullWidth
         component='fieldset'
         sx={{ mb: 2 }}>
-        <InputLabel id='source-select-label'>Origem</InputLabel>
+        <InputLabel id='source-select-label'>Origem da transação</InputLabel>
         <Select
           labelId='source-select-label'
           id='source'
           value={transaction.transactionSource}
           name='transactionSource'
-          label='Origem'
+          label='Origem da transação'
           onChange={handleInputChange}>
           {transactionSources.map((source) => (
             <MenuItem
@@ -361,7 +370,7 @@ const TransactionForm = ({
                     aria-label='delete'
                     onClick={() => handleRemoveItem(index)}
                     sx={{ position: 'absolute', top: '8px', right: '8px' }}>
-                    <DeleteIcon />
+                    <DeleteIcon color='warning' />
                   </IconButton>
                   {/*  */}
                   <TextField
@@ -452,6 +461,7 @@ TransactionForm.propTypes = {
   }),
   handleInputChange: PropTypes.func,
   handleDateChange: PropTypes.func,
+  handleItemsChange: PropTypes.func, // Ensure this is added
   categories: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.string.isRequired,
