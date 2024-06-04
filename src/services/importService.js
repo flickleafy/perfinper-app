@@ -5,6 +5,10 @@ export const importNubankTransactions = (data) => {
   return trackPromise(http.post('/api/import/nubank', data));
 };
 
+export const importNubankCreditTransactions = (data) => {
+  return trackPromise(http.post('/api/import/nubank-credit', data));
+};
+
 export const importFlashTransactions = (data) => {
   return trackPromise(http.post('/api/import/flash', data));
 };
