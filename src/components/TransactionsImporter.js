@@ -8,7 +8,9 @@ import {
   MenuItem,
   Button,
   Typography,
+  Backdrop,
 } from '@mui/material';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import {
   importFlashTransactions,
   importMercadolivreTransactions,
@@ -20,21 +22,30 @@ import { csvToJson } from '../infrastructure/fileFormat/csvToJson.js';
 import { convertObjectToArray } from '../infrastructure/object/convertObjectToArray.js';
 
 const TransactionsImporter = () => {
-  const [selectedImporter, setSelectedImporter] = useState('');
+  const [selectedImporter, setSelectedImporter] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [dragging, setDragging] = useState(false);
 
   const handleFileChange = (event) => {
     setSelectedFile(event.target.files[0]);
   };
 
-  const handleDragOver = (event) => {
-    event.preventDefault(); // Necessary to allow drop
+  const handleDragOverAndEnter = (event) => {
+    event.preventDefault();
     event.stopPropagation();
+    setDragging(true);
+  };
+
+  const handleDragLeave = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setDragging(false);
   };
 
   const handleDrop = (event) => {
     event.preventDefault();
     event.stopPropagation();
+    setDragging(false);
     const files = event.dataTransfer.files;
     if (files && files.length > 0) {
       const file = files[0];
@@ -107,9 +118,32 @@ const TransactionsImporter = () => {
 
   return (
     <Box
-      sx={{ paddingLeft: 8, paddingRight: 8 }}
-      onDragOver={handleDragOver}
+      sx={{
+        position: 'relative',
+        paddingLeft: 8,
+        paddingRight: 8,
+        minHeight: 300,
+      }}
+      onDragOver={handleDragOverAndEnter}
+      onDragEnter={handleDragOverAndEnter}
+      onDragLeave={handleDragLeave}
       onDrop={handleDrop}>
+      {dragging && (
+        <Backdrop
+          open={true}
+          sx={{
+            color: '#fff',
+            zIndex: (theme) => theme.zIndex.drawer + 1,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: 'rgba(0,0,0,0.5)', // Semi-transparent backdrop
+          }}>
+          <CloudUploadIcon sx={{ fontSize: 60 }} />
+          <Typography variant='h6'>Drop file here</Typography>
+        </Backdrop>
+      )}
       <Grid
         container
         spacing={2}>
@@ -161,7 +195,7 @@ const TransactionsImporter = () => {
             variant='contained'
             color='primary'
             onClick={handleImport}
-            disabled={!selectedFile}>
+            disabled={!selectedFile || !selectedImporter}>
             Importar
           </Button>
         </Grid>
