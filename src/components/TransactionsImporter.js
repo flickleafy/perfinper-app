@@ -27,6 +27,25 @@ const TransactionsImporter = () => {
     setSelectedFile(event.target.files[0]);
   };
 
+  const handleDragOver = (event) => {
+    event.preventDefault(); // Necessary to allow drop
+    event.stopPropagation();
+  };
+
+  const handleDrop = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    const files = event.dataTransfer.files;
+    if (files && files.length > 0) {
+      const file = files[0];
+      if (file.type === 'application/json' || file.type === 'text/csv') {
+        setSelectedFile(file);
+      } else {
+        alert('Unsupported file format. Please select a JSON or CSV file.');
+      }
+    }
+  };
+
   const handleImport = async () => {
     if (!selectedFile) {
       return alert('Please select a file to import');
@@ -87,7 +106,10 @@ const TransactionsImporter = () => {
   };
 
   return (
-    <Box sx={{ paddingLeft: 8, paddingRight: 8 }}>
+    <Box
+      sx={{ paddingLeft: 8, paddingRight: 8 }}
+      onDragOver={handleDragOver}
+      onDrop={handleDrop}>
       <Grid
         container
         spacing={2}>
