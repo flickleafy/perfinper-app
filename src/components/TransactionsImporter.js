@@ -7,7 +7,7 @@ import {
   Select,
   MenuItem,
   Button,
-  // useTheme,
+  Typography,
 } from '@mui/material';
 import {
   importFlashTransactions,
@@ -16,14 +16,10 @@ import {
   importNubankCreditTransactions,
   importDigioCreditTransactions,
 } from '../services/importService.js';
-
-//List Elements
-// import LoadingIndicator from './LoadingIndicator.js';
 import { csvToJson } from '../infrastructure/fileFormat/csvToJson.js';
 import { convertObjectToArray } from '../infrastructure/object/convertObjectToArray.js';
 
 const TransactionsImporter = () => {
-  // const theme = useTheme();
   const [selectedImporter, setSelectedImporter] = useState('');
   const [selectedFile, setSelectedFile] = useState(null);
 
@@ -52,15 +48,14 @@ const TransactionsImporter = () => {
           }
         } else if (fileType.includes('csv')) {
           // Parse the CSV data
-          const csvData = e.target.result;
-          data = csvToJson(csvData);
+          data = csvToJson(e.target.result);
         } else {
           return alert(
             'Unsupported file format. Please select a JSON or CSV file.'
           );
         }
       } catch (error) {
-        console.error('Error parsing file:', error); // Handle parsing error
+        console.error('Error parsing file:', error);
         alert('Error reading file. Please try again.');
         return;
       }
@@ -86,9 +81,9 @@ const TransactionsImporter = () => {
           return alert('Please select a valid importer');
       }
       await importFunction(data);
-      // Handle success or error based on the response
     };
-    reader.onerror = (error) => alert('Error reading file');
+    reader.onerror = (error) =>
+      alert('Error reading file', JSON.stringify(error, null, 4));
   };
 
   return (
@@ -114,32 +109,40 @@ const TransactionsImporter = () => {
               <MenuItem value='flash'>Flash</MenuItem>
             </Select>
           </FormControl>
+          {selectedFile && (
+            <Typography
+              variant='body2'
+              sx={{ mt: 2 }}>
+              File: {selectedFile.name}
+            </Typography>
+          )}
         </Grid>
-      </Grid>
-      <Grid
-        item
-        xs={6}>
-        <input
-          type='file'
-          accept='.json, .csv'
-          hidden
-          id='file-input'
-          onChange={handleFileChange}
-        />
-        <label htmlFor='file-input'>
+        <Grid
+          item
+          xs={6}>
+          <input
+            type='file'
+            accept='.json, .csv'
+            hidden
+            id='file-input'
+            onChange={handleFileChange}
+          />
+          <label htmlFor='file-input'>
+            <Button
+              variant='contained'
+              component='span'
+              sx={{ marginRight: 1 }}>
+              Selecionar arquivo
+            </Button>
+          </label>
           <Button
             variant='contained'
-            component='span'>
-            Selecionar arquivo
+            color='primary'
+            onClick={handleImport}
+            disabled={!selectedFile}>
+            Importar
           </Button>
-        </label>
-        <Button
-          variant='contained'
-          color='primary'
-          onClick={handleImport}
-          disabled={!selectedFile}>
-          Importar
-        </Button>
+        </Grid>
       </Grid>
     </Box>
   );
