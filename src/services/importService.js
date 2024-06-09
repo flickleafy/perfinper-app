@@ -9,6 +9,10 @@ export const importNubankCreditTransactions = (data) => {
   return trackPromise(http.post('/api/import/nubank-credit', data));
 };
 
+export const importDigioCreditTransactions = (data) => {
+  return trackPromise(http.post('/api/import/digio-credit', data));
+};
+
 export const importFlashTransactions = (data) => {
   return trackPromise(http.post('/api/import/flash', data));
 };
