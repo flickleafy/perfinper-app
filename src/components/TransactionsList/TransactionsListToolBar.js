@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Box, AppBar, Toolbar } from '@mui/material';
-import SearchBar from './SearchBar.js';
-import StatusBar from './StatusBar.js';
-import PeriodSelector from './PeriodSelector.js';
+import SearchBar from '../../ui/SearchBar.js';
+import StatusBar from '../../ui/StatusBar.js';
+import PeriodSelector from '../../ui/PeriodSelector.js';
 
 export function TransactionsListToolBar({
   periodSelected,

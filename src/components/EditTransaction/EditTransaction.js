@@ -4,19 +4,19 @@ import localStorage from 'local-storage';
 import {
   findTransactionById,
   updateTransactionById,
-} from '../services/transactionService.js';
-import { getCategories } from '../services/categoryService.js';
-import { transactionBuilder } from '../helpers/objectsBuilder.js';
+} from '../../services/transactionService.js';
+import { getCategories } from '../../services/categoryService.js';
+import { transactionBuilder } from '../objectsBuilder.js';
 import {
   searchByID,
   getIndexOfElement,
-} from '../infrastructure/searcher/searchers.js';
+} from '../../infrastructure/searcher/searchers.js';
 
 // MUI Imports
 import { Button, Box, Typography, Grid } from '@mui/material';
-import { currencyFormat } from '../infrastructure/currency/currencyFormat.js';
-import { transactionPrototype } from './transactionPrototype.js';
-import TransactionForm from './TransactionForm.js';
+import { currencyFormat } from '../../infrastructure/currency/currencyFormat.js';
+import { transactionPrototype } from '../transactionPrototype.js';
+import TransactionForm from '../TransactionForm.js';
 
 const EditTransaction = () => {
   const { id } = useParams();

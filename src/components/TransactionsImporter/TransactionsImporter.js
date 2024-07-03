@@ -17,9 +17,9 @@ import {
   importNubankTransactions,
   importNubankCreditTransactions,
   importDigioCreditTransactions,
-} from '../services/importService.js';
-import { csvToJson } from '../infrastructure/fileFormat/csvToJson.js';
-import { convertObjectToArray } from '../infrastructure/object/convertObjectToArray.js';
+} from '../../services/importService.js';
+import { csvToJson } from '../../infrastructure/fileFormat/csvToJson.js';
+import { convertObjectToArray } from '../../infrastructure/object/convertObjectToArray.js';
 
 const TransactionsImporter = () => {
   const [selectedImporter, setSelectedImporter] = useState(null);
