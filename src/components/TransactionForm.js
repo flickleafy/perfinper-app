@@ -56,7 +56,8 @@ const TransactionForm = ({
   const transactionSources = [
     { id: 'manual', name: 'Manual' },
     { id: 'nubank', name: 'Nubank' },
-    { id: 'digio', name: 'Digio' },
+    { id: 'nubank-credit', name: 'Crédito Nubank' },
+    { id: 'digio-credit', name: 'Crédito Digio' },
     { id: 'mercadolivre', name: 'Mercado Livre' },
     { id: 'flash', name: 'Flash' },
   ];
