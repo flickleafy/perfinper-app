@@ -13,6 +13,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { blueGrey, teal, red, brown, common } from '@mui/material/colors';
 
 import TransactionsImporter from './components/TransactionsImporter/TransactionsImporter.js';
+import TransactionsExporter from './components/TransactionsExporter/TransactionsExporter.js';
 import TransactionsList from './components/TransactionsList/TransactionsList.js';
 import InsertTransaction from './components/InsertTransaction/InsertTransaction.js';
 import EditTransaction from './components/EditTransaction/EditTransaction.js';
@@ -87,6 +88,12 @@ function App() {
               to='/importar'>
               Importar Transações
             </Button>
+            <Button
+              color='inherit'
+              component={Link}
+              to='/exportar'>
+              Exportar Transações
+            </Button>
           </Toolbar>
         </AppBar>
         <Box
@@ -113,6 +120,10 @@ function App() {
             <Route
               path='/importar'
               element={<TransactionsImporter />}
+            />
+            <Route
+              path='/exportar'
+              element={<TransactionsExporter />}
             />
           </Routes>
         </Box>
