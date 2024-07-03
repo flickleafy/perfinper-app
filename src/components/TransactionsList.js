@@ -242,7 +242,8 @@ const TransactionList = () => {
   return (
     <Box
       paddingLeft={8}
-      paddingRight={8}>
+      paddingRight={8}
+      paddingBottom={8}>
       <TransactionsListToolBar
         periodSelected={periodSelected}
         handleDataChangePeriodSelector={handleDataChangePeriodSelector}
