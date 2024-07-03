@@ -12,10 +12,10 @@ import { Home } from '@mui/icons-material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { blueGrey, teal, red, brown, common } from '@mui/material/colors';
 
-import TransactionsImporter from './components/TransactionsImporter.js';
-import TransactionsList from './components/TransactionsList.js';
-import InsertTransaction from './components/InsertTransaction.js';
-import EditTransaction from './components/EditTransaction.js';
+import TransactionsImporter from './components/TransactionsImporter/TransactionsImporter.js';
+import TransactionsList from './components/TransactionsList/TransactionsList.js';
+import InsertTransaction from './components/InsertTransaction/InsertTransaction.js';
+import EditTransaction from './components/EditTransaction/EditTransaction.js';
 
 // Create a theme instance.
 const theme = createTheme({

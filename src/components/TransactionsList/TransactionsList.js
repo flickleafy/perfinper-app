@@ -18,21 +18,21 @@ import {
   deleteTransactionById,
   removeAllTransactionsInPeriod,
   removeAllByNameDEPRECATED,
-} from '../services/transactionService.js';
-import { getCategories } from '../services/categoryService.js';
+} from '../../services/transactionService.js';
+import { getCategories } from '../../services/categoryService.js';
 
 import {
   searchCategory,
   getIndexOfElement,
-} from '../infrastructure/searcher/searchers.js';
+} from '../../infrastructure/searcher/searchers.js';
 //List Elements
-import LoadingIndicator from './LoadingIndicator.js';
-import { transactionTypeColor } from '../helpers/useTransactionTypeColor.hook.jsx';
-import { IconByCategory } from './Buttons/IconByCategory.jsx';
+import LoadingIndicator from '../../ui/LoadingIndicator.js';
+import { IconByCategory } from '../../ui/Buttons/IconByCategory';
+import { transactionTypeColor } from '../../ui/Buttons/useTransactionTypeColor.hook';
 import { TransactionsListFooter } from './TransactionsListFooter.js';
 import { TransactionsListToolBar } from './TransactionsListToolBar.js';
 import { TransactionsListHeader } from './TransactionsListHeader.js';
-import { formatDate } from '../infrastructure/date/formatDate.js';
+import { formatDate } from '../../infrastructure/date/formatDate.js';
 
 const TransactionList = () => {
   const theme = useTheme();

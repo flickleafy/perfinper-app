@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import { CategoriesMap } from './categories.map';
 import { UnknownButton } from './UnknownButton';
-import { useTransactionTypeColor } from '../../helpers/useTransactionTypeColor.hook';
+import { useTransactionTypeColor } from './useTransactionTypeColor.hook';
 
 export function IconByCategory({ category, type, destination, onClick }) {
   const { backgroundColor, highlightColor } = useTransactionTypeColor(type);
