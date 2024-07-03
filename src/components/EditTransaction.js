@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
+import localStorage from 'local-storage';
 import {
   findTransactionById,
   updateTransactionById,
@@ -10,7 +11,6 @@ import {
   searchByID,
   getIndexOfElement,
 } from '../infrastructure/searcher/searchers.js';
-import localStorage from 'local-storage';
 
 // MUI Imports
 import { Button, Box, Typography, Grid } from '@mui/material';
@@ -90,7 +90,7 @@ const EditTransaction = () => {
 
   const handleInputChange = (event) => {
     let { name, value } = event.target;
-    if (name === 'transactionValue') {
+    if (name === 'transactionValue' || name === 'freightValue') {
       value = currencyFormat(value);
     }
     setTransaction({ ...transaction, [name]: value });
