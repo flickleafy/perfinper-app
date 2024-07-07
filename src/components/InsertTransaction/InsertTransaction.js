@@ -82,7 +82,7 @@ const InsertTransaction = () => {
       ) : (
         <>
           <TransactionForm
-            formTitle={'Inserir Lançamentto'}
+            formTitle={'Inserir Lançamento'}
             transaction={transaction}
             handleInputChange={handleInputChange}
             handleDateChange={setStartDate}
