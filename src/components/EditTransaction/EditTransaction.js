@@ -122,7 +122,7 @@ const EditTransaction = () => {
       paddingBottom={8}>
       <>
         <TransactionForm
-          formTitle={'Editar Lançamentto'}
+          formTitle={'Editar Lançamento'}
           transaction={transaction}
           handleInputChange={handleInputChange}
           handleDateChange={setTransactionDate}
