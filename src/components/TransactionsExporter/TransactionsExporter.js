@@ -25,7 +25,7 @@ const TransactionsExporter = () => {
     }
     setError(''); // Reset error message before the operation
     try {
-      const data = await exportTransactions(); // Fetch data from the API
+      const { data } = await exportTransactions(2023); // Fetch data from the API
       const isValidJSON = JSON.parse(JSON.stringify(data)); // Attempt to validate JSON data
       const blob = new Blob([JSON.stringify(data, null, 2)], {
         type: 'application/json',
