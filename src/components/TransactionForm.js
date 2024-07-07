@@ -200,7 +200,11 @@ const TransactionForm = ({
         fullWidth
         label='Valor do Frete'
         name='freightValue'
-        value={transaction.freightValue}
+        value={
+          transaction.transactionLocation !== 'online'
+            ? undefined
+            : transaction.freightValue
+        }
         onChange={handleInputChange}
         margin='normal'
         disabled={transaction.transactionLocation !== 'online'}
