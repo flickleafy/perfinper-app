@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import localStorage from 'local-storage';
 import {
   findTransactionById,
+  separateTransactionById,
   updateTransactionById,
 } from '../../services/transactionService.js';
 import { getCategories } from '../../services/categoryService.js';
@@ -115,6 +116,15 @@ const EditTransaction = () => {
       });
   };
 
+  const separateItemsTransaction = async () => {
+    try {
+      await separateTransactionById(transaction.id);
+      setMessage('A transação foi separada com sucesso!');
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
   return (
     <Box
       paddingLeft={8}
@@ -146,6 +156,13 @@ const EditTransaction = () => {
             variant='contained'
             sx={{ marginRight: 2 }}>
             Deletar
+          </Button>
+          <Button
+            color='primary'
+            variant='contained'
+            onClick={separateItemsTransaction}
+            sx={{ marginRight: 2 }}>
+            Separar Items em Transaçãos
           </Button>
           <Button
             color='primary'
