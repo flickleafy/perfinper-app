@@ -17,6 +17,10 @@ export const deleteTransactionById = (id) => {
   return trackPromise(http.delete(`/api/transaction/${id}`));
 };
 
+export const separateTransactionById = (id) => {
+  return trackPromise(http.post(`/api/transaction/separate/${id}`));
+};
+
 export const findAllTransactionsInPeriod = (yearMonth) => {
   return trackPromise(http.get(`/api/transaction/period/${yearMonth}`));
 };
