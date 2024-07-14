@@ -11,27 +11,35 @@ export function searchCategory(searchName, array) {
   return searchList;
 }
 
-export function searchDescription(searchName, array) {
-  let searchList = [];
+/**
+ * Searches through an array of objects, filtering based on the presence or absence of a search term
+ * across multiple fields.
+ * Example usage:
+ * const results = search('apple', data, ['transactionDescription', 'companyName', 'transactionName']);
+ *
+ * @param {string} searchName - The term to search for; if it starts with '-', the function excludes items containing the term.
+ * @param {Array} array - The array of objects to search through.
+ * @param {Array<string>} fields - The fields in the objects to search through.
+ * @returns {Array} - An array of objects that match the search criteria.
+ */
 
-  if (searchName.startsWith('-')) {
-    // Extract the word to exclude from the search term by removing the hyphen
-    const wordToExclude = searchName.slice(1).toLowerCase();
-    // Filter out items that contain the word to exclude
-    searchList = array.filter(
-      (element) =>
-        !element.transactionDescription.toLowerCase().includes(wordToExclude)
-    );
-  } else {
-    // Include items that contain the search term
-    searchList = array.filter((element) =>
-      element.transactionDescription
-        .toLowerCase()
-        .includes(searchName.toLowerCase())
-    );
-  }
+export function searchFields(searchName, array, fields) {
+  const exclude = searchName.startsWith('-');
+  const searchTerm = exclude
+    ? searchName.slice(1).toLowerCase()
+    : searchName.toLowerCase();
 
-  return searchList;
+  return array.filter((element) => {
+    return fields.some((field) => {
+      if (typeof element[field] === 'string') {
+        const content = element[field].toLowerCase();
+        return exclude
+          ? !content.includes(searchTerm)
+          : content.includes(searchTerm);
+      }
+      return false;
+    });
+  });
 }
 
 export function searchByID(id, array) {
