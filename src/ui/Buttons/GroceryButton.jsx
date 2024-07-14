@@ -13,7 +13,7 @@ export function GroceryButton({
       backgroundColor={backgroundColor}
       destination={destination}
       onClick={onClick}>
-      <LocalGroceryStoreIcon sx={{ color: highlightColor }} />;
+      <LocalGroceryStoreIcon sx={{ color: highlightColor }} />
     </SquircleButton>
   );
 }
