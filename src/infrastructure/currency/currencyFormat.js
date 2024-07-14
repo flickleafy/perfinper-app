@@ -1,4 +1,6 @@
 export function currencyFormat(input) {
+  input = input || '';
+
   // Remove all non-numeric characters except dots
   input = input.replace(/[^\d,]/g, '');
 
