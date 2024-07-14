@@ -31,8 +31,18 @@ const InsertTransaction = () => {
     if (name === 'transactionValue' || name === 'freightValue') {
       value = currencyFormat(value);
     }
+    // value = String(value).trim();
     setTransaction({ ...transaction, [name]: value });
   };
+
+  // const handlePaste = (event) => {
+  //   // You can access the pasted data via event.clipboardData if needed
+  //   const paste = event.clipboardData.getData('text');
+  //   setInputValue(paste);
+  //   setLastInputMethod('paste');
+  //   // Optionally, prevent the default paste action if you want custom handling
+  //   // event.preventDefault();
+  // };
 
   const handleItemsChange = (newItems) => {
     setTransaction((prevTransaction) => ({
