@@ -172,8 +172,9 @@ const EditTransaction = () => {
             color='primary'
             variant='contained'
             onClick={separateItemsTransaction}
+            disabled={transaction.items.length < 2}
             sx={{ marginRight: 2 }}>
-            Separar Items em Transaçãos
+            Separar Items para Transações
           </Button>
           <Button
             color='primary'
