@@ -282,7 +282,9 @@ const TransactionList = () => {
                   />
                   <ListItemIcon sx={{ paddingLeft: 6, paddingRight: 6 }}>
                     <IconByCategory
-                      category={transaction.transactionCategory}
+                      category={categoryIdToName(
+                        transaction.transactionCategory
+                      )}
                       type={transaction.transactionType}
                       destination='/'
                       onClick={() =>

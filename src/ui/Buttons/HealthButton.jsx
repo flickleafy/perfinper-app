@@ -13,7 +13,7 @@ export function HealthButton({
       backgroundColor={backgroundColor}
       destination={destination}
       onClick={onClick}>
-      <LocalHospitalIcon sx={{ color: highlightColor }} />;
+      <LocalHospitalIcon sx={{ color: highlightColor }} />
     </SquircleButton>
   );
 }

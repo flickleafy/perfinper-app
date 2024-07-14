@@ -13,7 +13,7 @@ export function EntertainmentButton({
       backgroundColor={backgroundColor}
       destination={destination}
       onClick={onClick}>
-      <DirectionsBikeIcon sx={{ color: highlightColor }} />;
+      <DirectionsBikeIcon sx={{ color: highlightColor }} />
     </SquircleButton>
   );
 }
