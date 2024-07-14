@@ -78,7 +78,7 @@ const TransactionForm = ({
     const newItem = {
       itemName: '',
       itemDescription: '',
-      itemValue: '0,0',
+      itemValue: '0,00',
       itemUnits: 1,
     };
     const newItems = [...items, newItem];
@@ -99,6 +99,7 @@ const TransactionForm = ({
     if (name === 'itemValue') {
       value = currencyFormat(value);
     }
+    // value = String(value).trim();
     newItems[index] = {
       ...newItems[index],
       [name]: value,
@@ -178,20 +179,10 @@ const TransactionForm = ({
       </FormControl>
       <TextField
         fullWidth
-        label='Nota Fiscal'
-        name='transactionFiscalNote'
-        value={transaction.transactionFiscalNote}
-        onChange={handleInputChange}
-        margin='normal'
-        variant='outlined'
-        disabled={transaction.transactionType !== 'debit'}
-      />
-      <TextField
-        fullWidth
         label='Valor'
         name='transactionValue'
         type='text'
-        value={transaction.transactionValue}
+        value={currencyFormat(transaction.transactionValue)}
         onChange={handleInputChange}
         margin='normal'
         variant='outlined'
@@ -200,10 +191,11 @@ const TransactionForm = ({
         fullWidth
         label='Valor do Frete'
         name='freightValue'
+        type='text'
         value={
           transaction.transactionLocation !== 'online'
-            ? undefined
-            : transaction.freightValue
+            ? ''
+            : currencyFormat(transaction.freightValue)
         }
         onChange={handleInputChange}
         margin='normal'
@@ -340,6 +332,17 @@ const TransactionForm = ({
         margin='normal'
         variant='outlined'
       />
+      <TextField
+        fullWidth
+        label='Nota Fiscal'
+        name='transactionFiscalNote'
+        type='text'
+        value={transaction.transactionFiscalNote}
+        onChange={handleInputChange}
+        margin='normal'
+        variant='outlined'
+        disabled={transaction.transactionType !== 'debit'}
+      />
 
       {/* Itens da compra */}
       {transaction.transactionType === 'debit' && (
@@ -401,7 +404,7 @@ const TransactionForm = ({
                     label='Valor do Item'
                     name='itemValue'
                     type='text'
-                    value={item.itemValue}
+                    value={currencyFormat(item.itemValue)}
                     onChange={(e) => handleItemChange(index, e)}
                     margin='normal'
                     variant='outlined'
