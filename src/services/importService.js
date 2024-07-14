@@ -1,4 +1,4 @@
-import http from '../http-common.js';
+import http from '../infrastructure/http/http-common.js';
 import { trackPromise } from 'react-promise-tracker';
 
 export const importNubankTransactions = (data) => {
