@@ -94,8 +94,18 @@ const EditTransaction = () => {
     if (name === 'transactionValue' || name === 'freightValue') {
       value = currencyFormat(value);
     }
+    // value = String(value).trim();
     setTransaction({ ...transaction, [name]: value });
   };
+
+  // const handlePaste = (event) => {
+  //   // You can access the pasted data via event.clipboardData if needed
+  //   const paste = event.clipboardData.getData('text');
+  //   setInputValue(paste);
+  //   setLastInputMethod('paste');
+  //   // Optionally, prevent the default paste action if you want custom handling
+  //   // event.preventDefault();
+  // };
 
   const handleItemsChange = (newItems) => {
     setTransaction((prevTransaction) => ({
@@ -104,20 +114,21 @@ const EditTransaction = () => {
     }));
   };
 
-  const updateTransaction = () => {
-    let updatedTransaction = transactionBuilder(transaction, transactionDate);
-    updateTransactionById(transaction.id, updatedTransaction)
-      .then(() => {
-        storeToLocalStorage(updatedTransaction);
-        setMessage('O lançamento foi atualizado com sucesso!');
-      })
-      .catch((e) => {
-        console.log(e);
-      });
+  const updateTransaction = async () => {
+    try {
+      let updatedTransaction = transactionBuilder(transaction, transactionDate);
+      await updateTransactionById(transaction.id, updatedTransaction);
+      storeToLocalStorage(updatedTransaction);
+      setMessage('O lançamento foi atualizado com sucesso!');
+    } catch (e) {
+      console.log(e);
+      throw e;
+    }
   };
 
   const separateItemsTransaction = async () => {
     try {
+      await updateTransaction();
       await separateTransactionById(transaction.id);
       setMessage('A transação foi separada com sucesso!');
     } catch (e) {
