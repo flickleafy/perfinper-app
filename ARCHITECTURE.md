@@ -30,13 +30,20 @@ src/
 ├── index.js                  # Application entry point
 ├── serviceWorker.js          # PWA service worker configuration
 ├── components/               # Feature-based React components
-│   ├── EditTransaction/      # Transaction editing functionality
-│   ├── InsertTransaction/    # Transaction creation functionality
-│   ├── TransactionForm.js    # Shared transaction form component
-│   ├── TransactionsList/     # Transaction listing and management
+│   ├── CompaniesList/       # Company listing and management
+│   ├── EditTransaction/     # Transaction editing functionality
+│   ├── InsertCompany/       # Company creation functionality
+│   ├── InsertPerson/        # Person creation functionality
+│   ├── InsertTransaction/   # Transaction creation functionality
+│   ├── PeopleList/          # People listing and management
+│   ├── TransactionForm.js   # Shared transaction form component
+│   ├── TransactionsList/    # Transaction listing and management
 │   ├── TransactionsExporter/ # Data export functionality
 │   ├── TransactionsImporter/ # Data import functionality
-│   ├── objectsBuilder.js     # Data transformation utilities
+│   ├── CompanyForm.js       # Shared company form component
+│   ├── PersonForm.js        # Shared person form component
+│   ├── entityPrototypes.js  # Company and person data templates
+│   ├── objectsBuilder.js    # Data transformation utilities
 │   └── transactionPrototype.js # Transaction data template
 ├── infrastructure/          # Cross-cutting concerns and utilities
 │   ├── currency/            # Currency formatting and processing
@@ -47,15 +54,18 @@ src/
 │   └── searcher/            # Search and filtering utilities
 ├── services/                # API communication layer
 │   ├── categoryService.js   # Category-related API calls
+│   ├── companyService.js    # Company-related API calls
 │   ├── exportService.js     # Export-related API calls
 │   ├── importService.js     # Import-related API calls
+│   ├── personService.js     # Person-related API calls
 │   └── transactionService.js # Transaction-related API calls
 └── ui/                      # Reusable UI components
     ├── Buttons/             # Custom button components
     ├── Inputs/              # Custom input components
     ├── LoadingIndicator.js  # Global loading indicator
     ├── PeriodSelector.js    # Date period selection
-    ├── SearchBar.js         # Search functionality
+    ├── SearchBar.js         # Advanced search functionality
+    ├── SimpleSearchBar.js   # Basic search functionality
     └── StatusBar.js         # Status display component
 ```
 
@@ -63,15 +73,17 @@ src/
 
 ### 1. Component-Based Architecture
 
-- **Feature Components**: Self-contained components for specific features (TransactionsList, InsertTransaction, etc.)
-- **Shared Components**: Reusable UI elements (TransactionForm, LoadingIndicator)
+- **Feature Components**: Self-contained components for specific features (TransactionsList, CompaniesList, PeopleList, etc.)
+- **Shared Components**: Reusable UI elements (TransactionForm, CompanyForm, PersonForm, LoadingIndicator)
 - **Atomic Design Approach**: Buttons and inputs are organized as atomic UI components
+- **Entity Management**: Dedicated components for managing companies and persons with CRUD operations
 
 ### 2. Service Layer Pattern
 
-- **API Services**: Dedicated service files for each domain (transactions, categories, import/export)
+- **API Services**: Dedicated service files for each domain (transactions, categories, companies, persons, import/export)
 - **HTTP Abstraction**: Centralized HTTP client configuration
 - **Promise Tracking**: Consistent loading state management across all API calls
+- **Entity Services**: Complete CRUD operations for companies and persons with search capabilities
 
 ### 3. Infrastructure Layer
 
@@ -118,6 +130,8 @@ User Input → Validation → Data Transformation → Builder Pattern → API Se
 - **Single Page Application**: React Router for client-side navigation
 - **Navigation Bar**: Persistent top navigation with main feature links
 - **Route-based Components**: Each route corresponds to a major feature
+- **Entity Management Routes**: Dedicated routes for companies (`/empresas`) and persons (`/pessoas`)
+- **CRUD Navigation**: Consistent routing patterns for create, read, update, delete operations
 
 ### 3. User Experience Patterns
 
@@ -183,16 +197,81 @@ User Input → Validation → Data Transformation → Builder Pattern → API Se
 - **Validation**: Input-specific validation rules
 - **Accessibility**: ARIA labels and keyboard navigation
 
-## 🔌 API Integration
+## �️ Application Routing
+
+### Route Structure
+
+The application uses React Router for client-side navigation with the following route structure:
+
+```plaintext
+/                        → TransactionsList (Home/Default)
+/lista                   → TransactionsList
+/inserir                 → InsertTransaction
+/editar/:id             → EditTransaction
+/empresas               → CompaniesList
+/empresas/inserir       → InsertCompany
+/empresas/editar/:id    → EditCompany
+/pessoas                → PeopleList
+/pessoas/inserir        → InsertPerson
+/pessoas/editar/:id     → EditPerson
+/importar               → TransactionsImporter
+/exportar               → TransactionsExporter
+```
+
+### Navigation Features
+
+- **Breadcrumb Navigation**: Clear navigation hierarchy
+- **Entity Management**: Dedicated sections for companies and persons
+- **CRUD Operations**: Consistent patterns for create, read, update, delete
+- **Search Integration**: Built-in search functionality for all list views
+- **Responsive Design**: Mobile-friendly navigation structure
+
+### Route Guards & Security
+
+- **Client-side Routing**: All routes handled by React Router
+- **No Authentication**: Currently open access (can be extended)
+- **Data Validation**: Input validation at component level
+- **Error Boundaries**: Graceful error handling for route failures
+
+## �🔌 API Integration
 
 ### 1. Service Architecture
 
 ```javascript
-// Example service pattern
+// Example service pattern for all entities
 export const insertTransaction = (data) => {
   return trackPromise(http.post('/api/transaction/', data));
 };
+
+export const insertCompany = (data) => {
+  return trackPromise(http.post('/api/company/', data));
+};
+
+export const insertPerson = (data) => {
+  return trackPromise(http.post('/api/person/', data));
+};
 ```
+
+### 2. API Endpoints Coverage
+
+#### Transaction Management
+
+- CRUD operations, period filtering, transaction separation
+- Import/export functionality, bulk operations
+
+#### Company Management  
+
+- Full CRUD operations, search by CNPJ/name/city/state
+- Statistics, batch operations, activity-based filtering
+
+#### Person Management
+
+- CRUD operations, search capabilities, business tracking
+- MEI status management, statistical reporting
+
+#### Category Management
+
+- CRUD operations for transaction categorization
 
 ### 2. Error Handling Strategy
 
@@ -296,3 +375,36 @@ export const insertTransaction = (data) => {
 - **Lazy Load Routes**: Code splitting for better initial load times
 
 This architecture provides a solid foundation for a maintainable, scalable personal finance management application with clear separation of concerns and modern React development practices.
+
+## 🔄 Backend Integration & Data Models
+
+### Entity Model Alignment
+
+The frontend components are designed to match the backend MongoDB schemas exactly:
+
+#### Person Entity
+
+- **Primary Fields**: `fullName`, `cpf`, `rg`, `dateOfBirth`, `profession`, `status`
+- **Contact Structure**: Supports multiple `emails`, `phones`, and `cellphones` as arrays
+- **Address**: Complete address structure with `street`, `number`, `complement`, `neighborhood`, `zipCode`, `city`, `state`, `country`
+- **Personal Business**: Comprehensive business information with type enums, category classification, MEI support, and revenue tracking
+- **Status Enum**: `active`, `inactive`, `blocked`, `anonymous`
+- **Bank Accounts**: Array of bank account information
+- **Notes**: General observations field
+
+#### Company Entity
+
+- **Primary Fields**: `companyName`, `companyCnpj`, `corporateName`, `tradeName`
+- **Registration**: `foundationDate`, `companySize`, `legalNature`
+- **Tax Options**: `microEntrepreneurOption`, `simplifiedTaxOption`
+- **Contact Structure**: Email, phone arrays, website, social media
+- **Address**: Same structure as Person entity
+- **Corporate Activities**: Primary and secondary CNAE codes and descriptions
+- **Corporate Structure**: Shareholders and partners information
+
+### Data Validation & Processing
+
+- All CPF/CNPJ inputs are automatically cleaned (numbers only)
+- Date fields use Material-UI DatePicker with Brazilian locale
+- Nested object updates are handled through specialized change handlers
+- Form state management preserves data integrity across complex object structures

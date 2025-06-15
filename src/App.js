@@ -17,6 +17,12 @@ import TransactionsExporter from './components/TransactionsExporter/Transactions
 import TransactionsList from './components/TransactionsList/TransactionsList.js';
 import InsertTransaction from './components/InsertTransaction/InsertTransaction.js';
 import EditTransaction from './components/EditTransaction/EditTransaction.js';
+import CompaniesList from './components/CompaniesList/CompaniesList.js';
+import InsertCompany from './components/InsertCompany/InsertCompany.js';
+import EditCompany from './components/EditCompany/EditCompany.js';
+import PeopleList from './components/PeopleList/PeopleList.js';
+import InsertPerson from './components/InsertPerson/InsertPerson.js';
+import EditPerson from './components/EditPerson/EditPerson.js';
 
 // Create a theme instance.
 const theme = createTheme({
@@ -85,6 +91,18 @@ function App() {
             <Button
               color='inherit'
               component={Link}
+              to='/empresas'>
+              Empresas
+            </Button>
+            <Button
+              color='inherit'
+              component={Link}
+              to='/pessoas'>
+              Pessoas
+            </Button>
+            <Button
+              color='inherit'
+              component={Link}
               to='/importar'>
               Importar Transações
             </Button>
@@ -116,6 +134,29 @@ function App() {
             <Route
               path='/editar/:id'
               element={<EditTransaction />}
+            />
+            <Route
+              path='/empresas'
+              element={<CompaniesList />}
+            />            <Route
+              path='/empresas/inserir'
+              element={<InsertCompany />}
+            />
+            <Route
+              path='/empresas/editar/:id'
+              element={<EditCompany />}
+            />
+            <Route
+              path='/pessoas'
+              element={<PeopleList />}
+            />
+            <Route
+              path='/pessoas/inserir'
+              element={<InsertPerson />}
+            />
+            <Route
+              path='/pessoas/editar/:id'
+              element={<EditPerson />}
             />
             <Route
               path='/importar'
