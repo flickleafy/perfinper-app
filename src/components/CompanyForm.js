@@ -243,6 +243,24 @@ const CompanyForm = ({
                 />
               </Grid>
               <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  label="Capital Social"
+                  name="shareCapital"
+                  value={company.shareCapital || ''}
+                  onChange={handleInputChange}
+                  placeholder="R$ 0,00"
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <DatePicker
+                  label="Data da Situação Cadastral"
+                  value={company.statusDate}
+                  onChange={(date) => handleDateChange('statusDate', date)}
+                  renderInput={(params) => <TextField {...params} fullWidth />}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
                 <FormControlLabel
                   control={
                     <Checkbox
@@ -344,6 +362,15 @@ const CompanyForm = ({
                   onChange={handleInputChange}
                 />
               </Grid>
+              <Grid item xs={12} md={3}>
+                <TextField
+                  fullWidth
+                  label="País"
+                  name="address.country"
+                  value={company.address?.country || 'Brasil'}
+                  onChange={handleInputChange}
+                />
+              </Grid>
             </Grid>
           </AccordionDetails>
         </Accordion>
@@ -398,6 +425,71 @@ const CompanyForm = ({
                   </Box>
                 ))}
               </Grid>
+
+              {/* Social Media */}
+              <Grid item xs={12}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                  <Typography variant="subtitle1">Redes Sociais</Typography>
+                  <IconButton onClick={handleAddSocialMedia} size="small">
+                    <Add />
+                  </IconButton>
+                </Box>
+                {socialMedia.map((social, index) => (
+                  <Box key={`social-${index}`} sx={{ border: '1px dashed grey', p: 2, mb: 2 }}>
+                    <Grid container spacing={2}>
+                      <Grid item xs={12} md={3}>
+                        <FormControl fullWidth>
+                          <InputLabel>Plataforma</InputLabel>
+                          <Select
+                            value={social.platform}
+                            onChange={(e) => handleSocialMediaChange(index, 'platform', e.target.value)}
+                            label="Plataforma"
+                          >
+                            <MenuItem value="Facebook">Facebook</MenuItem>
+                            <MenuItem value="Instagram">Instagram</MenuItem>
+                            <MenuItem value="Twitter">Twitter</MenuItem>
+                            <MenuItem value="LinkedIn">LinkedIn</MenuItem>
+                            <MenuItem value="YouTube">YouTube</MenuItem>
+                            <MenuItem value="TikTok">TikTok</MenuItem>
+                            <MenuItem value="Pinterest">Pinterest</MenuItem>
+                            <MenuItem value="Other">Outro</MenuItem>
+                          </Select>
+                        </FormControl>
+                      </Grid>
+                      <Grid item xs={12} md={3}>
+                        <TextField
+                          fullWidth
+                          label="Handle/Username"
+                          value={social.handle}
+                          onChange={(e) => handleSocialMediaChange(index, 'handle', e.target.value)}
+                        />
+                      </Grid>
+                      <Grid item xs={12} md={4}>
+                        <TextField
+                          fullWidth
+                          label="URL"
+                          value={social.url}
+                          onChange={(e) => handleSocialMediaChange(index, 'url', e.target.value)}
+                        />
+                      </Grid>
+                      <Grid item xs={12} md={2}>
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              checked={social.isActive || false}
+                              onChange={(e) => handleSocialMediaChange(index, 'isActive', e.target.checked)}
+                            />
+                          }
+                          label="Ativo"
+                        />
+                      </Grid>
+                    </Grid>
+                    <IconButton onClick={() => handleRemoveSocialMedia(index)} size="small" sx={{ mt: 1 }}>
+                      <Delete />
+                    </IconButton>
+                  </Box>
+                ))}
+              </Grid>
             </Grid>
           </AccordionDetails>
         </Accordion>
@@ -426,12 +518,19 @@ const CompanyForm = ({
                     />
                   </Grid>
                   <Grid item xs={12} md={6}>
-                    <TextField
-                      fullWidth
-                      label="Tipo (Sócio, Administrador, etc.)"
-                      value={partner.type}
-                      onChange={(e) => handleCorporateStructureFieldChange(index, 'type', e.target.value)}
-                    />
+                    <FormControl fullWidth>
+                      <InputLabel>Tipo</InputLabel>
+                      <Select
+                        value={partner.type}
+                        onChange={(e) => handleCorporateStructureFieldChange(index, 'type', e.target.value)}
+                        label="Tipo"
+                      >
+                        <MenuItem value="Administrador">Administrador</MenuItem>
+                        <MenuItem value="Sócio">Sócio</MenuItem>
+                        <MenuItem value="Procurador">Procurador</MenuItem>
+                        <MenuItem value="Vendedor">Vendedor</MenuItem>
+                      </Select>
+                    </FormControl>
                   </Grid>
                   <Grid item xs={12} md={6}>
                     <TextField
@@ -513,6 +612,50 @@ const CompanyForm = ({
                     </IconButton>
                   </Box>
                 ))}
+              </Grid>
+            </Grid>
+          </AccordionDetails>
+        </Accordion>
+
+        {/* Statistics */}
+        <Accordion>
+          <AccordionSummary expandIcon={<ExpandMore />}>
+            <Typography variant="h6">Estatísticas</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <Grid container spacing={3}>
+              <Grid item xs={12} md={4}>
+                <TextField
+                  fullWidth
+                  label="Total de Transações"
+                  value={company.statistics?.totalTransactions || 0}
+                  InputProps={{
+                    readOnly: true,
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} md={4}>
+                <TextField
+                  fullWidth
+                  label="Valor Total das Transações"
+                  value={company.statistics?.totalTransactionValue || 'R$ 0,00'}
+                  InputProps={{
+                    readOnly: true,
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} md={4}>
+                <TextField
+                  fullWidth
+                  label="Última Transação"
+                  value={company.statistics?.lastTransaction ? 
+                    new Date(company.statistics.lastTransaction).toLocaleDateString('pt-BR') : 
+                    'Nenhuma'
+                  }
+                  InputProps={{
+                    readOnly: true,
+                  }}
+                />
               </Grid>
             </Grid>
           </AccordionDetails>

@@ -11,6 +11,8 @@ import {
   Typography,
   Paper,
   Chip,
+  Button,
+  Checkbox,
   useTheme,
 } from '@mui/material';
 import { Edit, Delete, Business, LocationCity } from '@mui/icons-material';
@@ -165,22 +167,32 @@ const CompaniesList = () => {
             />
           </Grid>
           <Grid item xs={12} md={6}>
-            <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
-              <Link to="/empresas/inserir" style={{ textDecoration: 'none' }}>
-                <button className="btn btn-primary">Nova Empresa</button>
-              </Link>
+            <Grid
+              container
+              justifyContent='flex-end'
+              sx={{ gap: 2 }}>
+              <Button
+                component={Link}
+                to="/empresas/inserir"
+                variant='contained'
+                color='primary'>
+                Nova Empresa
+              </Button>
               {selectedCompanies.length > 0 && (
-                <button 
-                  className="btn btn-danger" 
-                  onClick={removeSelectedCompanies}
-                >
+                <Button
+                  variant='contained'
+                  color='error'
+                  onClick={removeSelectedCompanies}>
                   Excluir Selecionadas ({selectedCompanies.length})
-                </button>
+                </Button>
               )}
-              <button className="btn btn-secondary" onClick={refreshList}>
+              <Button
+                variant='contained'
+                color='secondary'
+                onClick={refreshList}>
                 Atualizar
-              </button>
-            </Box>
+              </Button>
+            </Grid>
           </Grid>
         </Grid>
       </Box>
@@ -190,8 +202,7 @@ const CompaniesList = () => {
           {companiesPrintList.map((company, index) => (
             <ListItem key={company.id || index} divider>
               <ListItemIcon>
-                <input
-                  type="checkbox"
+                <Checkbox
                   checked={selectedCompanies.includes(company.id)}
                   onChange={() => handleCompanySelection(company.id)}
                 />

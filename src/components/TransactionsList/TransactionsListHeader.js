@@ -30,10 +30,10 @@ export const TransactionsListHeader = ({ onSortChange }) => {
           bgcolor: 'background.paper',
         }}>
         <Typography
-          style={{
+          sx={{
             flexGrow: 0,
-            paddingLeft: 24,
-            paddingRight: 24,
+            paddingLeft: 3,
+            paddingRight: 3,
             cursor: 'pointer',
           }}
           onClick={() => handleSort('transactionDate')}>
@@ -44,7 +44,7 @@ export const TransactionsListHeader = ({ onSortChange }) => {
           </TableSortLabel>
         </Typography>
         <Typography
-          style={{ flexGrow: 0, cursor: 'pointer' }}
+          sx={{ flexGrow: 0, cursor: 'pointer' }}
           onClick={() => handleSort('transactionCategory')}>
           <TableSortLabel
             active={true}
@@ -53,7 +53,7 @@ export const TransactionsListHeader = ({ onSortChange }) => {
           </TableSortLabel>
         </Typography>
         <Typography
-          style={{ flexGrow: 1, paddingLeft: 8, cursor: 'pointer' }}
+          sx={{ flexGrow: 1, paddingLeft: 1, cursor: 'pointer' }}
           onClick={() => handleSort('transactionDescription')}>
           <TableSortLabel
             active={true}
@@ -62,7 +62,7 @@ export const TransactionsListHeader = ({ onSortChange }) => {
           </TableSortLabel>
         </Typography>
         <Typography
-          style={{ flexGrow: 0, paddingRight: 164, cursor: 'pointer' }}
+          sx={{ flexGrow: 0, paddingRight: '164px', cursor: 'pointer' }}
           onClick={() => handleSort('transactionValue')}>
           <TableSortLabel
             active={true}
