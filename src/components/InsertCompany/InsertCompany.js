@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { companyBuilder } from '../objectsBuilder.js';
 import { insertCompany } from '../../services/companyService.js';
 
@@ -9,6 +10,7 @@ import CompanyForm from '../CompanyForm.js';
 
 const InsertCompany = () => {
   const initialCompanyState = companyPrototype();
+  const navigate = useNavigate();
 
   const [company, setCompany] = useState(initialCompanyState);
   const [submitted, setSubmitted] = useState(false);
@@ -77,6 +79,10 @@ const InsertCompany = () => {
     setSubmitted(false);
   };
 
+  const goBackToCompanies = () => {
+    navigate('/empresas');
+  };
+
   return (
     <Box
       paddingLeft={8}
@@ -117,6 +123,12 @@ const InsertCompany = () => {
               color='secondary'
               onClick={newCompany}>
               Limpar Formulário
+            </Button>
+            <Button
+              variant='outlined'
+              color='info'
+              onClick={goBackToCompanies}>
+              Voltar para Lista de Empresas
             </Button>
           </Box>
         </>

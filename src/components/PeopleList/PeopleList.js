@@ -11,6 +11,8 @@ import {
   Typography,
   Paper,
   Chip,
+  Button,
+  Checkbox,
   useTheme,
 } from '@mui/material';
 import { Edit, Delete, Person, LocationCity, Business } from '@mui/icons-material';
@@ -153,14 +155,24 @@ const PeopleList = () => {
             />
           </Grid>
           <Grid item xs={12} md={6}>
-            <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
-              <Link to="/pessoas/inserir" style={{ textDecoration: 'none' }}>
-                <button className="btn btn-primary">Nova Pessoa</button>
-              </Link>
-              <button className="btn btn-secondary" onClick={refreshList}>
+            <Grid
+              container
+              justifyContent='flex-end'
+              sx={{ gap: 2 }}>
+              <Button
+                component={Link}
+                to="/pessoas/inserir"
+                variant='contained'
+                color='primary'>
+                Nova Pessoa
+              </Button>
+              <Button
+                variant='contained'
+                color='secondary'
+                onClick={refreshList}>
                 Atualizar
-              </button>
-            </Box>
+              </Button>
+            </Grid>
           </Grid>
         </Grid>
       </Box>
@@ -170,8 +182,7 @@ const PeopleList = () => {
           {peoplePrintList.map((person, index) => (
             <ListItem key={person.id || index} divider>
               <ListItemIcon>
-                <input
-                  type="checkbox"
+                <Checkbox
                   checked={selectedPeople.includes(person.id)}
                   onChange={() => handlePersonSelection(person.id)}
                 />

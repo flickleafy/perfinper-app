@@ -8,6 +8,7 @@ import {
   IconButton,
   Grid,
   Box,
+  Typography,
   useTheme,
 } from '@mui/material';
 import { Edit, Delete } from '@mui/icons-material';
@@ -298,17 +299,17 @@ const TransactionList = () => {
                       transaction.transactionCategory
                     )}`}
                     secondary={
-                      <div>
-                        <div>{transaction.transactionDescription}</div>
+                      <Box>
+                        <Typography variant="body2">{transaction.transactionDescription}</Typography>
                         {transaction.companyCnpj && (
-                          <>
-                            <div style={{ marginTop: '8px' }}>
+                          <Box sx={{ mt: 1 }}>
+                            <Typography variant="body2">
                               Cnpj: {transaction.companyCnpj}
-                            </div>
-                            <div>Nome: {transaction.companyName}</div>
-                          </>
+                            </Typography>
+                            <Typography variant="body2">Nome: {transaction.companyName}</Typography>
+                          </Box>
                         )}
-                      </div>
+                      </Box>
                     }
                     primaryTypographyProps={{ variant: 'h6' }}
                   />
