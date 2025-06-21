@@ -44,6 +44,7 @@ import {
   Delete as DeleteIcon,
   GetApp as ExportIcon,
   Assessment as StatsIcon,
+  Info as InfoIcon,
 } from '@mui/icons-material';
 import fiscalBookService from '../../services/fiscalBookService';
 import LoadingIndicator from '../../ui/LoadingIndicator';
@@ -89,6 +90,7 @@ function FiscalBooksList({
   // Fiscal book drawer
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerFiscalBook, setDrawerFiscalBook] = useState(null);
+  const [drawerInitialTab, setDrawerInitialTab] = useState(0);
 
   // Load fiscal books
   const loadFiscalBooks = async () => {
@@ -129,7 +131,7 @@ function FiscalBooksList({
       if (onEdit) {
         onEdit(bookToEdit);
       } else {
-        navigate(`/livros-fiscais/editar/${bookToEdit._id || bookToEdit.id}`);
+        navigate(`/livros-fiscais/editar/${bookToEdit.id || bookToEdit._id}`);
       }
     }
     handleMenuClose();
@@ -145,7 +147,7 @@ function FiscalBooksList({
   };
 
   // Handle view
-  const handleView = (book = selectedBook) => {
+  const handleView = (book = selectedBook, initialTab = 0) => {
     const bookToView = book || selectedBook;
     if (bookToView) {
       // If onView callback is provided, use it (for parent component control)
@@ -154,16 +156,28 @@ function FiscalBooksList({
       } else {
         // Otherwise, open the drawer internally
         setDrawerFiscalBook(bookToView);
+        setDrawerInitialTab(initialTab);
         setDrawerOpen(true);
       }
     }
     handleMenuClose();
   };
 
+  // Handle view statistics
+  const handleViewTransactions = (book = selectedBook) => {
+    handleView(book, 1); // Open to transactions tab (index 1)
+  };
+
+  // Handle view statistics
+  const handleViewStatistics = (book = selectedBook) => {
+    handleView(book, 2); // Open to statistics tab (index 2)
+  };
+
   // Handle drawer close
   const handleDrawerClose = () => {
     setDrawerOpen(false);
     setDrawerFiscalBook(null);
+    setDrawerInitialTab(0);
   };
 
   // Handle drawer edit
@@ -178,9 +192,9 @@ function FiscalBooksList({
 
     try {
       if (selectedBook.status === FISCAL_BOOK_STATUS.CLOSED) {
-        await fiscalBookService.reopen(selectedBook._id);
+        await fiscalBookService.reopen(selectedBook.id || selectedBook._id);
       } else {
-        await fiscalBookService.close(selectedBook._id);
+        await fiscalBookService.close(selectedBook.id || selectedBook._id);
       }
       await loadFiscalBooks();
     } catch (err) {
@@ -203,7 +217,7 @@ function FiscalBooksList({
 
     try {
       setDeleting(true);
-      await fiscalBookService.delete(bookToDelete._id);
+      await fiscalBookService.delete(bookToDelete.id || bookToDelete._id);
       await loadFiscalBooks();
       setDeleteDialogOpen(false);
       setBookToDelete(null);
@@ -220,7 +234,7 @@ function FiscalBooksList({
     if (!selectedBook) return;
 
     try {
-      const blob = await fiscalBookService.export(selectedBook._id, 'csv');
+      const blob = await fiscalBookService.export(selectedBook.id || selectedBook._id, 'csv');
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -497,12 +511,16 @@ function FiscalBooksList({
         open={Boolean(anchorEl)}
         onClose={handleMenuClose}
       >
-        <MenuItem onClick={handleView}>
+        <MenuItem onClick={() => handleViewTransactions(selectedBook)}>
+          <InfoIcon sx={{ mr: 1 }} />
+          Ver Transações
+        </MenuItem>
+        <MenuItem onClick={() => handleViewStatistics(selectedBook)}>
           <StatsIcon sx={{ mr: 1 }} />
-          Ver Detalhes
+          Ver Estatísticas
         </MenuItem>
         {allowEdit && selectedBook && isFiscalBookEditable(selectedBook) && (
-          <MenuItem onClick={handleEdit}>
+          <MenuItem onClick={() => handleEdit(selectedBook)}>
             <EditIcon sx={{ mr: 1 }} />
             Editar
           </MenuItem>
@@ -585,6 +603,7 @@ function FiscalBooksList({
         fiscalBook={drawerFiscalBook}
         onEdit={handleDrawerEdit}
         onRefresh={loadFiscalBooks}
+        initialTab={drawerInitialTab}
       />
     </Box>
   );
