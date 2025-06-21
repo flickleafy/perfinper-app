@@ -15,20 +15,17 @@ import {
   IconButton,
   Button,
   Grid,
+  Alert,
+  Chip,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
+import MenuBookIcon from '@mui/icons-material/MenuBook';
+import LockIcon from '@mui/icons-material/Lock';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { ptBR } from 'date-fns/locale';
 import { currencyFormat } from '../infrastructure/currency/currencyFormat';
-
-// interface TransactionFormProps {
-//   transaction: any;
-//   handleInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-//   handleDateChange: (date: Date | null) => void;
-//   categories: Array<{ id: string, name: string }>;
-//   dateValue: Date | null;
-// }
+import TransactionFiscalBookSelector from './TransactionFiscalBookSelector/TransactionFiscalBookSelector';
 
 const TransactionForm = ({
   formTitle,
@@ -36,8 +33,12 @@ const TransactionForm = ({
   handleInputChange,
   handleDateChange,
   handleItemsChange,
+  handleFiscalBookChange,
   categories,
   dateValue,
+  isEditing = false,
+  selectedFiscalBook = null,
+  isInArchivedBook = false,
 }) => {
   const paymentMethods = [
     { id: 'money', name: 'Dinheiro' },
@@ -99,7 +100,6 @@ const TransactionForm = ({
     if (name === 'itemValue') {
       value = currencyFormat(value);
     }
-    // value = String(value).trim();
     newItems[index] = {
       ...newItems[index],
       [name]: value,
@@ -138,6 +138,78 @@ const TransactionForm = ({
           ))}
         </Select>
       </FormControl>
+      
+      {/* Fiscal Book Selection */}
+      <Box sx={{ mb: 2 }}>
+        {isInArchivedBook && (
+          <Alert severity="warning" sx={{ mb: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <LockIcon fontSize="small" />
+              <Typography variant="body2">
+                Esta transação pertence a um livro fiscal arquivado e não pode ser editada.
+              </Typography>
+            </Box>
+          </Alert>
+        )}
+        
+        <TransactionFiscalBookSelector
+          selectedFiscalBook={selectedFiscalBook}
+          onFiscalBookChange={handleFiscalBookChange}
+          disabled={isInArchivedBook}
+          showTransferOption={isEditing}
+          transaction={transaction}
+        />
+        
+        {selectedFiscalBook && (
+          <Box sx={{ mt: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
+            <MenuBookIcon color="action" fontSize="small" />
+            <Typography variant="caption" color="text.secondary">
+              Livro Fiscal: {selectedFiscalBook.name} ({selectedFiscalBook.year})
+              {selectedFiscalBook.status === 'archived' && ' - Arquivado'}
+            </Typography>
+          </Box>
+        )}
+      </Box>
+
+      {/* Fiscal Book Section */}
+      <Box sx={{ mb: 2 }}>
+        {isInArchivedBook && (
+          <Alert severity="warning" sx={{ mb: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <LockIcon fontSize="small" />
+              Esta transação pertence a um livro fiscal arquivado e não pode ser editada.
+            </Box>
+          </Alert>
+        )}
+        
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
+          <MenuBookIcon color="primary" />
+          <Typography variant="h6">Livro Fiscal</Typography>
+        </Box>
+        
+        {selectedFiscalBook && (
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="body2" color="text.secondary" gutterBottom>
+              Livro atual:
+            </Typography>
+            <Chip
+              label={`${selectedFiscalBook.name} (${selectedFiscalBook.year})`}
+              color={selectedFiscalBook.status === 'archived' ? 'default' : 'primary'}
+              variant="outlined"
+              icon={selectedFiscalBook.status === 'archived' ? <LockIcon /> : <MenuBookIcon />}
+            />
+          </Box>
+        )}
+        
+        <TransactionFiscalBookSelector
+          selectedFiscalBook={selectedFiscalBook}
+          onFiscalBookChange={handleFiscalBookChange}
+          disabled={isInArchivedBook}
+          showTransferOption={isEditing && selectedFiscalBook}
+          transaction={transaction}
+        />
+      </Box>
+
       <TextField
         fullWidth
         label='Nome da Transação'
@@ -469,7 +541,8 @@ TransactionForm.propTypes = {
   }),
   handleInputChange: PropTypes.func,
   handleDateChange: PropTypes.func,
-  handleItemsChange: PropTypes.func, // Ensure this is added
+  handleItemsChange: PropTypes.func,
+  handleFiscalBookChange: PropTypes.func,
   categories: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.string.isRequired,
@@ -477,6 +550,14 @@ TransactionForm.propTypes = {
     })
   ),
   dateValue: PropTypes.instanceOf(Date),
+  isEditing: PropTypes.bool,
+  selectedFiscalBook: PropTypes.shape({
+    id: PropTypes.string,
+    name: PropTypes.string,
+    year: PropTypes.number,
+    status: PropTypes.string,
+  }),
+  isInArchivedBook: PropTypes.bool,
 };
 
 export default TransactionForm;
