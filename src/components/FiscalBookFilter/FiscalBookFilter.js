@@ -14,10 +14,14 @@ import fiscalBookService from '../../services/fiscalBookService.js';
 
 const getStatusColor = (status) => {
   switch (status) {
-    case 'Ativo':
+    case 'Aberto':
       return 'success';
     case 'Fechado':
       return 'warning';
+    case 'Em Revisão':
+      return 'info';
+    case 'Arquivado':
+      return 'default';
     default:
       return 'default';
   }
@@ -27,6 +31,7 @@ const FiscalBookFilter = ({ selectedFiscalBookId, onFiscalBookChange, sx }) => {
   const [fiscalBooks, setFiscalBooks] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [transactionCounts, setTransactionCounts] = useState({});
 
   useEffect(() => {
     loadFiscalBooks();
@@ -37,7 +42,30 @@ const FiscalBookFilter = ({ selectedFiscalBookId, onFiscalBookChange, sx }) => {
       setLoading(true);
       setError(null);
       const response = await fiscalBookService.getAll();
-      setFiscalBooks(response || []);
+      const books = response || [];
+      setFiscalBooks(books);
+
+      // Fetch transaction counts for each book
+      const counts = {};
+      await Promise.all(
+        books.map(async (book) => {
+          try {
+            // Validate that book has a valid id before making API call
+            if (!book.id || book.id === 'undefined' || typeof book.id !== 'string') {
+              console.warn(`Invalid book ID for book:`, book);
+              counts[book.id] = 0;
+              return;
+            }
+            
+            const transactions = await fiscalBookService.getTransactions(book.id);
+            counts[book.id] = Array.isArray(transactions) ? transactions.length : 0;
+          } catch (err) {
+            console.warn(`Failed to load transaction count for book ${book.id}:`, err);
+            counts[book.id] = 0;
+          }
+        })
+      );
+      setTransactionCounts(counts);
     } catch (err) {
       console.error('Error loading fiscal books:', err);
       setError('Erro ao carregar livros fiscais');
@@ -55,7 +83,7 @@ const FiscalBookFilter = ({ selectedFiscalBookId, onFiscalBookChange, sx }) => {
     onFiscalBookChange(null);
   };
 
-  const selectedBook = fiscalBooks.find(book => book._id === selectedFiscalBookId);
+  const selectedBook = fiscalBooks.find(book => book.id === selectedFiscalBookId);
 
   return (
     <Box sx={{ minWidth: 200, ...sx }}>
@@ -104,14 +132,16 @@ const FiscalBookFilter = ({ selectedFiscalBookId, onFiscalBookChange, sx }) => {
             </Box>
           </MenuItem>
 
-          {fiscalBooks.map((book) => (
-            <MenuItem key={book._id} value={book._id}>
+          {fiscalBooks
+            .filter(book => book.id && book.id !== 'undefined' && typeof book.id === 'string')
+            .map((book) => (
+            <MenuItem key={book.id} value={book.id}>
               <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
                 <MenuBook sx={{ mr: 1, fontSize: 18 }} />
                 <Box sx={{ flex: 1 }}>
-                  <Box>{book.name}</Box>
+                  <Box>{book.bookName}</Box>
                   <Box sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
-                    {book.year} • {book.transactionCount || 0} transações
+                    {book.bookPeriod} • {book.bookType} • {transactionCounts[book.id] || 0} transações
                   </Box>
                 </Box>
                 <Chip
@@ -132,7 +162,7 @@ const FiscalBookFilter = ({ selectedFiscalBookId, onFiscalBookChange, sx }) => {
           <Chip
             size="small"
             icon={<MenuBook />}
-            label={`${selectedBook.name} (${selectedBook.year})`}
+            label={`${selectedBook.bookName} (${selectedBook.bookPeriod})`}
             color="primary"
             variant="outlined"
             onDelete={handleClear}

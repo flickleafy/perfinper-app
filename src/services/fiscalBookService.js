@@ -11,6 +11,17 @@ class FiscalBookService {
   }
 
   /**
+   * Validate fiscal book ID
+   * @param {string} id - Fiscal book ID to validate
+   * @throws {Error} If ID is invalid
+   */
+  validateId(id) {
+    if (!id || id === 'undefined' || typeof id !== 'string' || id.trim() === '') {
+      throw new Error(`Invalid fiscal book ID: ${id}`);
+    }
+  }
+
+  /**
    * Get all fiscal books with optional filters
    * @param {Object} filters - Filter options
    * @param {string} filters.type - Filter by book type
@@ -39,6 +50,7 @@ class FiscalBookService {
    * @returns {Promise<Object>} Fiscal book object
    */
   async getById(id) {
+    this.validateId(id);
     return trackPromise(
       http.get(`${this.baseUrl}/${id}`)
         .then(response => response.data)
@@ -299,6 +311,7 @@ class FiscalBookService {
    */
   async getTransactions(id, options = {}) {
     try {
+      this.validateId(id);
       const response = await http.get(`${this.baseUrl}/${id}/transactions`, {
         params: options
       });

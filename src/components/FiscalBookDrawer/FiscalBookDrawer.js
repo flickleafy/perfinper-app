@@ -67,15 +67,21 @@ TabPanel.propTypes = {
  * @param {Object} props.fiscalBook - Fiscal book to display
  * @param {Function} props.onEdit - Callback when edit is requested
  * @param {Function} props.onRefresh - Callback when refresh is needed
+ * @param {number} props.initialTab - Initial tab to open (0=Overview, 1=Transactions, 2=Statistics)
  */
-function FiscalBookDrawer({ open, onClose, fiscalBook, onEdit, onRefresh }) {
-  const [tabValue, setTabValue] = useState(0);
+function FiscalBookDrawer({ open, onClose, fiscalBook, onEdit, onRefresh, initialTab = 0 }) {
+  const [tabValue, setTabValue] = useState(initialTab);
   const [statistics, setStatistics] = useState(null);
   const [loadingStats, setLoadingStats] = useState(false);
   const [statsError, setStatsError] = useState('');
   const [transactions, setTransactions] = useState([]);
   const [loadingTransactions, setLoadingTransactions] = useState(false);
   const [transactionsError, setTransactionsError] = useState('');
+
+  // Reset tab when initialTab changes
+  useEffect(() => {
+    setTabValue(initialTab);
+  }, [initialTab]);
 
   // Load statistics when fiscal book changes
   useEffect(() => {
@@ -546,12 +552,14 @@ FiscalBookDrawer.propTypes = {
   }),
   onEdit: PropTypes.func,
   onRefresh: PropTypes.func,
+  initialTab: PropTypes.number,
 };
 
 FiscalBookDrawer.defaultProps = {
   fiscalBook: null,
   onEdit: null,
   onRefresh: null,
+  initialTab: 0,
 };
 
 export default FiscalBookDrawer;
