@@ -10,8 +10,9 @@ import {
   Box,
   Typography,
   useTheme,
+  Chip,
 } from '@mui/material';
-import { Edit, Delete } from '@mui/icons-material';
+import { Edit, Delete, MenuBook } from '@mui/icons-material';
 //Data load and processing
 import localStorage from 'local-storage';
 import {
@@ -21,6 +22,7 @@ import {
   removeAllByNameDEPRECATED,
 } from '../../services/transactionService.js';
 import { getCategories } from '../../services/categoryService.js';
+import fiscalBookService from '../../services/fiscalBookService.js';
 
 import {
   searchCategory,
@@ -34,22 +36,36 @@ import { TransactionsListFooter } from './TransactionsListFooter.js';
 import { TransactionsListToolBar } from './TransactionsListToolBar.js';
 import { TransactionsListHeader } from './TransactionsListHeader.js';
 import { formatDate } from '../../infrastructure/date/formatDate.js';
+import TransactionFiscalBookActions from '../TransactionFiscalBookActions/TransactionFiscalBookActions.js';
 
 const TransactionList = () => {
   const theme = useTheme();
   const [fullTransactionsList, setFullTransactionsList] = useState([]);
   const [transactionsPrintList, setTransactionsPrintList] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [periodSelected, setPeriodSelected] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');  const [periodSelected, setPeriodSelected] = useState('');
   const [categories, setCategories] = useState([]);
-
+  const [fiscalBooks, setFiscalBooks] = useState([]);
+  const [selectedFiscalBookId, setSelectedFiscalBookId] = useState(null);
+  const [menuAnchorEl, setMenuAnchorEl] = useState(null);
+  const [selectedTransaction, setSelectedTransaction] = useState(null);
   useEffect(() => {
     const fetchCategories = async () => {
       const data = await getCategories();
       setCategories(data.data);
     };
 
+    const fetchFiscalBooks = async () => {
+      try {
+        const books = await fiscalBookService.getAll();
+        setFiscalBooks(books || []);
+      } catch (error) {
+        console.error('Error fetching fiscal books:', error);
+        setFiscalBooks([]);
+      }
+    };
+
     fetchCategories();
+    fetchFiscalBooks();
   }, []);
 
   useEffect(() => {
@@ -163,34 +179,57 @@ const TransactionList = () => {
         console.log(e);
       });
   };
-
   const handleDataChangeSearchBar = (newSearchTerm, newList) => {
     setSearchTerm(newSearchTerm);
     localStorage.set('searchTerm', newSearchTerm);
+    
+    let filteredList;
     if (newSearchTerm.length >= 3) {
-      setTransactionsPrintList(newList);
-      localStorage.set('transactionsPrintList', newList);
+      filteredList = newList;
     } else if (newSearchTerm.length < 3) {
-      setTransactionsPrintList(fullTransactionsList);
-      localStorage.set('transactionsPrintList', fullTransactionsList);
+      filteredList = fullTransactionsList;
     }
+    
+    // Apply fiscal book filter to the search results
+    applyFiscalBookFilter(selectedFiscalBookId, filteredList);
   };
-
   const handleCategorySelection = (category) => {
     if (category.length > 0) {
       let searchList = searchCategory(category, fullTransactionsList);
       if (searchList.length > 0) {
-        setTransactionsPrintList(searchList);
-        localStorage.set('transactionsPrintList', searchList);
+        // Apply fiscal book filter to category results
+        applyFiscalBookFilter(selectedFiscalBookId, searchList);
       }
     }
   };
 
-  const restoreToFullTransactionsList = () => {
-    setTransactionsPrintList(fullTransactionsList);
-    localStorage.set('transactionsPrintList', fullTransactionsList);
+  const restoreToFullTransactionsList = () => {    // Apply fiscal book filter to full list
+    applyFiscalBookFilter(selectedFiscalBookId, fullTransactionsList);
   };
 
+  const handleTransactionUpdated = (updatedTransaction) => {
+    // Update the transaction in both lists
+    const updateTransactionInList = (list, setList, storageKey) => {
+      const updatedList = list.map(t => 
+        t.id === updatedTransaction.id ? updatedTransaction : t
+      );
+      setList(updatedList);
+      localStorage.set(storageKey, updatedList);
+    };
+
+    updateTransactionInList(fullTransactionsList, setFullTransactionsList, 'fullTransactionsList');
+    updateTransactionInList(transactionsPrintList, setTransactionsPrintList, 'transactionsPrintList');
+  };
+
+  const handleMenuOpen = (event, transaction) => {
+    setMenuAnchorEl(event.currentTarget);
+    setSelectedTransaction(transaction);
+  };
+
+  const handleMenuClose = () => {
+    setMenuAnchorEl(null);
+    setSelectedTransaction(null);
+  };
   const handleDataChangePeriodSelector = (period) => {
     if (period.length > 0) {
       //Blast current transactions list
@@ -201,12 +240,94 @@ const TransactionList = () => {
     }
   };
 
+  const handleFiscalBookChange = (fiscalBookId) => {
+    setSelectedFiscalBookId(fiscalBookId);
+    applyFiscalBookFilter(fiscalBookId, fullTransactionsList);
+  };
+
+  const applyFiscalBookFilter = (fiscalBookId, transactions) => {
+    let filteredTransactions = transactions;
+
+    if (fiscalBookId === 'none') {
+      // Show only transactions without fiscal book
+      filteredTransactions = transactions.filter(t => !t.fiscalBookId);
+    } else if (fiscalBookId && fiscalBookId !== 'all') {
+      // Show only transactions with the selected fiscal book
+      filteredTransactions = transactions.filter(t => t.fiscalBookId === fiscalBookId);
+    }
+    // If fiscalBookId is null or 'all', show all transactions
+
+    setTransactionsPrintList(filteredTransactions);
+    localStorage.set('transactionsPrintList', filteredTransactions);
+  };
   const categoryIdToName = (cateogryId) => {
     if (cateogryId && categories.length) {
       const selectedCategory = categories.filter(
         (category) => category.id === cateogryId
       )[0];
       return selectedCategory.name;
+    }
+  };
+  /**
+   * Create a memoized map of fiscal books for better performance
+   */
+  const fiscalBookMap = React.useMemo(() => {
+    const map = new Map();
+    fiscalBooks.forEach(book => {
+      const id = book._id || book.id;
+      if (id) {
+        map.set(id, {
+          name: book.bookName || book.name || 'Desconhecido',
+          period: (() => {
+            const period = book.bookPeriod || book.year?.toString() || '';
+            return period.includes('-') ? period.split('-')[0] : period || 'N/A';
+          })()
+        });
+      }
+    });
+    return map;
+  }, [fiscalBooks]);
+  /**
+   * Get fiscal book details by ID using the memoized map
+   * @param {string} fiscalBookId - The fiscal book ID
+   * @returns {Object} Fiscal book details
+   */
+  const getFiscalBookDetails = (fiscalBookId) => {
+    if (!fiscalBookId) return { name: 'Desconhecido', period: 'N/A' };
+    return fiscalBookMap.get(fiscalBookId) || { name: 'Desconhecido', period: 'N/A' };
+  };
+
+  /**
+   * Render fiscal book chip component
+   * @param {string} fiscalBookId - The fiscal book ID
+   * @returns {JSX.Element} Fiscal book chip
+   */
+  const renderFiscalBookChip = (fiscalBookId) => {
+    if (fiscalBookId) {
+      const fiscalBookDetails = getFiscalBookDetails(fiscalBookId);
+      return (
+        <Box sx={{ mt: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
+          <MenuBook fontSize="small" color="action" />
+          <Chip
+            label={`Livro Fiscal: ${fiscalBookDetails.name} (${fiscalBookDetails.period})`}
+            size="small"
+            variant="outlined"
+            color="primary"
+          />
+        </Box>
+      );
+    } else {
+      return (
+        <Box sx={{ mt: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
+          <MenuBook fontSize="small" color="disabled" />
+          <Chip
+            label="Sem livro fiscal"
+            size="small"
+            variant="outlined"
+            color="default"
+          />
+        </Box>
+      );
     }
   };
 
@@ -244,13 +365,14 @@ const TransactionList = () => {
     <Box
       paddingLeft={8}
       paddingRight={8}
-      paddingBottom={8}>
-      <TransactionsListToolBar
+      paddingBottom={8}>      <TransactionsListToolBar
         periodSelected={periodSelected}
         handleDataChangePeriodSelector={handleDataChangePeriodSelector}
         fullTransactionsList={fullTransactionsList}
         handleDataChangeSearchBar={handleDataChangeSearchBar}
         transactionsPrintList={transactionsPrintList}
+        selectedFiscalBookId={selectedFiscalBookId}
+        onFiscalBookChange={handleFiscalBookChange}
       />
       <Grid
         container
@@ -308,7 +430,8 @@ const TransactionList = () => {
                             </Typography>
                             <Typography variant="body2">Nome: {transaction.companyName}</Typography>
                           </Box>
-                        )}
+                        )}                        {/* Fiscal Book Information */}
+                        {renderFiscalBookChip(transaction.fiscalBookId)}
                       </Box>
                     }
                     primaryTypographyProps={{ variant: 'h6' }}
@@ -317,8 +440,7 @@ const TransactionList = () => {
                     sx={{ flexGrow: 0, paddingRight: 2, minWidth: 140 }}
                     primary={`R$ ${transaction.transactionValue}`}
                     primaryTypographyProps={{ variant: 'h6' }}
-                  />
-                  <ListItemIcon>
+                  />                  <ListItemIcon>
                     <IconButton
                       component={Link}
                       to={`/editar/${transaction.id}`}>
@@ -330,6 +452,14 @@ const TransactionList = () => {
                       }>
                       <Delete color='error' />
                     </IconButton>
+                    <TransactionFiscalBookActions
+                      transaction={transaction}
+                      onTransactionUpdated={handleTransactionUpdated}
+                      anchorEl={menuAnchorEl}
+                      open={Boolean(menuAnchorEl && selectedTransaction?.id === transaction.id)}
+                      onClose={handleMenuClose}
+                      onOpen={(event) => handleMenuOpen(event, transaction)}
+                    />
                   </ListItemIcon>
                 </ListItem>
               ))}

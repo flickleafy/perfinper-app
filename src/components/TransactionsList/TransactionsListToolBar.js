@@ -4,6 +4,7 @@ import { Box, AppBar, Toolbar } from '@mui/material';
 import SearchBar from '../../ui/SearchBar.js';
 import StatusBar from '../../ui/StatusBar.js';
 import PeriodSelector from '../../ui/PeriodSelector.js';
+import FiscalBookFilter from '../FiscalBookFilter/FiscalBookFilter.js';
 
 export function TransactionsListToolBar({
   periodSelected,
@@ -11,6 +12,8 @@ export function TransactionsListToolBar({
   fullTransactionsList,
   handleDataChangeSearchBar,
   transactionsPrintList,
+  selectedFiscalBookId,
+  onFiscalBookChange,
 }) {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
@@ -27,6 +30,12 @@ export function TransactionsListToolBar({
               array={fullTransactionsList}
               onDataChange={handleDataChangeSearchBar}
             />
+            <Box sx={{ ml: 2 }}>
+              <FiscalBookFilter
+                selectedFiscalBookId={selectedFiscalBookId}
+                onFiscalBookChange={onFiscalBookChange}
+              />
+            </Box>
           </Toolbar>
         </AppBar>
       </Box>
@@ -43,4 +52,6 @@ TransactionsListToolBar.propTypes = {
   fullTransactionsList: PropTypes.array,
   handleDataChangeSearchBar: PropTypes.func,
   transactionsPrintList: PropTypes.array,
+  selectedFiscalBookId: PropTypes.string,
+  onFiscalBookChange: PropTypes.func,
 };

@@ -23,6 +23,9 @@ import EditCompany from './components/EditCompany/EditCompany.js';
 import PeopleList from './components/PeopleList/PeopleList.js';
 import InsertPerson from './components/InsertPerson/InsertPerson.js';
 import EditPerson from './components/EditPerson/EditPerson.js';
+import FiscalBooksList from './components/FiscalBooksList/FiscalBooksList.js';
+import InsertFiscalBook from './components/InsertFiscalBook/InsertFiscalBook.js';
+import EditFiscalBook from './components/EditFiscalBook/EditFiscalBook.js';
 
 // Create a theme instance.
 const theme = createTheme({
@@ -93,12 +96,17 @@ function App() {
               component={Link}
               to='/empresas'>
               Empresas
-            </Button>
-            <Button
+            </Button>            <Button
               color='inherit'
               component={Link}
               to='/pessoas'>
               Pessoas
+            </Button>
+            <Button
+              color='inherit'
+              component={Link}
+              to='/livros-fiscais'>
+              Livros Fiscais
             </Button>
             <Button
               color='inherit'
@@ -153,10 +161,21 @@ function App() {
             <Route
               path='/pessoas/inserir'
               element={<InsertPerson />}
-            />
-            <Route
+            />            <Route
               path='/pessoas/editar/:id'
               element={<EditPerson />}
+            />
+            <Route
+              path='/livros-fiscais'
+              element={<FiscalBooksList />}
+            />
+            <Route
+              path='/livros-fiscais/inserir'
+              element={<InsertFiscalBook />}
+            />
+            <Route
+              path='/livros-fiscais/editar/:id'
+              element={<EditFiscalBook />}
             />
             <Route
               path='/importar'

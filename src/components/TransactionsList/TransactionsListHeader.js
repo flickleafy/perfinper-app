@@ -6,6 +6,7 @@ export const TransactionsListHeader = ({ onSortChange }) => {
   const [orderDirection, setOrderDirection] = useState({
     transactionDate: 'asc',
     transactionCategory: 'asc',
+    fiscalBookName: 'asc',
     transactionDescription: 'asc',
     transactionValue: 'asc',
   });
@@ -50,6 +51,15 @@ export const TransactionsListHeader = ({ onSortChange }) => {
             active={true}
             direction={orderDirection.transactionCategory}>
             Categoria
+          </TableSortLabel>
+        </Typography>
+        <Typography
+          sx={{ flexGrow: 0, paddingLeft: 1, paddingRight: 1, cursor: 'pointer' }}
+          onClick={() => handleSort('fiscalBookName')}>
+          <TableSortLabel
+            active={true}
+            direction={orderDirection.fiscalBookName}>
+            Livro Fiscal
           </TableSortLabel>
         </Typography>
         <Typography
