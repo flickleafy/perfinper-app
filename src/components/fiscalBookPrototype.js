@@ -79,7 +79,7 @@ export function createFiscalBookForEdit(fiscalBook) {
 /**
  * Fiscal book status constants - aligned with backend enum
  */
-export const FISCAL_BOOK_STATUS = {
+export const FISCAL_BOOK_STATUS_OBJ = {
   ABERTO: 'Aberto',
   FECHADO: 'Fechado',
   EM_REVISAO: 'Em Revisão',
@@ -87,9 +87,14 @@ export const FISCAL_BOOK_STATUS = {
 };
 
 /**
+ * Fiscal book status as array for iteration
+ */
+export const FISCAL_BOOK_STATUS = Object.values(FISCAL_BOOK_STATUS_OBJ);
+
+/**
  * Fiscal book type constants - aligned with backend enum
  */
-export const FISCAL_BOOK_TYPES = {
+export const FISCAL_BOOK_TYPES_OBJ = {
   ENTRADA: 'Entrada',
   SAIDA: 'Saída',
   SERVICOS: 'Serviços',
@@ -98,9 +103,14 @@ export const FISCAL_BOOK_TYPES = {
 };
 
 /**
+ * Fiscal book types as array for iteration
+ */
+export const FISCAL_BOOK_TYPES = Object.values(FISCAL_BOOK_TYPES_OBJ);
+
+/**
  * Tax regime constants - aligned with backend enum
  */
-export const TAX_REGIMES = {
+export const TAX_REGIMES_OBJ = {
   SIMPLES_NACIONAL: 'Simples Nacional',
   LUCRO_REAL: 'Lucro Real',
   LUCRO_PRESUMIDO: 'Lucro Presumido',
@@ -108,12 +118,42 @@ export const TAX_REGIMES = {
 };
 
 /**
+ * Tax regimes as array for iteration
+ */
+export const TAX_REGIMES = Object.values(TAX_REGIMES_OBJ);
+
+/**
+ * Fiscal period constants - aligned with backend enum
+ */
+export const FISCAL_PERIODS_OBJ = {
+  ANNUAL: 'annual',
+  MONTHLY: 'monthly', 
+  QUARTERLY: 'quarterly',
+  BIANNUAL: 'biannual'
+};
+
+/**
+ * Fiscal period options with Portuguese labels for UI
+ */
+export const FISCAL_PERIOD_OPTIONS = [
+  { value: FISCAL_PERIODS_OBJ.ANNUAL, label: 'Anual' },
+  { value: FISCAL_PERIODS_OBJ.MONTHLY, label: 'Mensal' },
+  { value: FISCAL_PERIODS_OBJ.QUARTERLY, label: 'Trimestral' },
+  { value: FISCAL_PERIODS_OBJ.BIANNUAL, label: 'Bianual' }
+];
+
+/**
+ * Fiscal periods as array for iteration
+ */
+export const FISCAL_PERIODS = Object.values(FISCAL_PERIODS_OBJ);
+
+/**
  * Get fiscal book display status
  * @param {Object} fiscalBook - Fiscal book object
  * @returns {string} Display status
  */
 export function getFiscalBookStatus(fiscalBook) {
-  return fiscalBook.status || FISCAL_BOOK_STATUS.ABERTO;
+  return fiscalBook.status || FISCAL_BOOK_STATUS_OBJ.ABERTO;
 }
 
 /**
@@ -122,8 +162,8 @@ export function getFiscalBookStatus(fiscalBook) {
  * @returns {boolean} True if editable
  */
 export function isFiscalBookEditable(fiscalBook) {
-  return fiscalBook.status !== FISCAL_BOOK_STATUS.ARQUIVADO && 
-         fiscalBook.status !== FISCAL_BOOK_STATUS.FECHADO;
+  return fiscalBook.status !== FISCAL_BOOK_STATUS_OBJ.ARQUIVADO && 
+         fiscalBook.status !== FISCAL_BOOK_STATUS_OBJ.FECHADO;
 }
 
 /**
@@ -132,7 +172,7 @@ export function isFiscalBookEditable(fiscalBook) {
  * @returns {boolean} True if archived
  */
 export function isFiscalBookArchived(fiscalBook) {
-  return fiscalBook.status === FISCAL_BOOK_STATUS.ARQUIVADO;
+  return fiscalBook.status === FISCAL_BOOK_STATUS_OBJ.ARQUIVADO;
 }
 
 /**
@@ -141,7 +181,7 @@ export function isFiscalBookArchived(fiscalBook) {
  * @returns {boolean} True if closed
  */
 export function isFiscalBookClosed(fiscalBook) {
-  return fiscalBook.status === FISCAL_BOOK_STATUS.FECHADO;
+  return fiscalBook.status === FISCAL_BOOK_STATUS_OBJ.FECHADO;
 }
 
 /**

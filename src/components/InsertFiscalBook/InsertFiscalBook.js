@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+import { useNavigate } from 'react-router-dom';
 import {
   Container,
   Paper,
@@ -15,12 +16,9 @@ import FiscalBookForm from '../FiscalBookForm';
 
 /**
  * InsertFiscalBook - Component for creating new fiscal books
- * @param {Object} props - Component props
- * @param {Function} props.onSuccess - Callback when fiscal book is successfully created
- * @param {Function} props.onCancel - Callback when creation is cancelled
- * @param {Function} props.onBack - Callback when back button is clicked
  */
-function InsertFiscalBook({ onSuccess, onCancel, onBack }) {
+function InsertFiscalBook({ onSuccess, onCancel }) {
+  const navigate = useNavigate();
   const [successMessage, setSuccessMessage] = useState('');
 
   // Handle successful creation
@@ -32,6 +30,8 @@ function InsertFiscalBook({ onSuccess, onCancel, onBack }) {
       if (onSuccess) {
         onSuccess(createdFiscalBook);
       }
+      // Navigate back to fiscal books list after showing success message
+      navigate('/livros-fiscais');
     }, 2000);
   };
 
@@ -40,13 +40,12 @@ function InsertFiscalBook({ onSuccess, onCancel, onBack }) {
     if (onCancel) {
       onCancel();
     }
+    navigate('/livros-fiscais');
   };
 
   // Handle back navigation
   const handleBack = () => {
-    if (onBack) {
-      onBack();
-    }
+    navigate('/livros-fiscais');
   };
 
   return (
@@ -151,13 +150,11 @@ function InsertFiscalBook({ onSuccess, onCancel, onBack }) {
 InsertFiscalBook.propTypes = {
   onSuccess: PropTypes.func,
   onCancel: PropTypes.func,
-  onBack: PropTypes.func,
 };
 
 InsertFiscalBook.defaultProps = {
   onSuccess: null,
   onCancel: null,
-  onBack: null,
 };
 
 export default InsertFiscalBook;

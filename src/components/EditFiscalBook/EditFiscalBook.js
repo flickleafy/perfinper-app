@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
   Container,
   Paper,
@@ -29,13 +30,10 @@ import LoadingIndicator from '../../ui/LoadingIndicator';
 
 /**
  * EditFiscalBook - Component for editing existing fiscal books
- * @param {Object} props - Component props
- * @param {string} props.fiscalBookId - ID of the fiscal book to edit
- * @param {Function} props.onSuccess - Callback when fiscal book is successfully updated
- * @param {Function} props.onCancel - Callback when editing is cancelled
- * @param {Function} props.onBack - Callback when back button is clicked
  */
-function EditFiscalBook({ fiscalBookId, onSuccess, onCancel, onBack }) {
+function EditFiscalBook({ onSuccess, onCancel }) {
+  const navigate = useNavigate();
+  const { id: fiscalBookId } = useParams();
   const [fiscalBook, setFiscalBook] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -81,6 +79,8 @@ function EditFiscalBook({ fiscalBookId, onSuccess, onCancel, onBack }) {
       if (onSuccess) {
         onSuccess(updatedFiscalBook);
       }
+      // Navigate back to fiscal books list after showing success message
+      navigate('/livros-fiscais');
     }, 2000);
   };
 
@@ -89,13 +89,12 @@ function EditFiscalBook({ fiscalBookId, onSuccess, onCancel, onBack }) {
     if (onCancel) {
       onCancel();
     }
+    navigate('/livros-fiscais');
   };
 
   // Handle back navigation
   const handleBack = () => {
-    if (onBack) {
-      onBack();
-    }
+    navigate('/livros-fiscais');
   };
 
   // Get status chip color
@@ -307,16 +306,13 @@ function EditFiscalBook({ fiscalBookId, onSuccess, onCancel, onBack }) {
 }
 
 EditFiscalBook.propTypes = {
-  fiscalBookId: PropTypes.string.isRequired,
   onSuccess: PropTypes.func,
   onCancel: PropTypes.func,
-  onBack: PropTypes.func,
 };
 
 EditFiscalBook.defaultProps = {
   onSuccess: null,
   onCancel: null,
-  onBack: null,
 };
 
 export default EditFiscalBook;
