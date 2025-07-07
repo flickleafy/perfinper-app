@@ -17,6 +17,7 @@ import {
   FISCAL_BOOK_TYPES, 
   FISCAL_BOOK_STATUS,
   TAX_REGIMES,
+  FISCAL_PERIOD_OPTIONS,
   isFiscalBookEditable 
 } from './fiscalBookPrototype';
 import fiscalBookService from '../services/fiscalBookService';
@@ -376,12 +377,20 @@ function FiscalBookForm({
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
+                  select
                   label="Período Fiscal"
                   value={formData.fiscalData.fiscalPeriod}
                   onChange={handleFiscalDataChange('fiscalPeriod')}
                   disabled={!isEditable || loading}
-                  placeholder="ex: annual, monthly, quarterly"
-                />
+                  SelectProps={{ native: true }}
+                  helperText="Selecione o período fiscal"
+                >
+                  {FISCAL_PERIOD_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </TextField>
               </Grid>
             </Grid>
           </Grid>
