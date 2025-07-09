@@ -50,8 +50,13 @@ const TransactionList = () => {
   const [selectedTransaction, setSelectedTransaction] = useState(null);
   useEffect(() => {
     const fetchCategories = async () => {
-      const data = await getCategories();
-      setCategories(data.data);
+      try {
+        const data = await getCategories();
+        setCategories(data.data);
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+        setCategories([]);
+      }
     };
 
     const fetchFiscalBooks = async () => {
@@ -260,6 +265,22 @@ const TransactionList = () => {
     setTransactionsPrintList(filteredTransactions);
     localStorage.set('transactionsPrintList', filteredTransactions);
   };
+
+  /**
+   * Get the year from the selected fiscal book
+   */
+  const selectedFiscalBookYear = React.useMemo(() => {
+    if (!selectedFiscalBookId || selectedFiscalBookId === 'all' || selectedFiscalBookId === 'none') {
+      return null;
+    }
+    const book = fiscalBooks.find(b => (b._id || b.id) === selectedFiscalBookId);
+    if (book) {
+      const period = book.bookPeriod || book.year?.toString() || '';
+      // Extract year from period (e.g., '2023' from '2023' or '2023-01' from '2023-01')
+      return period.includes('-') ? period.split('-')[0] : period;
+    }
+    return null;
+  }, [selectedFiscalBookId, fiscalBooks]);
   const categoryIdToName = (cateogryId) => {
     if (cateogryId && categories.length) {
       const selectedCategory = categories.filter(
@@ -373,6 +394,7 @@ const TransactionList = () => {
         transactionsPrintList={transactionsPrintList}
         selectedFiscalBookId={selectedFiscalBookId}
         onFiscalBookChange={handleFiscalBookChange}
+        fiscalBookYear={selectedFiscalBookYear}
       />
       <Grid
         container

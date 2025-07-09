@@ -2,15 +2,17 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import {
   FormControl,
-  InputLabel,
-  Select,
   MenuItem,
-  Chip,
   Box,
   CircularProgress,
+  Chip,
+  Snackbar,
+  Alert,
 } from '@mui/material';
-import { MenuBook, Clear } from '@mui/icons-material';
+import { MenuBook } from '@mui/icons-material';
 import fiscalBookService from '../../services/fiscalBookService.js';
+import { StyledSelect } from '../../ui/Inputs/StyledSelect.js';
+import { StyledInputLabel } from '../../ui/Inputs/StyledInputLabel.js';
 
 const getStatusColor = (status) => {
   switch (status) {
@@ -32,10 +34,17 @@ const FiscalBookFilter = ({ selectedFiscalBookId, onFiscalBookChange, sx }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [transactionCounts, setTransactionCounts] = useState({});
+  const [isErrorToastOpen, setIsErrorToastOpen] = useState(false);
 
   useEffect(() => {
     loadFiscalBooks();
   }, []);
+
+  useEffect(() => {
+    if (error) {
+      setIsErrorToastOpen(true);
+    }
+  }, [error]);
 
   const loadFiscalBooks = async () => {
     try {
@@ -79,103 +88,169 @@ const FiscalBookFilter = ({ selectedFiscalBookId, onFiscalBookChange, sx }) => {
     onFiscalBookChange(value === 'all' ? null : value);
   };
 
-  const handleClear = () => {
-    onFiscalBookChange(null);
+  const renderSelectedValue = (value) => {
+    if (loading) {
+      return (
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0 }}>
+          <CircularProgress size={16} />
+          <Box sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            Carregando...
+          </Box>
+        </Box>
+      );
+    }
+
+    if (value === 'all') {
+      return (
+        <Box sx={{ display: 'flex', alignItems: 'center', minWidth: 0 }}>
+          <MenuBook sx={{ mr: 1, fontSize: 18 }} />
+          <Box sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            Todos os Livros
+          </Box>
+        </Box>
+      );
+    }
+
+    if (value === 'none') {
+      return (
+        <Box sx={{ display: 'flex', alignItems: 'center', minWidth: 0 }}>
+          <MenuBook sx={{ mr: 1, fontSize: 18 }} />
+          <Box sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            Sem Livro Fiscal
+          </Box>
+        </Box>
+      );
+    }
+
+    const book = fiscalBooks.find((b) => b.id === value);
+    if (!book) {
+      return (
+        <Box sx={{ display: 'flex', alignItems: 'center', minWidth: 0 }}>
+          <MenuBook sx={{ mr: 1, fontSize: 18 }} />
+          <Box sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            Livro Fiscal
+          </Box>
+        </Box>
+      );
+    }
+
+    return (
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0 }}>
+        <MenuBook sx={{ fontSize: 18 }} />
+        <Box
+          sx={{
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            minWidth: 0,
+            flex: 1,
+          }}
+        >
+          {book.bookName} ({book.bookPeriod})
+        </Box>
+        <Chip
+          size="small"
+          label={book.status}
+          color={getStatusColor(book.status)}
+          sx={{
+            minWidth: 0,
+            maxWidth: 110,
+            flexShrink: 1,
+            '& .MuiChip-label': {
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+            },
+          }}
+        />
+      </Box>
+    );
   };
 
-  const selectedBook = fiscalBooks.find(book => book.id === selectedFiscalBookId);
-
   return (
-    <Box sx={{ minWidth: 200, ...sx }}>
-      <FormControl fullWidth size="small">
-        <InputLabel id="fiscal-book-filter-label">
-          Livro Fiscal
-        </InputLabel>
-        <Select
+    <>
+      <FormControl
+        sx={{ width: '100%', minWidth: 0, maxWidth: '100%', ...sx }}
+        data-testid="fiscal-book-filter"
+      >
+        <StyledInputLabel id="fiscal-book-filter-label">Livro Fiscal</StyledInputLabel>
+        <StyledSelect
           labelId="fiscal-book-filter-label"
           id="fiscal-book-filter"
           value={selectedFiscalBookId || 'all'}
           label="Livro Fiscal"
           onChange={handleChange}
-          startAdornment={
-            loading ? (
-              <CircularProgress size={16} sx={{ mr: 1 }} />
-            ) : (
-              <MenuBook sx={{ mr: 1, color: 'action.active' }} />
-            )
-          }
-          endAdornment={
-            selectedFiscalBookId && (
-              <Clear
-                sx={{ 
-                  cursor: 'pointer', 
-                  mr: 1,
-                  color: 'action.active',
-                  '&:hover': { color: 'primary.main' }
-                }}
-                onClick={handleClear}
-              />
-            )
-          }
+          renderValue={renderSelectedValue}
+          sx={{
+            '& .MuiSelect-select': {
+              display: 'flex',
+              alignItems: 'center',
+              minWidth: 0,
+            },
+          }}
         >
-          <MenuItem value="all">
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <MenuBook sx={{ mr: 1, fontSize: 18 }} />
-              Todos os Livros
-            </Box>
-          </MenuItem>
-          
-          <MenuItem value="none">
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <Clear sx={{ mr: 1, fontSize: 18 }} />
-              Sem Livro Fiscal
-            </Box>
-          </MenuItem>
-
-          {fiscalBooks
-            .filter(book => book.id && book.id !== 'undefined' && typeof book.id === 'string')
-            .map((book) => (
-            <MenuItem key={book.id} value={book.id}>
-              <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
-                <MenuBook sx={{ mr: 1, fontSize: 18 }} />
-                <Box sx={{ flex: 1 }}>
-                  <Box>{book.bookName}</Box>
-                  <Box sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
-                    {book.bookPeriod} • {book.bookType} • {transactionCounts[book.id] || 0} transações
+          <MenuItem value="all">Todos os Livros</MenuItem>
+          <MenuItem value="none">Sem Livro Fiscal</MenuItem>
+          {error ? (
+            <MenuItem disabled>{error}</MenuItem>
+          ) : (
+            fiscalBooks
+              .filter(
+                (book) => book.id && book.id !== 'undefined' && typeof book.id === 'string'
+              )
+              .map((book) => (
+                <MenuItem key={book.id} value={book.id}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%', minWidth: 0 }}>
+                    <Box sx={{ minWidth: 0, flex: 1 }}>
+                      <Box
+                        sx={{
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        {book.bookName}
+                      </Box>
+                      <Box
+                        sx={{
+                          fontSize: '0.75rem',
+                          color: 'text.secondary',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        {book.bookPeriod} • {book.bookType} • {transactionCounts[book.id] || 0} transações
+                      </Box>
+                    </Box>
+                    <Chip
+                      size="small"
+                      label={book.status}
+                      color={getStatusColor(book.status)}
+                      sx={{ flexShrink: 0 }}
+                    />
                   </Box>
-                </Box>
-                <Chip
-                  size="small"
-                  label={book.status}
-                  color={getStatusColor(book.status)}
-                  sx={{ ml: 1 }}
-                />
-              </Box>
-            </MenuItem>
-          ))}
-        </Select>
+                </MenuItem>
+              ))
+          )}
+        </StyledSelect>
       </FormControl>
 
-      {/* Show selected book info */}
-      {selectedBook && (
-        <Box sx={{ mt: 1, display: 'flex', alignItems: 'center' }}>
-          <Chip
-            size="small"
-            icon={<MenuBook />}
-            label={`${selectedBook.bookName} (${selectedBook.bookPeriod})`}
-            color="primary"
-            variant="outlined"
-            onDelete={handleClear}
-          />
-        </Box>
-      )}
-
-      {error && (
-        <Box sx={{ mt: 1, color: 'error.main', fontSize: '0.75rem' }}>
+      <Snackbar
+        open={isErrorToastOpen}
+        autoHideDuration={6000}
+        onClose={() => setIsErrorToastOpen(false)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert
+          onClose={() => setIsErrorToastOpen(false)}
+          severity="error"
+          variant="filled"
+          sx={{ width: '100%' }}
+        >
           {error}
-        </Box>
-      )}
-    </Box>
+        </Alert>
+      </Snackbar>
+    </>
   );
 };
 

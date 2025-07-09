@@ -87,6 +87,7 @@ class FiscalBookService {
    * @returns {Promise<Object>} Updated fiscal book
    */
   async update(id, updateData) {
+    this.validateId(id);
     return trackPromise(
       http.put(`${this.baseUrl}/${id}`, updateData)
         .then(response => response.data)
@@ -106,8 +107,10 @@ class FiscalBookService {
    * @returns {Promise<void>}
    */
   async delete(id) {
+    this.validateId(id);
     try {
-      await http.delete(`${this.baseUrl}/${id}`);
+      const response = await http.delete(`${this.baseUrl}/${id}`);
+      return response.data;
     } catch (error) {
       console.error(`Error deleting fiscal book ${id}:`, error);
       if (error.response?.data?.message) {
@@ -310,8 +313,9 @@ class FiscalBookService {
    * @returns {Promise<Object>} Paginated transactions
    */
   async getTransactions(id, options = {}) {
+    this.validateId(id);
+
     try {
-      this.validateId(id);
       const response = await http.get(`${this.baseUrl}/${id}/transactions`, {
         params: options
       });

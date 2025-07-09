@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Grid,
   Box,
@@ -9,6 +9,7 @@ import {
   Button,
   Typography,
   Backdrop,
+  CircularProgress,
 } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import {
@@ -18,13 +19,31 @@ import {
   importNubankCreditTransactions,
   importDigioCreditTransactions,
 } from '../../services/importService.js';
+import fiscalBookService from '../../services/fiscalBookService.js';
 import { csvToJson } from '../../infrastructure/fileFormat/csvToJson.js';
 import { convertObjectToArray } from '../../infrastructure/object/convertObjectToArray.js';
 
 const TransactionsImporter = () => {
-  const [selectedImporter, setSelectedImporter] = useState(null);
+  const [selectedImporter, setSelectedImporter] = useState('');
   const [selectedFile, setSelectedFile] = useState(null);
   const [dragging, setDragging] = useState(false);
+  const [fiscalBooks, setFiscalBooks] = useState([]);
+  const [selectedFiscalBook, setSelectedFiscalBook] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchFiscalBooks = async () => {
+      try {
+        const books = await fiscalBookService.getAll();
+        // Filter to show only open fiscal books
+        const openBooks = books.filter((book) => book.status === 'Aberto');
+        setFiscalBooks(openBooks);
+      } catch (error) {
+        console.error('Error fetching fiscal books:', error);
+      }
+    };
+    fetchFiscalBooks();
+  }, []);
 
   const handleFileChange = (event) => {
     setSelectedFile(event.target.files[0]);
@@ -60,6 +79,9 @@ const TransactionsImporter = () => {
   const handleImport = async () => {
     if (!selectedFile) {
       return alert('Please select a file to import');
+    }
+    if (!selectedFiscalBook) {
+      return alert('Please select an open fiscal book to import transactions');
     }
     console.log('handle', selectedFile);
     const reader = new FileReader();
@@ -110,7 +132,7 @@ const TransactionsImporter = () => {
         default:
           return alert('Please select a valid importer');
       }
-      await importFunction(data);
+      await importFunction(data, selectedFiscalBook);
     };
     reader.onerror = (error) =>
       alert('Error reading file', JSON.stringify(error, null, 4));
@@ -149,6 +171,15 @@ const TransactionsImporter = () => {
         spacing={2}>
         <Grid
           item
+          xs={12}>
+          <Typography
+            variant='h4'
+            gutterBottom>
+            Importar Transações
+          </Typography>
+        </Grid>
+        <Grid
+          item
           xs={6}>
           <FormControl fullWidth>
             <InputLabel id='importer-select-label'>Importer</InputLabel>
@@ -165,17 +196,38 @@ const TransactionsImporter = () => {
               <MenuItem value='flash'>Flash</MenuItem>
             </Select>
           </FormControl>
-          {selectedFile && (
-            <Typography
-              variant='body2'
-              sx={{ mt: 2 }}>
-              File: {selectedFile.name}
-            </Typography>
-          )}
         </Grid>
         <Grid
           item
           xs={6}>
+          <FormControl fullWidth>
+            <InputLabel id='fiscal-book-select-label'>Fiscal Book</InputLabel>
+            <Select
+              labelId='fiscal-book-select-label'
+              id='fiscal-book-select'
+              value={selectedFiscalBook}
+              label='Fiscal Book'
+              onChange={(e) => setSelectedFiscalBook(e.target.value)}>
+              {fiscalBooks.map((book) => (
+                <MenuItem
+                  key={book.id}
+                  value={book.id}>
+                  {book.bookName} ({book.bookPeriod})
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Grid>
+        <Grid
+          item
+          xs={12}>
+          {selectedFile && (
+            <Typography
+              variant='body2'
+              sx={{ mt: 2, mb: 2 }}>
+              File: {selectedFile.name}
+            </Typography>
+          )}
           <input
             type='file'
             accept='.json, .csv'
@@ -195,7 +247,9 @@ const TransactionsImporter = () => {
             variant='contained'
             color='primary'
             onClick={handleImport}
-            disabled={!selectedFile || !selectedImporter}>
+            disabled={
+              !selectedFile || !selectedImporter || !selectedFiscalBook
+            }>
             Importar
           </Button>
         </Grid>

@@ -14,26 +14,40 @@ export function TransactionsListToolBar({
   transactionsPrintList,
   selectedFiscalBookId,
   onFiscalBookChange,
+  fiscalBookYear,
 }) {
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+    <Box
+      sx={{ display: 'flex', flexDirection: 'column' }}
+      data-testid='toolbar'
+      data-fiscal-book-year={fiscalBookYear || undefined}>
       <Box sx={{ display: 'flex', flexDirection: 'row' }}>
         <AppBar
           position='static'
           color='primary'>
-          <Toolbar>
-            <PeriodSelector
-              currentPeriod={periodSelected}
-              onDataChange={handleDataChangePeriodSelector}
-            />
-            <SearchBar
-              array={fullTransactionsList}
-              onDataChange={handleDataChangeSearchBar}
-            />
-            <Box sx={{ ml: 2 }}>
+          <Toolbar sx={{ display: 'flex', gap: 2, width: '100%', minWidth: 0 }}>
+            <Box sx={{ flex: '2 1 0', minWidth: 0 }}>
+              <PeriodSelector
+                currentPeriod={periodSelected}
+                onDataChange={handleDataChangePeriodSelector}
+                fiscalBookYear={fiscalBookYear}
+                sx={{ width: '100%', margin: 0 }}
+              />
+            </Box>
+
+            <Box sx={{ flex: '6 1 0', minWidth: 0 }}>
+              <SearchBar
+                array={fullTransactionsList}
+                onDataChange={handleDataChangeSearchBar}
+                sx={{ width: '100%', margin: 0 }}
+              />
+            </Box>
+
+            <Box sx={{ flex: '2 1 0', minWidth: 0 }}>
               <FiscalBookFilter
                 selectedFiscalBookId={selectedFiscalBookId}
                 onFiscalBookChange={onFiscalBookChange}
+                sx={{ width: '100%', minWidth: 0, maxWidth: '100%' }}
               />
             </Box>
           </Toolbar>
@@ -54,4 +68,5 @@ TransactionsListToolBar.propTypes = {
   transactionsPrintList: PropTypes.array,
   selectedFiscalBookId: PropTypes.string,
   onFiscalBookChange: PropTypes.func,
+  fiscalBookYear: PropTypes.string,
 };

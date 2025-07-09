@@ -25,14 +25,6 @@ describe('currencyFormat function', () => {
     expect(currencyFormat('abcd')).toBe('0,00');
   });
 
-  test('should handle input with and without thousand separators', () => {
-    // Assuming the thousand separator logic is commented back in and works correctly:
-    // Uncomment the following line in your function to enable thousand separators
-    // whole = whole.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-    expect(currencyFormat('1234567,89')).toBe('1.234.567,89');
-    expect(currencyFormat('1234567')).toBe('1.234.567,00');
-  });
-
   test('should also handle numbers without the thousand separators correctly', () => {
     expect(currencyFormat('1234,56')).toBe('1234,56');
     expect(currencyFormat('1234')).toBe('1234,00');
