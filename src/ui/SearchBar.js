@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Box, InputBase } from '@mui/material';
 import { styled, alpha } from '@mui/material/styles';
 import SearchIcon from '@mui/icons-material/Search';
 import { searchFields } from '../infrastructure/searcher/searchers.js';
 
-const SearchBar = ({ array, onDataChange }) => {
+const SearchBar = ({ array, onDataChange, sx }) => {
   const fields = [
     'companyCnpj',
     'companyName',
@@ -14,6 +14,7 @@ const SearchBar = ({ array, onDataChange }) => {
     'transactionDescription',
   ];
   const [searchTerm, setSearchTerm] = useState('');
+  const inputRef = useRef(null);
 
   const onChangeSearchTransaction = (searchName) => {
     let transactionsSearchList = searchFields(searchName, array, fields);
@@ -27,13 +28,14 @@ const SearchBar = ({ array, onDataChange }) => {
 
   return (
     <Box
-      sx={{ width: '50%', margin: 'auto' }}
+      sx={{ width: '50%', margin: 'auto', ...sx }}
       fullWidth>
-      <Search>
+      <Search onClick={() => inputRef.current?.focus()}>
         <SearchIconWrapper>
           <SearchIcon />
         </SearchIconWrapper>
         <StyledInputBase
+          inputRef={inputRef}
           placeholder='Buscar...'
           inputProps={{ 'aria-label': 'search' }}
           value={searchTerm}
@@ -55,21 +57,23 @@ const SearchBar = ({ array, onDataChange }) => {
 SearchBar.propTypes = {
   array: PropTypes.array.isRequired,
   onDataChange: PropTypes.func.isRequired,
+  sx: PropTypes.object,
 };
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
+  cursor: 'text',
   borderRadius: theme.shape.borderRadius * 3,
   backgroundColor: alpha(theme.palette.common.white, 0.15),
   '&:hover': {
     backgroundColor: alpha(theme.palette.common.white, 0.25),
   },
-  marginRight: theme.spacing(2),
-  marginLeft: 0,
+  // marginRight: theme.spacing(2),
+  // marginLeft: 0,
   width: '100%',
   [theme.breakpoints.up('sm')]: {
-    marginLeft: theme.spacing(3),
-    width: 'auto',
+    // marginLeft: theme.spacing(3),
+    width: '100%',
   },
 }));
 
@@ -85,15 +89,12 @@ const SearchIconWrapper = styled('div')(({ theme }) => ({
 
 const StyledInputBase = styled(InputBase)(({ theme }) => ({
   color: 'inherit',
+  width: '100%',
   '& .MuiInputBase-input': {
     padding: theme.spacing(1, 1, 1, 0),
     // vertical padding + font size from searchIcon
     paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-    transition: theme.transitions.create('width'),
     width: '100%',
-    [theme.breakpoints.up('md')]: {
-      width: '20ch',
-    },
   },
 }));
 
