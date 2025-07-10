@@ -3,8 +3,13 @@ import ReactDOM from 'react-dom/client';
 
 import App from './App.js';
 import * as serviceWorker from './serviceWorker.js';
+import { ToastProvider } from './ui/ToastProvider.js';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<App />);
+root.render(
+  <ToastProvider>
+    <App />
+  </ToastProvider>
+);
 
 serviceWorker.unregister();

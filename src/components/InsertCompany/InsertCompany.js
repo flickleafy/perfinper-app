@@ -7,8 +7,10 @@ import { insertCompany } from '../../services/companyService.js';
 import { Button, Typography, Box } from '@mui/material';
 import { companyPrototype } from '../entityPrototypes.js';
 import CompanyForm from '../CompanyForm.js';
+import { useToast } from '../../ui/ToastProvider.js';
 
 const InsertCompany = () => {
+  const { showToast } = useToast();
   const initialCompanyState = companyPrototype();
   const navigate = useNavigate();
 
@@ -69,7 +71,10 @@ const InsertCompany = () => {
         })
         .catch((e) => {
           console.error(e);
-          alert('Erro ao salvar empresa. Verifique os dados e tente novamente.');
+          showToast(
+            'Erro ao salvar empresa. Verifique os dados e tente novamente.',
+            'error'
+          );
         });
     }
   };

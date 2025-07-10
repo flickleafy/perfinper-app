@@ -6,8 +6,10 @@ import { insertPerson } from '../../services/personService.js';
 import { Button, Typography, Box } from '@mui/material';
 import { personPrototype } from '../entityPrototypes.js';
 import PersonForm from '../PersonForm.js';
+import { useToast } from '../../ui/ToastProvider.js';
 
 const InsertPerson = () => {
+  const { showToast } = useToast();
   const initialPersonState = personPrototype();
 
   const [person, setPerson] = useState(initialPersonState);
@@ -60,7 +62,10 @@ const InsertPerson = () => {
         })
         .catch((e) => {
           console.error(e);
-          alert('Erro ao salvar pessoa. Verifique os dados e tente novamente.');
+          showToast(
+            'Erro ao salvar pessoa. Verifique os dados e tente novamente.',
+            'error'
+          );
         });
     }
   };

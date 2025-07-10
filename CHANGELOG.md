@@ -1,5 +1,19 @@
 # Changelog for Personal Finance Helper (perfinper-app)
 
+## 9 July 2025
+
+- **UI (Toast notifications)**
+  - `src/ui/ToastProvider.js`: new toast context/provider using MUI `Snackbar` + `Alert`.
+  - `src/index.js`: wraps `App` with `ToastProvider`.
+  - `src/components/EditCompany/EditCompany.js`: replaces error alerts with toast messages.
+  - `src/components/EditPerson/EditPerson.js`: replaces error alerts with toast messages.
+  - `src/components/InsertCompany/InsertCompany.js`: replaces error alerts with toast messages.
+  - `src/components/InsertPerson/InsertPerson.js`: replaces error alerts with toast messages.
+
+- **Transactions import/export UX**
+  - `src/components/TransactionsImporter/TransactionsImporter.js`: toast-based feedback, loading spinner/disabled state, and robust FileReader error handling.
+  - `src/components/TransactionsExporter/TransactionsExporter.js`: toast-based feedback plus loading spinner/disabled state and improved error handling.
+
 ## 8 July 2025
 
 - **Docs**

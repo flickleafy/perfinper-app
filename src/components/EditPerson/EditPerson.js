@@ -7,8 +7,10 @@ import { findPersonById, updatePersonById } from '../../services/personService.j
 import { Button, Typography, Box } from '@mui/material';
 import { personPrototype } from '../entityPrototypes.js';
 import PersonForm from '../PersonForm.js';
+import { useToast } from '../../ui/ToastProvider.js';
 
 const EditPerson = () => {
+  const { showToast } = useToast();
   const { id } = useParams();
   const navigate = useNavigate();
   const initialPersonState = personPrototype();
@@ -32,7 +34,7 @@ const EditPerson = () => {
       .catch((e) => {
         console.error(e);
         setLoading(false);
-        alert('Erro ao carregar dados da pessoa');
+        showToast('Erro ao carregar dados da pessoa', 'error');
       });
   };
 
@@ -83,7 +85,10 @@ const EditPerson = () => {
         })
         .catch((e) => {
           console.error(e);
-          alert('Erro ao atualizar pessoa. Verifique os dados e tente novamente.');
+          showToast(
+            'Erro ao atualizar pessoa. Verifique os dados e tente novamente.',
+            'error'
+          );
         });
     }
   };
