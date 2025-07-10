@@ -22,8 +22,10 @@ import {
 import fiscalBookService from '../../services/fiscalBookService.js';
 import { csvToJson } from '../../infrastructure/fileFormat/csvToJson.js';
 import { convertObjectToArray } from '../../infrastructure/object/convertObjectToArray.js';
+import { useToast } from '../../ui/ToastProvider.js';
 
 const TransactionsImporter = () => {
+  const { showToast } = useToast();
   const [selectedImporter, setSelectedImporter] = useState('');
   const [selectedFile, setSelectedFile] = useState(null);
   const [dragging, setDragging] = useState(false);
@@ -71,19 +73,28 @@ const TransactionsImporter = () => {
       if (file.type === 'application/json' || file.type === 'text/csv') {
         setSelectedFile(file);
       } else {
-        alert('Unsupported file format. Please select a JSON or CSV file.');
+        showToast(
+          'Unsupported file format. Please select a JSON or CSV file.',
+          'error'
+        );
       }
     }
   };
 
   const handleImport = async () => {
     if (!selectedFile) {
-      return alert('Please select a file to import');
+      showToast('Please select a file to import', 'error');
+      return;
     }
     if (!selectedFiscalBook) {
-      return alert('Please select an open fiscal book to import transactions');
+      showToast(
+        'Please select an open fiscal book to import transactions',
+        'error'
+      );
+      return;
     }
     console.log('handle', selectedFile);
+    setLoading(true);
     const reader = new FileReader();
     reader.readAsText(selectedFile);
     reader.onload = async (e) => {
@@ -102,13 +113,16 @@ const TransactionsImporter = () => {
           // Parse the CSV data
           data = csvToJson(e.target.result);
         } else {
-          return alert(
-            'Unsupported file format. Please select a JSON or CSV file.'
+          showToast(
+            'Unsupported file format. Please select a JSON or CSV file.',
+            'error'
           );
+          return;
         }
       } catch (error) {
         console.error('Error parsing file:', error);
-        alert('Error reading file. Please try again.');
+        showToast('Error reading file. Please try again.', 'error');
+        setLoading(false);
         return;
       }
 
@@ -130,12 +144,31 @@ const TransactionsImporter = () => {
           importFunction = importFlashTransactions;
           break;
         default:
-          return alert('Please select a valid importer');
+          setLoading(false);
+          showToast('Please select a valid importer', 'error');
+          return;
       }
-      await importFunction(data, selectedFiscalBook);
+      try {
+        const response = await importFunction(data, selectedFiscalBook);
+        showToast(
+          response?.data?.message || 'Importacao concluida com sucesso.',
+          'success'
+        );
+      } catch (error) {
+        console.error('Error importing transactions:', error);
+        showToast(
+          error?.response?.data?.message || 'Falha ao importar transacoes.',
+          'error'
+        );
+      } finally {
+        setLoading(false);
+      }
     };
-    reader.onerror = (error) =>
-      alert('Error reading file', JSON.stringify(error, null, 4));
+    reader.onerror = (error) => {
+      console.error('Error reading file:', error);
+      showToast('Error reading file. Please try again.', 'error');
+      setLoading(false);
+    };
   };
 
   return (
@@ -248,9 +281,19 @@ const TransactionsImporter = () => {
             color='primary'
             onClick={handleImport}
             disabled={
-              !selectedFile || !selectedImporter || !selectedFiscalBook
+              !selectedFile ||
+              !selectedImporter ||
+              !selectedFiscalBook ||
+              loading
             }>
-            Importar
+            {loading ? (
+              <CircularProgress
+                size={20}
+                color='inherit'
+              />
+            ) : (
+              'Importar'
+            )}
           </Button>
         </Grid>
       </Grid>

@@ -5,21 +5,23 @@ import {
   Button,
   Typography,
   TextField,
-  Snackbar,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
+  CircularProgress,
 } from '@mui/material';
 import fiscalBookService from '../../services/fiscalBookService.js';
 import http from '../../infrastructure/http/http-common.js';
+import { useToast } from '../../ui/ToastProvider.js';
 
 const TransactionsExporter = () => {
+  const { showToast } = useToast();
   const [fileName, setFileName] = useState('');
   const [fileDownloadUrl, setFileDownloadUrl] = useState(null);
-  const [error, setError] = useState('');
   const [fiscalBooks, setFiscalBooks] = useState([]);
   const [selectedFiscalBook, setSelectedFiscalBook] = useState('');
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchFiscalBooks = async () => {
@@ -28,6 +30,7 @@ const TransactionsExporter = () => {
         setFiscalBooks(books);
       } catch (error) {
         console.error('Error fetching fiscal books:', error);
+        showToast('Error fetching fiscal books:', 'error');
       }
     };
     fetchFiscalBooks();
@@ -39,14 +42,14 @@ const TransactionsExporter = () => {
 
   const handleExport = async () => {
     if (!fileName) {
-      setError('Please enter a file name to save the export');
+      showToast('Please enter a file name to save the export', 'error');
       return;
     }
     if (!selectedFiscalBook) {
-      setError('Please select a fiscal book to export');
+      showToast('Please select a fiscal book to export', 'error');
       return;
     }
-    setError(''); // Reset error message before the operation
+    setLoading(true);
     try {
       let data;
       const response = await http.get(
@@ -60,14 +63,18 @@ const TransactionsExporter = () => {
       if (fileDownloadUrl) window.URL.revokeObjectURL(fileDownloadUrl); // Clean up the previous URL
       const downloadUrl = window.URL.createObjectURL(blob);
       setFileDownloadUrl(downloadUrl);
+      showToast('Exportacao pronta para download.', 'success');
     } catch (error) {
-      setError(`Failed to export data. Error: ${error.message}`);
+      console.error('Failed to export data:', error);
+      const message =
+        error?.response?.data?.message ||
+        error?.message ||
+        'Falha ao exportar dados.';
+      showToast(message, 'error');
       setFileDownloadUrl(null);
+    } finally {
+      setLoading(false);
     }
-  };
-
-  const handleCloseSnackbar = () => {
-    setError('');
   };
 
   return (
@@ -126,8 +133,15 @@ const TransactionsExporter = () => {
             variant='contained'
             component='span'
             onClick={handleExport}
-            disabled={!fileName || !selectedFiscalBook}>
-            Exportar
+            disabled={!fileName || !selectedFiscalBook || loading}>
+            {loading ? (
+              <CircularProgress
+                size={20}
+                color='inherit'
+              />
+            ) : (
+              'Exportar'
+            )}
           </Button>
           {fileDownloadUrl && (
             <Typography
@@ -142,12 +156,6 @@ const TransactionsExporter = () => {
           )}
         </Grid>
       </Grid>
-      <Snackbar
-        open={!!error}
-        autoHideDuration={6000}
-        onClose={handleCloseSnackbar}
-        message={error}
-      />
     </Box>
   );
 };

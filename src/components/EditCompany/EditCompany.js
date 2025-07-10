@@ -7,8 +7,10 @@ import { findCompanyById, updateCompanyById } from '../../services/companyServic
 import { Button, Typography, Box } from '@mui/material';
 import { companyPrototype } from '../entityPrototypes.js';
 import CompanyForm from '../CompanyForm.js';
+import { useToast } from '../../ui/ToastProvider.js';
 
 const EditCompany = () => {
+  const { showToast } = useToast();
   const { id } = useParams();
   const navigate = useNavigate();
   const initialCompanyState = companyPrototype();
@@ -32,7 +34,7 @@ const EditCompany = () => {
       .catch((e) => {
         console.error(e);
         setLoading(false);
-        alert('Erro ao carregar dados da empresa');
+        showToast('Erro ao carregar dados da empresa', 'error');
       });
   };
 
@@ -90,7 +92,10 @@ const EditCompany = () => {
         })
         .catch((e) => {
           console.error(e);
-          alert('Erro ao atualizar empresa. Verifique os dados e tente novamente.');
+          showToast(
+            'Erro ao atualizar empresa. Verifique os dados e tente novamente.',
+            'error'
+          );
         });
     }
   };
