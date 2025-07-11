@@ -326,9 +326,9 @@ export function buildFiscalBookFromResponse(apiResponse) {
     totalExpenses: apiResponse.totalExpenses || 0,
     netAmount: apiResponse.netAmount || 0,
     // Add legacy fields for compatibility
+    year: extractFiscalYear(apiResponse.bookPeriod, apiResponse.year),
     name: apiResponse.bookName || apiResponse.name || '',
     description: apiResponse.notes || apiResponse.description || '',
-    year: extractFiscalYear(apiResponse.bookPeriod, apiResponse.year),
-    isActive: apiResponse.status === 'Aberto' || apiResponse.isActive,
+    isActive: apiResponse.status === 'Aberto' || apiResponse.isActive === true,
   };
 }

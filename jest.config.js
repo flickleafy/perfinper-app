@@ -12,12 +12,22 @@ module.exports = {
     '<rootDir>/src/**/*.{spec,test}.{js,jsx,ts,tsx}',
   ],
   moduleFileExtensions: ['js', 'jsx', 'ts', 'tsx', 'json'],
+  collectCoverage: true,
   collectCoverageFrom: [
-    'src/**/*.{js,jsx,ts,tsx}',
-    '!src/**/*.d.ts',
-    '!src/index.js',
-    '!src/serviceWorker.js',
+      "src/**/*.{js,jsx,ts,tsx}",
+      "!src/**/*.d.ts"
   ],
+  coverageProvider: 'v8',
+  coverageDirectory: 'coverage',
+  coverageReporters: ['text', 'lcov', 'html', 'json-summary'],
+  coverageThreshold: {
+    global: {
+      branches: 90,
+      functions: 90,
+      lines: 90,
+      statements: 90,
+    },
+  },
   transformIgnorePatterns: [
     '[/\\\\]node_modules[/\\\\].+\\.(js|jsx|mjs|cjs|ts|tsx)$',
   ],

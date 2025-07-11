@@ -5,7 +5,7 @@
 import '@testing-library/jest-dom';
 
 // Suppress expected console warnings during tests
-// const originalError = console.error;
+const originalError = console.error;
 const originalWarn = console.warn;
 const originalLog = console.log;
 
@@ -13,18 +13,7 @@ beforeAll(() => {
   // Silence console.log noise in test output
   console.log = () => {};
 
-  // console.error = (...args) => {
-  //   // Suppress MUI warnings about uncontrolled components
-  //   if (
-  //     typeof args[0] === 'string' &&
-  //     (args[0].includes('MUI:') ||
-  //      args[0].includes('controlled') ||
-  //      args[0].includes('uncontrolled'))
-  //   ) {
-  //     return;
-  //   }
-  //   originalError.call(console, ...args);
-  // };
+  console.error = () => {};
 
   console.warn = (...args) => {
     // Suppress MUI warnings
@@ -36,7 +25,7 @@ beforeAll(() => {
 });
 
 afterAll(() => {
-  // console.error = originalError;
+  console.error = originalError;
   console.warn = originalWarn;
   console.log = originalLog;
 });

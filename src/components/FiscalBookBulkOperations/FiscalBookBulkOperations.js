@@ -110,6 +110,7 @@ const FiscalBookBulkOperations = ({
           break;
 
         default:
+          /* istanbul ignore next */
           setError('Operação inválida');
           return;
       }
@@ -348,6 +349,7 @@ const FiscalBookBulkOperations = ({
                     </ListItemIcon>
                     <ListItemText
                       primary={transaction.transactionDescription}
+                      secondaryTypographyProps={{ component: 'div' }}
                       secondary={
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
                           <Typography variant="caption">

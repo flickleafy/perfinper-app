@@ -153,7 +153,11 @@ const PersonForm = ({
                   label="Data de Nascimento"
                   value={person.dateOfBirth}
                   onChange={(date) => handleDateChange('dateOfBirth', date)}
-                  renderInput={(params) => <TextField {...params} fullWidth />}
+                  slotProps={{
+                    textField: {
+                      fullWidth: true,
+                    },
+                  }}
                 />
               </Grid>
               <Grid item xs={12} md={4}>
@@ -170,6 +174,7 @@ const PersonForm = ({
                   <InputLabel>Status</InputLabel>
                   <Select
                     name="status"
+                    data-testid="status-select"
                     value={person.status || ''}
                     onChange={handleInputChange}
                     label="Status"
@@ -271,7 +276,7 @@ const PersonForm = ({
               <Grid item xs={12}>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                   <Typography variant="subtitle1">Emails</Typography>
-                  <IconButton onClick={handleAddEmail} size="small">
+                  <IconButton onClick={handleAddEmail} size="small" data-testid="add-email-btn">
                     <Add />
                   </IconButton>
                 </Box>
@@ -296,7 +301,7 @@ const PersonForm = ({
               <Grid item xs={12}>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                   <Typography variant="subtitle1">Telefones</Typography>
-                  <IconButton onClick={handleAddPhone} size="small">
+                  <IconButton onClick={handleAddPhone} size="small" data-testid="add-phone-btn">
                     <Add />
                   </IconButton>
                 </Box>
@@ -320,7 +325,7 @@ const PersonForm = ({
               <Grid item xs={12}>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                   <Typography variant="subtitle1">Celulares</Typography>
-                  <IconButton onClick={handleAddCellphone} size="small">
+                  <IconButton onClick={handleAddCellphone} size="small" data-testid="add-cellphone-btn">
                     <Add />
                   </IconButton>
                 </Box>
@@ -379,6 +384,7 @@ const PersonForm = ({
                         value={person.personalBusiness?.businessType || ''}
                         onChange={(e) => handlePersonalBusinessFieldChange('businessType', e.target.value)}
                         label="Tipo de Negócio"
+                        data-testid="business-type-select"
                       >
                         <MenuItem value="taxi">Taxi</MenuItem>
                         <MenuItem value="uber">Uber</MenuItem>
@@ -416,6 +422,7 @@ const PersonForm = ({
                         value={person.personalBusiness?.businessCategory || ''}
                         onChange={(e) => handlePersonalBusinessFieldChange('businessCategory', e.target.value)}
                         label="Categoria do Negócio"
+                        data-testid="business-category-select"
                       >
                         <MenuItem value="transport">Transporte</MenuItem>
                         <MenuItem value="education">Educação</MenuItem>

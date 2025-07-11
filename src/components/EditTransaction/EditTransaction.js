@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import localStorage from 'local-storage';
 import {
@@ -22,7 +22,7 @@ import TransactionForm from '../TransactionForm.js';
 const EditTransaction = () => {
   const { id } = useParams();
 
-  const initialTransactionState = transactionPrototype();
+  const initialTransactionState = useMemo(() => transactionPrototype(), []);
   const [transaction, setTransaction] = useState(initialTransactionState);
   const [message, setMessage] = useState('');
   const [transactionDate, setTransactionDate] = useState(null);
@@ -41,19 +41,27 @@ const EditTransaction = () => {
     const tmpFTL = localStorage.get('fullTransactionsList');
     if (tmpFTL) {
       const tmpTrans = searchByID(id, tmpFTL);
-      setTransaction(tmpTrans);
-      setTransactionDate(new Date(tmpTrans.transactionDate));
+      if (!tmpTrans) {
+        return false;
+      }
+      setTransaction({
+        ...initialTransactionState,
+        ...tmpTrans,
+        items: tmpTrans.items || [],
+      });
+      setTransactionDate(
+        tmpTrans.transactionDate ? new Date(tmpTrans.transactionDate) : null
+      );
       return true;
     }
     return false;
-  }, [id, setTransaction, setTransactionDate]);
+  }, [id, initialTransactionState, setTransaction, setTransactionDate]);
 
   useEffect(() => {
-    // if (!initializeFromLocalStorage()) {
     if (id) {
+      initializeFromLocalStorage();
       getTransaction(id);
     }
-    // }
   }, [id, initializeFromLocalStorage]);
 
   const getTransaction = (id) => {

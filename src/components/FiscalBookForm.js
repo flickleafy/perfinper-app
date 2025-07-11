@@ -93,6 +93,19 @@ function FiscalBookForm({
       ...prev,
       [field]: value
     }));
+
+    // Clear field error when user starts typing
+    if (errors[field]) {
+      setErrors(prev => ({
+        ...prev,
+        [field]: ''
+      }));
+    }
+
+    // Clear submit error
+    if (submitError) {
+      setSubmitError('');
+    }
   };
 
   // Handle nested fiscal data changes
@@ -224,7 +237,7 @@ function FiscalBookForm({
           <Grid item xs={12}>
             <TextField
               fullWidth
-              label="Nome do Livro Fiscal *"
+              label="Nome do Livro Fiscal"
               value={formData.bookName}
               onChange={handleInputChange('bookName')}
               error={!!errors.bookName}
@@ -241,7 +254,7 @@ function FiscalBookForm({
             <TextField
               fullWidth
               select
-              label="Tipo do Livro *"
+              label="Tipo do Livro"
               value={formData.bookType}
               onChange={handleInputChange('bookType')}
               error={!!errors.bookType}
@@ -262,7 +275,7 @@ function FiscalBookForm({
           <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
-              label="Período *"
+              label="Período"
               value={formData.bookPeriod}
               onChange={handleInputChange('bookPeriod')}
               error={!!errors.bookPeriod}

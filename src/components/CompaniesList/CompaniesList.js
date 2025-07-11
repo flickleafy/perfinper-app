@@ -225,6 +225,7 @@ const CompaniesList = () => {
                     )}
                   </Box>
                 }
+                primaryTypographyProps={{ component: 'div' }}
                 secondary={
                   <Box sx={{ mt: 1 }}>
                     <Typography variant="body2" component="div">
@@ -263,6 +264,7 @@ const CompaniesList = () => {
                     </Box>
                   </Box>
                 }
+                secondaryTypographyProps={{ component: 'div' }}
               />
               
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>

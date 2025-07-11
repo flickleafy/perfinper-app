@@ -283,10 +283,10 @@ const TransactionList = () => {
   }, [selectedFiscalBookId, fiscalBooks]);
   const categoryIdToName = (cateogryId) => {
     if (cateogryId && categories.length) {
-      const selectedCategory = categories.filter(
+      const selectedCategory = categories.find(
         (category) => category.id === cateogryId
-      )[0];
-      return selectedCategory.name;
+      );
+      return selectedCategory ? selectedCategory.name : 'Unknown code';
     }
   };
   /**
@@ -442,6 +442,7 @@ const TransactionList = () => {
                     primary={`${categoryIdToName(
                       transaction.transactionCategory
                     )}`}
+                    secondaryTypographyProps={{ component: 'div' }}
                     secondary={
                       <Box>
                         <Typography variant="body2">{transaction.transactionDescription}</Typography>
@@ -465,10 +466,12 @@ const TransactionList = () => {
                   />                  <ListItemIcon>
                     <IconButton
                       component={Link}
+                      data-testid="edit-btn"
                       to={`/editar/${transaction.id}`}>
                       <Edit color='primary' />
                     </IconButton>
                     <IconButton
+                      data-testid="delete-btn"
                       onClick={() =>
                         handleDeleteSingleTransaction(transaction.id)
                       }>

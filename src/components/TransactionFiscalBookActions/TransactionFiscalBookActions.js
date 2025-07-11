@@ -200,10 +200,10 @@ const TransactionFiscalBookActions = ({
         )}
 
         {!loading && !error && (
-          <>
+          <div>
             {/* Remove from current book */}
             {transaction.fiscalBookId && (
-              <>
+              <div>
                 <MenuItem 
                   onClick={handleRemoveFromBook}
                   disabled={operationLoading}
@@ -217,12 +217,12 @@ const TransactionFiscalBookActions = ({
                   />
                 </MenuItem>
                 <Divider />
-              </>
+              </div>
             )}
 
             {/* Assign to book */}
             {!transaction.fiscalBookId && availableBooksForAssignment.length > 0 && (
-              <>
+              <div>
                 <Box sx={{ px: 2, py: 1 }}>
                   <Typography variant="caption" color="text.secondary">
                     Atribuir ao Livro:
@@ -244,12 +244,12 @@ const TransactionFiscalBookActions = ({
                   </MenuItem>
                 ))}
                 <Divider />
-              </>
+              </div>
             )}
 
             {/* Transfer to book */}
             {transaction.fiscalBookId && availableBooksForTransfer.length > 0 && (
-              <>
+              <div>
                 <Box sx={{ px: 2, py: 1 }}>
                   <Typography variant="caption" color="text.secondary">
                     Transferir para:
@@ -270,7 +270,7 @@ const TransactionFiscalBookActions = ({
                     />
                   </MenuItem>
                 ))}
-              </>
+              </div>
             )}
 
             {/* No books available message */}
@@ -281,7 +281,7 @@ const TransactionFiscalBookActions = ({
                 </Typography>
               </Box>
             )}
-          </>
+          </div>
         )}
 
         {operationLoading && (

@@ -28,8 +28,7 @@ const SearchBar = ({ array, onDataChange, sx }) => {
 
   return (
     <Box
-      sx={{ width: '50%', margin: 'auto', ...sx }}
-      fullWidth>
+      sx={{ width: '50%', margin: 'auto', ...sx }}>
       <Search onClick={() => inputRef.current?.focus()}>
         <SearchIconWrapper>
           <SearchIcon />

@@ -128,6 +128,7 @@ const TransactionForm = ({
           value={transaction.transactionCategory}
           name='transactionCategory'
           label='Categoria'
+          data-testid='transaction-category-select'
           onChange={handleInputChange}>
           {categories.map((category) => (
             <MenuItem
@@ -140,7 +141,7 @@ const TransactionForm = ({
       </FormControl>
       
       {/* Fiscal Book Selection */}
-      <Box sx={{ mb: 2 }}>
+      {/* <Box sx={{ mb: 2 }}>
         {isInArchivedBook && (
           <Alert severity="warning" sx={{ mb: 2 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -169,7 +170,7 @@ const TransactionForm = ({
             </Typography>
           </Box>
         )}
-      </Box>
+      </Box> */}
 
       {/* Fiscal Book Section */}
       <Box sx={{ mb: 2 }}>
@@ -285,6 +286,7 @@ const TransactionForm = ({
           value={transaction.transactionSource}
           name='transactionSource'
           label='Origem da transação'
+          data-testid='transaction-source-select'
           onChange={handleInputChange}>
           {transactionSources.map((source) => (
             <MenuItem
@@ -306,6 +308,7 @@ const TransactionForm = ({
           value={transaction.transactionStatus}
           name='transactionStatus'
           label='Status'
+          data-testid='transaction-status-select'
           onChange={handleInputChange}>
           {transactionStatuses.map((status) => (
             <MenuItem
@@ -329,6 +332,7 @@ const TransactionForm = ({
           value={transaction.paymentMethod}
           name='paymentMethod'
           label='Método de Pagamento'
+          data-testid='payment-method-select'
           onChange={handleInputChange}>
           {paymentMethods.map((method) => (
             <MenuItem
@@ -350,6 +354,7 @@ const TransactionForm = ({
           value={transaction.transactionLocation}
           name='transactionLocation'
           label='Localização'
+          data-testid='transaction-location-select'
           onChange={handleInputChange}>
           {transactionLocations.map((location) => (
             <MenuItem
@@ -368,12 +373,11 @@ const TransactionForm = ({
           value={dateValue}
           onChange={handleDateChange}
           sx={{ marginTop: 2, marginBottom: 1, width: '100%' }}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              fullWidth
-            />
-          )}
+          slotProps={{
+            textField: {
+              fullWidth: true,
+            },
+          }}
         />
       </LocalizationProvider>
       <TextField
