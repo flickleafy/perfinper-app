@@ -152,7 +152,7 @@ describe('InsertCompany', () => {
     });
 
     expect(
-      screen.getByText('A empresa foi inserida com sucesso!')
+      await screen.findByText('A empresa foi inserida com sucesso!')
     ).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: 'Inserir Outra' }));

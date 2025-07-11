@@ -1,6 +1,21 @@
 # Changelog for Personal Finance Helper (perfinper-app)
 
-## 2025-07-10
+## 10 July 2025
+
+- **Dependency upgrades**
+  - `package.json`: updated React, MUI, react-router-dom, date-fns, testing libraries, and eslint tooling.
+  - `package-lock.json`: refreshed lockfile for the dependency updates.
+
+- **Test compatibility fixes**
+  - `jest.config.js` and `package.json`: added `react-router-dom` mapping to a local test shim and allowed transforms for `date-fns`/`@mui/x-date-pickers`.
+  - `src/test-utils/react-router-dom.js`: added a lightweight router shim to make routing tests deterministic.
+
+- **Date picker adapter path updates**
+  - `src/components/TransactionForm.js`, `src/components/CompanyForm.js`, and `src/components/PersonForm.js`: switched to `@mui/x-date-pickers/AdapterDateFns`.
+
+- **Test adjustments**
+  - `src/components/InsertCompany/InsertCompany.test.js`: wait for async success message.
+  - `src/components/InsertPerson/InsertPerson.test.js`: target the DatePicker input directly for change events.
 
 - **Testing & coverage**
   - Added comprehensive unit tests across components, services, UI, and infrastructure utilities.

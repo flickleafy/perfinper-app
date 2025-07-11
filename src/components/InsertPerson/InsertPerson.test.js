@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import InsertPerson from './InsertPerson';
 
@@ -155,14 +155,10 @@ describe('InsertPerson', () => {
     await user.type(nameInput, 'Jane Doe');
 
     // Find the date input and click it to open the picker
-    const dateInput = screen.getByLabelText(/Data de Nascimento/i);
-    await user.click(dateInput);
-    
-    // Type a date - DatePicker should handle this
-    await user.type(dateInput, '01011990');
-    
-    // Click outside to close picker and trigger onChange
-    await user.click(nameInput);
+    const dateInput = screen.getByLabelText(/Data de Nascimento/i, {
+      selector: 'input',
+    });
+    fireEvent.change(dateInput, { target: { value: '1990-01-01' } });
     
     // Verify handleDateChange was called by checking the component still renders
     expect(screen.getByLabelText(/Nome Completo/i)).toBeInTheDocument();
