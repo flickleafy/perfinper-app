@@ -2,6 +2,7 @@ module.exports = {
   testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['<rootDir>/src/setupTests.js'],
   moduleNameMapper: {
+    '^react-router-dom$': '<rootDir>/src/test-utils/react-router-dom.js',
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
   },
   transform: {
@@ -29,6 +30,6 @@ module.exports = {
     },
   },
   transformIgnorePatterns: [
-    '[/\\\\]node_modules[/\\\\].+\\.(js|jsx|mjs|cjs|ts|tsx)$',
+    '[/\\\\]node_modules[/\\\\](?!date-fns|@mui/x-date-pickers)(.+)\\.(js|jsx|mjs|cjs|ts|tsx)$',
   ],
 };
