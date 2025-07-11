@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  formatFiscalBookForDisplay, 
-  FISCAL_BOOK_STATUS,
+import {
+  formatFiscalBookForDisplay,
+  FISCAL_BOOK_STATUS_OBJ,
   filterFiscalBooks,
   sortFiscalBooks,
   isFiscalBookEditable,
@@ -75,7 +75,7 @@ function FiscalBooksList({
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [yearFilter, setYearFilter] = useState('all');
-  const [sortBy, setSortBy] = useState('year');
+  const [sortBy, setSortBy] = useState('bookPeriod');
   const [sortOrder, setSortOrder] = useState('desc');
   
   // Menu state
@@ -191,7 +191,7 @@ function FiscalBooksList({
     if (!selectedBook) return;
 
     try {
-      if (selectedBook.status === FISCAL_BOOK_STATUS.CLOSED) {
+      if (selectedBook.status === FISCAL_BOOK_STATUS_OBJ.FECHADO) {
         await fiscalBookService.reopen(selectedBook.id || selectedBook._id);
       } else {
         await fiscalBookService.close(selectedBook.id || selectedBook._id);
@@ -255,7 +255,7 @@ function FiscalBooksList({
     let filtered = filterFiscalBooks(fiscalBooks, {
       search: searchTerm,
       status: statusFilter === 'all' ? undefined : statusFilter,
-      bookPeriod: yearFilter === 'all' ? undefined : yearFilter,
+      year: yearFilter === 'all' ? undefined : parseInt(yearFilter, 10),
     });
 
     return sortFiscalBooks(filtered, sortBy, sortOrder);
@@ -293,7 +293,12 @@ function FiscalBooksList({
   };
 
   if (loading) {
-    return <LoadingIndicator message="Loading fiscal books..." />;
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
+        <CircularProgress />
+        <Typography sx={{ ml: 2 }}>Loading fiscal books...</Typography>
+      </Box>
+    );
   }
 
   return (

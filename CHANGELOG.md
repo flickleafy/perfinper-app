@@ -1,5 +1,30 @@
 # Changelog for Personal Finance Helper (perfinper-app)
 
+## 2025-07-10
+
+- **Testing & coverage**
+  - Added comprehensive unit tests across components, services, UI, and infrastructure utilities.
+  - Enabled Jest coverage collection and thresholds in `jest.config.js` and `package.json`.
+
+- **Forms & pickers**
+  - Migrated MUI DatePicker usage to `slotProps.textField` in `src/components/TransactionForm.js`, `src/components/CompanyForm.js`, and `src/components/PersonForm.js`.
+  - Added `data-testid` hooks for form selects and add controls in `src/components/TransactionForm.js`, `src/components/CompanyForm.js`, and `src/components/PersonForm.js`.
+  - Cleared field/submit errors on input and removed required asterisks in `src/components/FiscalBookForm.js`.
+
+- **Transactions & fiscal books**
+  - Improved local storage initialization and default merging in `src/components/EditTransaction/EditTransaction.js`.
+  - Added `initialImporter` support in `src/components/TransactionsImporter/TransactionsImporter.js`.
+  - Updated fiscal book list sorting/filtering and loading state in `src/components/FiscalBooksList/FiscalBooksList.js`.
+  - Adjusted fiscal book selector/actions rendering in `src/components/TransactionFiscalBookSelector/TransactionFiscalBookSelector.js` and `src/components/TransactionFiscalBookActions/TransactionFiscalBookActions.js`.
+
+- **List rendering polish**
+  - Normalized Typography props in list summaries for `src/components/CompaniesList/CompaniesList.js`, `src/components/PeopleList/PeopleList.js`, `src/components/FiscalBookBulkOperations/FiscalBookBulkOperations.js`, and `src/components/TransactionsList/TransactionsList.js`.
+  - Added edit/delete test IDs and safer category name fallback in `src/components/TransactionsList/TransactionsList.js`.
+  - Removed invalid `fullWidth` prop usage from `src/ui/SearchBar.js`.
+
+- **Builders**
+  - Tightened fiscal book `isActive` normalization in `src/components/objectsBuilder.js`.
+
 ## 9 July 2025
 
 - **UI (Toast notifications)**

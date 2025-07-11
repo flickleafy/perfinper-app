@@ -34,4 +34,14 @@ describe('sortPeriods', () => {
 
     expect(sortPeriods(input)).toEqual(['', '2024', '2024-01', '2023-12', 'foo', 'bar']);
   });
+
+  it('keeps known years before unknown formats', () => {
+    const input = ['foo', '2023', '2022-05', 'bar'];
+
+    expect(sortPeriods(input)).toEqual(['2023', '2022-05', 'foo', 'bar']);
+  });
+
+  it('keeps empty values stable when comparing empty periods', () => {
+    expect(sortPeriods(['', ''])).toEqual(['', '']);
+  });
 });

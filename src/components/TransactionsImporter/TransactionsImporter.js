@@ -24,9 +24,9 @@ import { csvToJson } from '../../infrastructure/fileFormat/csvToJson.js';
 import { convertObjectToArray } from '../../infrastructure/object/convertObjectToArray.js';
 import { useToast } from '../../ui/ToastProvider.js';
 
-const TransactionsImporter = () => {
+const TransactionsImporter = ({ initialImporter = '' }) => {
   const { showToast } = useToast();
-  const [selectedImporter, setSelectedImporter] = useState('');
+  const [selectedImporter, setSelectedImporter] = useState(initialImporter);
   const [selectedFile, setSelectedFile] = useState(null);
   const [dragging, setDragging] = useState(false);
   const [fiscalBooks, setFiscalBooks] = useState([]);

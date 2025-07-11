@@ -9,6 +9,8 @@ import {
   removeAllTransactionsInPeriod,
   findUniquePeriods,
   findUniqueYears,
+  removeAllByNameDEPRECATED,
+  findByNameDEPRECATED,
 } from './transactionService';
 
 jest.mock('../infrastructure/http/http-common');
@@ -116,6 +118,28 @@ describe('transactionService', () => {
       await findUniqueYears();
 
       expect(http.post).toHaveBeenCalledWith('/api/transaction/years/');
+    });
+  });
+
+  describe('removeAllByNameDEPRECATED', () => {
+    it('should delete transactions by name using deprecated endpoint', async () => {
+      const name = 'Legacy';
+      http.delete.mockResolvedValue({ data: { success: true } });
+
+      await removeAllByNameDEPRECATED(name);
+
+      expect(http.delete).toHaveBeenCalledWith(`/grade?name=${name}`);
+    });
+  });
+
+  describe('findByNameDEPRECATED', () => {
+    it('should fetch transactions by name using deprecated endpoint', async () => {
+      const name = 'Legacy';
+      http.get.mockResolvedValue({ data: [] });
+
+      await findByNameDEPRECATED(name);
+
+      expect(http.get).toHaveBeenCalledWith(`/grade?name=${name}`);
     });
   });
 });

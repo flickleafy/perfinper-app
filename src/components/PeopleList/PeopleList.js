@@ -193,6 +193,8 @@ const PeopleList = () => {
               </ListItemIcon>
               
               <ListItemText
+                primaryTypographyProps={{ component: 'div' }}
+                secondaryTypographyProps={{ component: 'div' }}
                 primary={
                   <Box>
                     <Typography variant="h6" component="div">

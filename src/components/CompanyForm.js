@@ -221,7 +221,11 @@ const CompanyForm = ({
                   label="Data de Fundação"
                   value={company.foundationDate}
                   onChange={(date) => handleDateChange('foundationDate', date)}
-                  renderInput={(params) => <TextField {...params} fullWidth />}
+                  slotProps={{
+                    textField: {
+                      fullWidth: true,
+                    },
+                  }}
                 />
               </Grid>
               <Grid item xs={12} md={6}>
@@ -257,7 +261,11 @@ const CompanyForm = ({
                   label="Data da Situação Cadastral"
                   value={company.statusDate}
                   onChange={(date) => handleDateChange('statusDate', date)}
-                  renderInput={(params) => <TextField {...params} fullWidth />}
+                  slotProps={{
+                    textField: {
+                      fullWidth: true,
+                    },
+                  }}
                 />
               </Grid>
               <Grid item xs={12} md={6}>
@@ -444,6 +452,7 @@ const CompanyForm = ({
                             value={social.platform}
                             onChange={(e) => handleSocialMediaChange(index, 'platform', e.target.value)}
                             label="Plataforma"
+                            data-testid={`social-platform-select-${index}`}
                           >
                             <MenuItem value="Facebook">Facebook</MenuItem>
                             <MenuItem value="Instagram">Instagram</MenuItem>
@@ -524,6 +533,7 @@ const CompanyForm = ({
                         value={partner.type}
                         onChange={(e) => handleCorporateStructureFieldChange(index, 'type', e.target.value)}
                         label="Tipo"
+                        data-testid={`partner-type-select-${index}`}
                       >
                         <MenuItem value="Administrador">Administrador</MenuItem>
                         <MenuItem value="Sócio">Sócio</MenuItem>

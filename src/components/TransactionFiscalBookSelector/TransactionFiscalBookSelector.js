@@ -88,8 +88,10 @@ function TransactionFiscalBookSelector({
     }
   };
 
-  // Get selected book details  
-  const selectedBook = fiscalBooks.find(book => book.id === selectedFiscalBook?.id);
+  // Get selected book details
+  // Try finding in loaded list props list, OR fallback to passed prop object if ID matches
+  const selectedBook = fiscalBooks.find(book => book.id === selectedFiscalBook?.id) || 
+                       (selectedFiscalBook?.id ? selectedFiscalBook : null);
 
   // Helper function to get status label in Portuguese
   const getStatusLabel = (status) => {
@@ -151,6 +153,7 @@ function TransactionFiscalBookSelector({
             <MenuItem key={book.id} value={book.id}>
               <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
                 <ListItemText
+                  primaryTypographyProps={{ component: 'div' }}
                   primary={
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       <Typography variant="body1">
