@@ -33,10 +33,14 @@ import {
   Lock as LockIcon,
   LockOpen as UnlockIcon,
   Refresh as RefreshIcon,
+  Restore as RestoreIcon,
 } from '@mui/icons-material';
 import snapshotService from '../../services/snapshotService';
 import CreateSnapshotDialog from '../CreateSnapshotDialog/CreateSnapshotDialog';
 import SnapshotComparison from '../SnapshotComparison/SnapshotComparison';
+import RollbackConfirmDialog from '../RollbackConfirmDialog/RollbackConfirmDialog';
+import SnapshotExportDialog from '../SnapshotExportDialog/SnapshotExportDialog';
+import SnapshotTagsPopover from '../SnapshotTagsPopover/SnapshotTagsPopover';
 
 /**
  * SnapshotsList - Displays list of snapshots for a fiscal book
@@ -56,6 +60,9 @@ function SnapshotsList({ fiscalBookId, fiscalBookName, onSnapshotCreated }) {
   const [selectedSnapshot, setSelectedSnapshot] = useState(null);
   const [tagFilter, setTagFilter] = useState([]);
   const [availableTags, setAvailableTags] = useState([]);
+  const [rollbackDialogOpen, setRollbackDialogOpen] = useState(false);
+  const [exportDialogOpen, setExportDialogOpen] = useState(false);
+  const [tagsPopoverAnchor, setTagsPopoverAnchor] = useState(null);
 
   // Predefined system tags
   const systemTags = ['audit-ready', 'pre-tax-submission', 'monthly-close', 'protected', 'auto'];
@@ -179,6 +186,39 @@ function SnapshotsList({ fiscalBookId, fiscalBookName, onSnapshotCreated }) {
       console.error('Error cloning snapshot:', err);
       setError('Failed to clone snapshot to new fiscal book');
     }
+  };
+
+  // Handle rollback
+  const handleOpenRollback = () => {
+    setRollbackDialogOpen(true);
+    handleMenuClose();
+  };
+
+  const handleRollbackSuccess = () => {
+    loadSnapshots();
+    if (onSnapshotCreated) {
+      onSnapshotCreated(); // Refresh parent
+    }
+  };
+
+  // Handle export dialog
+  const handleOpenExportDialog = () => {
+    setExportDialogOpen(true);
+    handleMenuClose();
+  };
+
+  // Handle tags popover
+  const handleOpenTagsPopover = (event) => {
+    setTagsPopoverAnchor(event.currentTarget);
+    handleMenuClose();
+  };
+
+  const handleTagsUpdate = (updatedSnapshot) => {
+    setSnapshots(prev =>
+      prev.map(s =>
+        (s.id || s._id) === (updatedSnapshot.id || updatedSnapshot._id) ? updatedSnapshot : s
+      )
+    );
   };
 
   // Format date for display
@@ -407,6 +447,25 @@ function SnapshotsList({ fiscalBookId, fiscalBookName, onSnapshotCreated }) {
             Excluir
           </ListItemText>
         </MenuItem>
+        <Divider />
+        <MenuItem onClick={handleOpenRollback}>
+          <ListItemIcon>
+            <RestoreIcon fontSize="small" color="warning" />
+          </ListItemIcon>
+          <ListItemText>Rollback para este Snapshot</ListItemText>
+        </MenuItem>
+        <MenuItem onClick={(e) => handleOpenTagsPopover(e)}>
+          <ListItemIcon>
+            <TagIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Gerenciar Tags</ListItemText>
+        </MenuItem>
+        <MenuItem onClick={handleOpenExportDialog}>
+          <ListItemIcon>
+            <ExportIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Exportar...</ListItemText>
+        </MenuItem>
       </Menu>
 
       {/* Create Snapshot Dialog */}
@@ -426,6 +485,30 @@ function SnapshotsList({ fiscalBookId, fiscalBookName, onSnapshotCreated }) {
           setSelectedSnapshotForComparison(null);
         }}
         snapshot={selectedSnapshotForComparison}
+      />
+
+      {/* Rollback Confirm Dialog */}
+      <RollbackConfirmDialog
+        open={rollbackDialogOpen}
+        onClose={() => setRollbackDialogOpen(false)}
+        snapshot={selectedSnapshot}
+        fiscalBookName={fiscalBookName}
+        onSuccess={handleRollbackSuccess}
+      />
+
+      {/* Export Dialog */}
+      <SnapshotExportDialog
+        open={exportDialogOpen}
+        onClose={() => setExportDialogOpen(false)}
+        snapshot={selectedSnapshot}
+      />
+
+      {/* Tags Popover */}
+      <SnapshotTagsPopover
+        anchorEl={tagsPopoverAnchor}
+        onClose={() => setTagsPopoverAnchor(null)}
+        snapshot={selectedSnapshot}
+        onUpdate={handleTagsUpdate}
       />
     </Box>
   );

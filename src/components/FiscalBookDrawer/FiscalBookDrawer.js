@@ -30,6 +30,7 @@ import {
   Unarchive as UnarchiveIcon,
   Receipt as ReceiptIcon,
   CameraAlt as CameraIcon,
+  Settings as SettingsIcon,
 } from '@mui/icons-material';
 import fiscalBookService from '../../services/fiscalBookService';
 import { 
@@ -37,6 +38,7 @@ import {
 } from '../fiscalBookPrototype';
 import LoadingIndicator from '../../ui/LoadingIndicator';
 import SnapshotsList from '../SnapshotsList/SnapshotsList';
+import SnapshotScheduleForm from '../SnapshotScheduleForm/SnapshotScheduleForm';
 
 /**
  * TabPanel - Helper component for tab content
@@ -368,6 +370,7 @@ function FiscalBookDrawer({ open, onClose, fiscalBook, onEdit, onRefresh, initia
             <Tab label="Transactions" icon={<ReceiptIcon />} />
             <Tab label="Statistics" icon={<AssessmentIcon />} />
             <Tab label="Snapshots" icon={<CameraIcon />} />
+            <Tab label="Settings" icon={<SettingsIcon />} />
           </Tabs>
         </Box>
 
@@ -529,6 +532,19 @@ function FiscalBookDrawer({ open, onClose, fiscalBook, onEdit, onRefresh, initia
               onSnapshotCreated={() => {
                 // Optionally refresh data
                 if (onRefresh) onRefresh();
+              }}
+            />
+          </TabPanel>
+
+          {/* Settings Tab */}
+          <TabPanel value={tabValue} index={4}>
+            <Typography variant="h6" gutterBottom>
+              Snapshot Settings
+            </Typography>
+            <SnapshotScheduleForm
+              fiscalBookId={fiscalBook?._id || fiscalBook?.id}
+              onSave={() => {
+                // Schedule saved
               }}
             />
           </TabPanel>
