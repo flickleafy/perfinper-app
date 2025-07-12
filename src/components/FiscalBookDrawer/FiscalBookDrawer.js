@@ -29,12 +29,14 @@ import {
   Archive as ArchiveIcon,
   Unarchive as UnarchiveIcon,
   Receipt as ReceiptIcon,
+  CameraAlt as CameraIcon,
 } from '@mui/icons-material';
 import fiscalBookService from '../../services/fiscalBookService';
 import { 
   formatFiscalBookForDisplay, 
 } from '../fiscalBookPrototype';
 import LoadingIndicator from '../../ui/LoadingIndicator';
+import SnapshotsList from '../SnapshotsList/SnapshotsList';
 
 /**
  * TabPanel - Helper component for tab content
@@ -365,6 +367,7 @@ function FiscalBookDrawer({ open, onClose, fiscalBook, onEdit, onRefresh, initia
             <Tab label="Overview" icon={<InfoIcon />} />
             <Tab label="Transactions" icon={<ReceiptIcon />} />
             <Tab label="Statistics" icon={<AssessmentIcon />} />
+            <Tab label="Snapshots" icon={<CameraIcon />} />
           </Tabs>
         </Box>
 
@@ -516,6 +519,18 @@ function FiscalBookDrawer({ open, onClose, fiscalBook, onEdit, onRefresh, initia
           {/* Statistics Tab */}
           <TabPanel value={tabValue} index={2}>
             {renderStatisticsContent()}
+          </TabPanel>
+
+          {/* Snapshots Tab */}
+          <TabPanel value={tabValue} index={3}>
+            <SnapshotsList
+              fiscalBookId={fiscalBook?._id || fiscalBook?.id}
+              fiscalBookName={formattedBook.name}
+              onSnapshotCreated={() => {
+                // Optionally refresh data
+                if (onRefresh) onRefresh();
+              }}
+            />
           </TabPanel>
         </Box>
       </Box>
