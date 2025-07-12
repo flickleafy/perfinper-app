@@ -40,6 +40,7 @@ function SnapshotScheduleForm({ fiscalBookId, onSave }) {
   const [dayOfMonth, setDayOfMonth] = useState(1);
   const [retentionCount, setRetentionCount] = useState(12);
   const [autoTags, setAutoTags] = useState(['auto']);
+  const [nextExecution, setNextExecution] = useState(null);
 
   const weekDays = [
     { value: 0, label: 'Domingo' },
@@ -88,6 +89,7 @@ function SnapshotScheduleForm({ fiscalBookId, onSave }) {
         setDayOfMonth(schedule.dayOfMonth || 1);
         setRetentionCount(schedule.retentionCount || 12);
         setAutoTags(schedule.autoTags || ['auto']);
+        setNextExecution(schedule.nextExecutionAt || null);
       }
     } catch (err) {
       console.error('Error loading schedule:', err);
@@ -179,6 +181,22 @@ function SnapshotScheduleForm({ fiscalBookId, onSave }) {
           }
           sx={{ mb: 3, alignItems: 'flex-start' }}
         />
+
+        {/* Next execution date display */}
+        {enabled && nextExecution && (
+          <Alert severity="info" sx={{ mb: 3 }} icon={<ScheduleIcon />}>
+            <Typography variant="body2">
+              Próxima execução: <strong>{new Date(nextExecution).toLocaleDateString('pt-BR', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+              })}</strong>
+            </Typography>
+          </Alert>
+        )}
 
         {enabled && (
           <>

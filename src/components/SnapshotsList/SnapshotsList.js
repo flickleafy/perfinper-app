@@ -40,6 +40,8 @@ import {
   LockOpen as UnlockIcon,
   Refresh as RefreshIcon,
   Restore as RestoreIcon,
+  Comment as CommentIcon,
+  Schedule as ScheduleIcon,
 } from '@mui/icons-material';
 import snapshotService from '../../services/snapshotService';
 import CreateSnapshotDialog from '../CreateSnapshotDialog/CreateSnapshotDialog';
@@ -47,6 +49,7 @@ import SnapshotComparison from '../SnapshotComparison/SnapshotComparison';
 import RollbackConfirmDialog from '../RollbackConfirmDialog/RollbackConfirmDialog';
 import SnapshotExportDialog from '../SnapshotExportDialog/SnapshotExportDialog';
 import SnapshotTagsPopover from '../SnapshotTagsPopover/SnapshotTagsPopover';
+import SnapshotAnnotations from '../SnapshotAnnotations/SnapshotAnnotations';
 
 /**
  * SnapshotsList - Displays list of snapshots for a fiscal book
@@ -71,6 +74,8 @@ function SnapshotsList({ fiscalBookId, fiscalBookName, onSnapshotCreated }) {
   const [tagsPopoverAnchor, setTagsPopoverAnchor] = useState(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
+  const [annotationsDialogOpen, setAnnotationsDialogOpen] = useState(false);
+  const [rollbackLoading, setRollbackLoading] = useState(false);
 
   // Predefined system tags
   const systemTags = ['audit-ready', 'pre-tax-submission', 'monthly-close', 'protected', 'auto'];
@@ -210,11 +215,23 @@ function SnapshotsList({ fiscalBookId, fiscalBookName, onSnapshotCreated }) {
     handleMenuClose();
   };
 
-  const handleRollbackSuccess = () => {
+  const handleRollbackSuccess = (result) => {
+    setSuccessMessage(`Rollback concluído! ${result?.restoredTransactionCount || 0} transações restauradas.`);
     loadSnapshots();
     if (onSnapshotCreated) {
       onSnapshotCreated(); // Refresh parent
     }
+  };
+
+  // Handle annotations dialog
+  const handleOpenAnnotations = () => {
+    setAnnotationsDialogOpen(true);
+    handleMenuClose();
+  };
+
+  const handleCloseAnnotations = () => {
+    setAnnotationsDialogOpen(false);
+    loadSnapshots(); // Refresh to get updated annotations
   };
 
   // Handle export dialog
@@ -288,6 +305,11 @@ function SnapshotsList({ fiscalBookId, fiscalBookName, onSnapshotCreated }) {
                     <LockIcon color="warning" fontSize="small" />
                   </Tooltip>
                 )}
+                {snapshot.creationSource === 'scheduled' || snapshot.tags?.includes('auto') ? (
+                  <Tooltip title="Snapshot automático/agendado">
+                    <ScheduleIcon color="info" fontSize="small" />
+                  </Tooltip>
+                ) : null}
               </Box>
 
               <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
@@ -482,6 +504,12 @@ function SnapshotsList({ fiscalBookId, fiscalBookName, onSnapshotCreated }) {
           </ListItemIcon>
           <ListItemText>Exportar...</ListItemText>
         </MenuItem>
+        <MenuItem onClick={handleOpenAnnotations}>
+          <ListItemIcon>
+            <CommentIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Anotações ({selectedSnapshot?.annotations?.length || 0})</ListItemText>
+        </MenuItem>
       </Menu>
 
       {/* Create Snapshot Dialog */}
@@ -555,7 +583,29 @@ function SnapshotsList({ fiscalBookId, fiscalBookName, onSnapshotCreated }) {
         autoHideDuration={4000}
         onClose={() => setSuccessMessage('')}
         message={successMessage}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       />
+
+      {/* Annotations Dialog */}
+      <Dialog
+        open={annotationsDialogOpen}
+        onClose={handleCloseAnnotations}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>
+          Anotações: {selectedSnapshot?.snapshotName}
+        </DialogTitle>
+        <DialogContent>
+          <SnapshotAnnotations
+            snapshot={selectedSnapshot}
+            onAnnotationAdded={loadSnapshots}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseAnnotations}>Fechar</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }
