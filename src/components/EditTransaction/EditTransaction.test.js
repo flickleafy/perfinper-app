@@ -310,7 +310,10 @@ describe('EditTransaction', () => {
   });
 
   it('skips fetching when id is missing', async () => {
-    useParams.mockReturnValueOnce({});
+    // Clear all mocks and set fresh mock for this test
+    jest.clearAllMocks();
+    useParams.mockReturnValue({});
+    getCategories.mockResolvedValue({ data: [{ id: 'cat1', name: 'Cat' }] });
 
     render(<EditTransaction />);
 
