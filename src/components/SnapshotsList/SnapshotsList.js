@@ -20,6 +20,12 @@ import {
   OutlinedInput,
   Tooltip,
   Divider,
+  Snackbar,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
 } from '@mui/material';
 import {
   CameraAlt as CameraIcon,
@@ -63,6 +69,8 @@ function SnapshotsList({ fiscalBookId, fiscalBookName, onSnapshotCreated }) {
   const [rollbackDialogOpen, setRollbackDialogOpen] = useState(false);
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const [tagsPopoverAnchor, setTagsPopoverAnchor] = useState(null);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
 
   // Predefined system tags
   const systemTags = ['audit-ready', 'pre-tax-submission', 'monthly-close', 'protected', 'auto'];
@@ -123,17 +131,25 @@ function SnapshotsList({ fiscalBookId, fiscalBookName, onSnapshotCreated }) {
     }
   };
 
-  // Handle delete snapshot
-  const handleDelete = async () => {
+  // Handle delete snapshot (opens confirmation)
+  const handleDeleteClick = () => {
+    setDeleteConfirmOpen(true);
+    handleMenuClose();
+  };
+
+  // Handle delete confirmation
+  const handleDeleteConfirm = async () => {
     if (!selectedSnapshot) return;
 
     try {
       await snapshotService.deleteSnapshot(selectedSnapshot.id || selectedSnapshot._id);
-      handleMenuClose();
+      setDeleteConfirmOpen(false);
+      setSuccessMessage('Snapshot excluído com sucesso');
       await loadSnapshots();
     } catch (err) {
       console.error('Error deleting snapshot:', err);
       setError(err.message || 'Failed to delete snapshot');
+      setDeleteConfirmOpen(false);
     }
   };
 
@@ -179,9 +195,9 @@ function SnapshotsList({ fiscalBookId, fiscalBookName, onSnapshotCreated }) {
 
     try {
       const snapshotId = selectedSnapshot.id || selectedSnapshot._id;
-      await snapshotService.cloneToNewFiscalBook(snapshotId);
+      const result = await snapshotService.cloneToNewFiscalBook(snapshotId);
       handleMenuClose();
-      // Optionally redirect to new fiscal book or show success message
+      setSuccessMessage(`Livro fiscal criado com sucesso: ${result.data?.bookName || 'Novo Livro'}`);
     } catch (err) {
       console.error('Error cloning snapshot:', err);
       setError('Failed to clone snapshot to new fiscal book');
@@ -439,7 +455,7 @@ function SnapshotsList({ fiscalBookId, fiscalBookName, onSnapshotCreated }) {
             {selectedSnapshot?.isProtected ? 'Remover Proteção' : 'Proteger'}
           </ListItemText>
         </MenuItem>
-        <MenuItem onClick={handleDelete} disabled={selectedSnapshot?.isProtected}>
+        <MenuItem onClick={handleDeleteClick} disabled={selectedSnapshot?.isProtected}>
           <ListItemIcon>
             <DeleteIcon fontSize="small" color={selectedSnapshot?.isProtected ? 'disabled' : 'error'} />
           </ListItemIcon>
@@ -509,6 +525,36 @@ function SnapshotsList({ fiscalBookId, fiscalBookName, onSnapshotCreated }) {
         onClose={() => setTagsPopoverAnchor(null)}
         snapshot={selectedSnapshot}
         onUpdate={handleTagsUpdate}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        open={deleteConfirmOpen}
+        onClose={() => setDeleteConfirmOpen(false)}
+      >
+        <DialogTitle>Confirmar Exclusão</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Tem certeza que deseja excluir o snapshot "{selectedSnapshot?.snapshotName}"?
+            Esta ação não pode ser desfeita.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteConfirmOpen(false)}>
+            Cancelar
+          </Button>
+          <Button onClick={handleDeleteConfirm} color="error" variant="contained">
+            Excluir
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Success Snackbar */}
+      <Snackbar
+        open={!!successMessage}
+        autoHideDuration={4000}
+        onClose={() => setSuccessMessage('')}
+        message={successMessage}
       />
     </Box>
   );
