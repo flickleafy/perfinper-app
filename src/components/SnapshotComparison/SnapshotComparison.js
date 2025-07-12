@@ -17,11 +17,13 @@ import {
   ListItem,
   ListItemText,
   ListItemIcon,
+  ListItemButton,
   Accordion,
   AccordionSummary,
   AccordionDetails,
   Grid,
   Divider,
+  Tooltip,
 } from '@mui/material';
 import {
   CompareArrows as CompareIcon,
@@ -221,35 +223,49 @@ function SnapshotComparison({ open, onClose, snapshot }) {
   // Render transaction item
   const renderTransactionItem = (item, type) => {
     const transaction = item.transaction || item.current;
+    const transactionDetails = [
+      `Tipo: ${transaction?.transactionType || 'N/A'}`,
+      `Categoria: ${transaction?.transactionCategory || 'N/A'}`,
+      `Status: ${transaction?.transactionStatus || 'N/A'}`,
+      `Descrição: ${transaction?.transactionDescription || 'N/A'}`,
+    ].join(' • ');
     
     return (
-      <ListItem key={item.id} divider>
-        <ListItemIcon>
-          {type === 'added' && <AddIcon color="success" />}
-          {type === 'removed' && <RemoveIcon color="error" />}
-          {type === 'modified' && <EditIcon color="warning" />}
-        </ListItemIcon>
-        <ListItemText
-          primary={transaction?.transactionName || 'Transação sem nome'}
-          secondary={
-            <>
-              {formatCurrency(transaction?.transactionValue)} • {formatDate(transaction?.transactionDate)}
-              {type === 'modified' && item.changes && (
-                <Box component="span" sx={{ display: 'block', mt: 0.5 }}>
-                  {item.changes.map((change, idx) => (
-                    <Chip
-                      key={idx}
-                      label={`${change.field}: ${change.oldValue || '(vazio)'} → ${change.newValue || '(vazio)'}`}
-                      size="small"
-                      sx={{ mr: 0.5, mb: 0.5 }}
-                    />
-                  ))}
-                </Box>
-              )}
-            </>
-          }
-        />
-      </ListItem>
+      <Tooltip key={item.id} title={transactionDetails} arrow placement="top">
+        <ListItemButton
+          divider
+          sx={{ 
+            '&:hover': { bgcolor: 'action.hover' },
+            borderRadius: 1,
+          }}
+        >
+          <ListItemIcon>
+            {type === 'added' && <AddIcon color="success" />}
+            {type === 'removed' && <RemoveIcon color="error" />}
+            {type === 'modified' && <EditIcon color="warning" />}
+          </ListItemIcon>
+          <ListItemText
+            primary={transaction?.transactionName || 'Transação sem nome'}
+            secondary={
+              <>
+                {formatCurrency(transaction?.transactionValue)} • {formatDate(transaction?.transactionDate)}
+                {type === 'modified' && item.changes && (
+                  <Box component="span" sx={{ display: 'block', mt: 0.5 }}>
+                    {item.changes.map((change, idx) => (
+                      <Chip
+                        key={idx}
+                        label={`${change.field}: ${change.oldValue || '(vazio)'} → ${change.newValue || '(vazio)'}`}
+                        size="small"
+                        sx={{ mr: 0.5, mb: 0.5 }}
+                      />
+                    ))}
+                  </Box>
+                )}
+              </>
+            }
+          />
+        </ListItemButton>
+      </Tooltip>
     );
   };
 

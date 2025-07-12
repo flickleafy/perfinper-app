@@ -60,6 +60,19 @@ function SnapshotScheduleForm({ fiscalBookId, onSave }) {
     }
   }, [fiscalBookId]);
 
+  // Show error if fiscalBookId is not provided
+  if (!fiscalBookId) {
+    return (
+      <Card>
+        <CardContent>
+          <Alert severity="warning">
+            Nenhum livro fiscal selecionado. Selecione um livro fiscal para configurar snapshots automáticos.
+          </Alert>
+        </CardContent>
+      </Card>
+    );
+  }
+
   const loadSchedule = async () => {
     try {
       setLoading(true);

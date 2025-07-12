@@ -45,6 +45,7 @@ import {
   GetApp as ExportIcon,
   Assessment as StatsIcon,
   Info as InfoIcon,
+  CameraAlt as CameraIcon,
 } from '@mui/icons-material';
 import fiscalBookService from '../../services/fiscalBookService';
 import LoadingIndicator from '../../ui/LoadingIndicator';
@@ -171,6 +172,11 @@ function FiscalBooksList({
   // Handle view statistics
   const handleViewStatistics = (book = selectedBook) => {
     handleView(book, 2); // Open to statistics tab (index 2)
+  };
+
+  // Handle view snapshots (and create)
+  const handleViewSnapshots = (book = selectedBook) => {
+    handleView(book, 3); // Open to snapshots tab (index 3)
   };
 
   // Handle drawer close
@@ -533,6 +539,10 @@ function FiscalBooksList({
         <MenuItem onClick={handleExport}>
           <ExportIcon sx={{ mr: 1 }} />
           Exportar
+        </MenuItem>
+        <MenuItem onClick={() => handleViewSnapshots(selectedBook)}>
+          <CameraIcon sx={{ mr: 1 }} />
+          Criar Snapshot
         </MenuItem>
         <MenuItem onClick={handleToggleArchive}>
           {selectedBook?.status === 'Fechado' ? (
