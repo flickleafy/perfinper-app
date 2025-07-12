@@ -81,7 +81,7 @@ const EditPerson = () => {
         .then((response) => {
           setPerson(response.data);
           setSubmitted(true);
-          console.log(response.data);
+          // console.log(response.data);
         })
         .catch((e) => {
           console.error(e);

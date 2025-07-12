@@ -49,7 +49,7 @@ const PeopleList = () => {
         setPeoplePrintList(response.data);
         localStorage.set('fullPeopleList', response.data);
         localStorage.set('peoplePrintList', response.data);
-        console.log(response.data);
+        // console.log(response.data);
       })
       .catch((e) => {
         console.error(e);

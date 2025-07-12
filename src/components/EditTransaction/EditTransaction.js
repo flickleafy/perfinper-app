@@ -27,6 +27,7 @@ const EditTransaction = () => {
   const [message, setMessage] = useState('');
   const [transactionDate, setTransactionDate] = useState(null);
   const [categories, setCategories] = useState([]);
+  const [selectedFiscalBook, setSelectedFiscalBook] = useState(null);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -44,13 +45,23 @@ const EditTransaction = () => {
       if (!tmpTrans) {
         return false;
       }
-      setTransaction({
+      const nextTransaction = {
         ...initialTransactionState,
         ...tmpTrans,
         items: tmpTrans.items || [],
-      });
+      };
+      setTransaction(nextTransaction);
       setTransactionDate(
         tmpTrans.transactionDate ? new Date(tmpTrans.transactionDate) : null
+      );
+      setSelectedFiscalBook(
+        tmpTrans.fiscalBookId
+          ? {
+              id: tmpTrans.fiscalBookId,
+              name: tmpTrans.fiscalBookName || tmpTrans.fiscalBookId,
+              year: tmpTrans.fiscalBookYear || null,
+            }
+          : null
       );
       return true;
     }
@@ -69,7 +80,16 @@ const EditTransaction = () => {
       .then((response) => {
         setTransaction(response.data);
         setTransactionDate(new Date(response.data.transactionDate));
-        console.log(response.data);
+        setSelectedFiscalBook(
+          response.data.fiscalBookId
+            ? {
+                id: response.data.fiscalBookId,
+                name: response.data.fiscalBookName || response.data.fiscalBookId,
+                year: response.data.fiscalBookYear || null,
+              }
+            : null
+        );
+        // console.log(response.data);
       })
       .catch((e) => {
         console.log(e);
@@ -122,6 +142,16 @@ const EditTransaction = () => {
     }));
   };
 
+  const handleFiscalBookChange = (book) => {
+    setSelectedFiscalBook(book || null);
+    setTransaction((prevTransaction) => ({
+      ...prevTransaction,
+      fiscalBookId: book?.id || book?._id || null,
+      fiscalBookName: book?.bookName || book?.name || '',
+      fiscalBookYear: book?.year || null,
+    }));
+  };
+
   const updateTransaction = async () => {
     try {
       let updatedTransaction = transactionBuilder(transaction, transactionDate);
@@ -156,8 +186,10 @@ const EditTransaction = () => {
           handleInputChange={handleInputChange}
           handleDateChange={setTransactionDate}
           handleItemsChange={handleItemsChange}
+          handleFiscalBookChange={handleFiscalBookChange}
           categories={categories}
           dateValue={transactionDate}
+          selectedFiscalBook={selectedFiscalBook}
         />
         <Grid
           container

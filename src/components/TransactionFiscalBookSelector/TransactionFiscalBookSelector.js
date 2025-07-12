@@ -81,8 +81,10 @@ function TransactionFiscalBookSelector({
   // Handle selection change
   const handleChange = (event) => {
     const selectedValue = event.target.value;
-    const selectedBook = fiscalBooks.find(book => book.id === selectedValue);
-    
+    const selectedBook = fiscalBooks.find(
+      (book) => (book.id || book._id) === selectedValue
+    );
+
     if (onFiscalBookChange) {
       onFiscalBookChange(selectedBook || null);
     }
@@ -90,8 +92,11 @@ function TransactionFiscalBookSelector({
 
   // Get selected book details
   // Try finding in loaded list props list, OR fallback to passed prop object if ID matches
-  const selectedBook = fiscalBooks.find(book => book.id === selectedFiscalBook?.id) || 
-                       (selectedFiscalBook?.id ? selectedFiscalBook : null);
+  const selectedBookId = selectedFiscalBook?.id || selectedFiscalBook?._id || '';
+  const selectedBook = fiscalBooks.find((book) => (book.id || book._id) === selectedBookId)
+    || (selectedBookId ? selectedFiscalBook : null);
+
+  const selectableBooks = fiscalBooks.filter((book) => (book.id || book._id));
 
   // Helper function to get status label in Portuguese
   const getStatusLabel = (status) => {
@@ -139,7 +144,7 @@ function TransactionFiscalBookSelector({
         <Select
           labelId="fiscal-book-selector-label"
           id="fiscal-book-selector"
-          value={selectedFiscalBook?.id || ''}
+          value={selectedBookId}
           label="Selecionar Livro Fiscal"
           onChange={handleChange}
           disabled={disabled}
@@ -149,8 +154,10 @@ function TransactionFiscalBookSelector({
             <em>Nenhum livro fiscal selecionado</em>
           </MenuItem>
           
-          {fiscalBooks.map((book) => (
-            <MenuItem key={book.id} value={book.id}>
+          {selectableBooks.map((book) => {
+            const bookId = book.id || book._id;
+            return (
+              <MenuItem key={bookId} value={bookId}>
               <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
                 <ListItemText
                   primaryTypographyProps={{ component: 'div' }}
@@ -186,7 +193,8 @@ function TransactionFiscalBookSelector({
                 />
               </Box>
             </MenuItem>
-          ))}
+            );
+          })}
         </Select>
       </FormControl>
 

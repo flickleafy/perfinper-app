@@ -16,6 +16,7 @@ const InsertTransaction = () => {
   const [submitted, setSubmitted] = useState(false);
   const [startDate, setStartDate] = useState(new Date());
   const [categories, setCategories] = useState([]);
+  const [selectedFiscalBook, setSelectedFiscalBook] = useState(null);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -51,6 +52,16 @@ const InsertTransaction = () => {
     }));
   };
 
+  const handleFiscalBookChange = (book) => {
+    setSelectedFiscalBook(book || null);
+    setTransaction((prevTransaction) => ({
+      ...prevTransaction,
+      fiscalBookId: book?.id || book?._id || null,
+      fiscalBookName: book?.bookName || book?.name || '',
+      fiscalBookYear: book?.year || null,
+    }));
+  };
+
   const insertTransactionApi = () => {
     let transactionData = transactionBuilder(transaction, startDate);
     if (transactionData) {
@@ -59,7 +70,7 @@ const InsertTransaction = () => {
           // ????????? insert local storage too ?????????????
           setTransaction(response.data);
           setSubmitted(true);
-          console.log(response.data);
+          // console.log(response.data);
         })
         .catch((e) => {
           console.error(e);
@@ -70,6 +81,7 @@ const InsertTransaction = () => {
   const newTransaction = () => {
     setTransaction(initialTransactionState);
     setSubmitted(false);
+    setSelectedFiscalBook(null);
   };
 
   return (
@@ -97,8 +109,10 @@ const InsertTransaction = () => {
             handleInputChange={handleInputChange}
             handleDateChange={setStartDate}
             handleItemsChange={handleItemsChange}
+            handleFiscalBookChange={handleFiscalBookChange}
             categories={categories}
             dateValue={startDate}
+            selectedFiscalBook={selectedFiscalBook}
           />
 
           <Grid
