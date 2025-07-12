@@ -27,7 +27,8 @@ describe('CreateSnapshotDialog', () => {
   test('renders form fields', () => {
     render(<CreateSnapshotDialog {...defaultProps} />);
 
-    expect(screen.getByText('Criar Snapshot')).toBeInTheDocument();
+    // 'Criar Snapshot' appears in title and button, check for at least one
+    expect(screen.getAllByText('Criar Snapshot').length).toBeGreaterThan(0);
     expect(screen.getByLabelText(/Nome do Snapshot/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Descrição/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Tags/i)).toBeInTheDocument();
@@ -50,7 +51,7 @@ describe('CreateSnapshotDialog', () => {
   test('does not render when closed', () => {
     render(<CreateSnapshotDialog {...defaultProps} open={false} />);
 
-    expect(screen.queryByText('Criar Snapshot')).not.toBeInTheDocument();
+    expect(screen.queryAllByText('Criar Snapshot')).toHaveLength(0);
   });
 
   test('submits form and calls onSuccess', async () => {

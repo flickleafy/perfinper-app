@@ -359,7 +359,7 @@ function SnapshotsList({ fiscalBookId, fiscalBookName, onSnapshotCreated }) {
               </Box>
             </Box>
 
-            <IconButton onClick={(e) => handleMenuOpen(e, snapshot)}>
+            <IconButton onClick={(e) => handleMenuOpen(e, snapshot)} data-testid="snapshot-menu-button">
               <MoreIcon />
             </IconButton>
           </Box>
