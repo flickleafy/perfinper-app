@@ -50,7 +50,7 @@ const CompaniesList = () => {
         setCompaniesPrintList(response.data);
         localStorage.set('fullCompaniesList', response.data);
         localStorage.set('companiesPrintList', response.data);
-        console.log(response.data);
+        // console.log(response.data);
       })
       .catch((e) => {
         console.error(e);

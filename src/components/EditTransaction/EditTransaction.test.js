@@ -38,12 +38,29 @@ jest.mock('../TransactionForm.js', () => ({
     handleInputChange,
     handleDateChange,
     handleItemsChange,
+    handleFiscalBookChange,
+    selectedFiscalBook,
   }) => (
     <div>
       <div data-testid="transaction-value">{transaction.transactionValue}</div>
       <div data-testid="freight-value">{transaction.freightValue}</div>
       <div data-testid="transaction-name">{transaction.transactionName}</div>
       <div data-testid="categories-count">{categories.length}</div>
+      <div data-testid="fiscal-book-id">
+        {transaction.fiscalBookId ?? 'none'}
+      </div>
+      <div data-testid="fiscal-book-name">
+        {transaction.fiscalBookName || 'none'}
+      </div>
+      <div data-testid="fiscal-book-year">
+        {transaction.fiscalBookYear ?? 'none'}
+      </div>
+      <div data-testid="selected-fiscal-book">
+        {selectedFiscalBook?.id || 'none'}
+      </div>
+      <div data-testid="selected-fiscal-book-name">
+        {selectedFiscalBook?.name || 'none'}
+      </div>
       <input
         aria-label="transactionValue"
         name="transactionValue"
@@ -99,6 +116,33 @@ jest.mock('../TransactionForm.js', () => ({
         onClick={() => handleDateChange(new Date('2024-01-15T00:00:00.000Z'))}
       >
         Set Date
+      </button>
+      <button
+        type="button"
+        onClick={() =>
+          handleFiscalBookChange({
+            id: 'book-1',
+            bookName: 'Book One',
+            year: 2024,
+          })
+        }
+      >
+        Set Fiscal Book
+      </button>
+      <button
+        type="button"
+        onClick={() =>
+          handleFiscalBookChange({
+            _id: 'legacy-book',
+            name: 'Legacy Book',
+            year: 2023,
+          })
+        }
+      >
+        Set Legacy Fiscal Book
+      </button>
+      <button type="button" onClick={() => handleFiscalBookChange(null)}>
+        Clear Fiscal Book
       </button>
     </div>
   ),
@@ -265,6 +309,18 @@ describe('EditTransaction', () => {
     });
   });
 
+  it('skips fetching when id is missing', async () => {
+    useParams.mockReturnValueOnce({});
+
+    render(<EditTransaction />);
+
+    await waitFor(() => {
+      expect(getCategories).toHaveBeenCalled();
+    });
+
+    expect(findTransactionById).not.toHaveBeenCalled();
+  });
+
   it('ignores local storage entries when transaction is missing', async () => {
     localStorage.get.mockImplementation((key) => {
       if (key === 'fullTransactionsList') {
@@ -406,7 +462,16 @@ describe('EditTransaction', () => {
   it('initializeFromLocalStorage handles transaction without date or items', async () => {
     localStorage.get.mockImplementation((key) => {
       // transactionDate undefined, items undefined
-      if (key === 'fullTransactionsList') return [{ id: 'tx1', transactionName: 'No Date' }];
+      if (key === 'fullTransactionsList') {
+        return [
+          {
+            id: 'tx1',
+            transactionName: 'No Date',
+            fiscalBookId: 'fb-local',
+            fiscalBookYear: 2021,
+          },
+        ];
+      }
       return null;
     });
     render(<EditTransaction />);
@@ -465,5 +530,96 @@ describe('EditTransaction', () => {
     // However, if we can't easily isolate the return value, we trust the side effect on localStorage.set
     
     // Re-rendering to get a fresh instance if needed, but the mock is on module level.
+  });
+
+  it('updates fiscal book selection details', async () => {
+    render(<EditTransaction />);
+
+    await waitFor(() => {
+      expect(findTransactionById).toHaveBeenCalled();
+    });
+
+    fireEvent.click(screen.getByText('Set Fiscal Book'));
+
+    expect(screen.getByTestId('fiscal-book-id')).toHaveTextContent('book-1');
+    expect(screen.getByTestId('fiscal-book-name')).toHaveTextContent('Book One');
+    expect(screen.getByTestId('fiscal-book-year')).toHaveTextContent('2024');
+    expect(screen.getByTestId('selected-fiscal-book')).toHaveTextContent('book-1');
+
+    fireEvent.click(screen.getByText('Set Legacy Fiscal Book'));
+
+    expect(screen.getByTestId('fiscal-book-id')).toHaveTextContent('legacy-book');
+    expect(screen.getByTestId('fiscal-book-name')).toHaveTextContent('Legacy Book');
+    expect(screen.getByTestId('fiscal-book-year')).toHaveTextContent('2023');
+
+    fireEvent.click(screen.getByText('Clear Fiscal Book'));
+
+    expect(screen.getByTestId('fiscal-book-id')).toHaveTextContent('none');
+    expect(screen.getByTestId('fiscal-book-name')).toHaveTextContent('none');
+    expect(screen.getByTestId('fiscal-book-year')).toHaveTextContent('none');
+    expect(screen.getByTestId('selected-fiscal-book')).toHaveTextContent('none');
+  });
+
+  it('sets fiscal book name from fetched transaction when missing', async () => {
+    findTransactionById.mockResolvedValueOnce({
+      data: {
+        ...transactionResponse,
+        fiscalBookId: 'book-fetched',
+        fiscalBookName: '',
+      },
+    });
+
+    render(<EditTransaction />);
+
+    await waitFor(() => {
+      expect(findTransactionById).toHaveBeenCalledWith('tx1');
+    });
+
+    expect(screen.getByTestId('selected-fiscal-book')).toHaveTextContent(
+      'book-fetched'
+    );
+    expect(screen.getByTestId('selected-fiscal-book-name')).toHaveTextContent(
+      'book-fetched'
+    );
+  });
+
+  it('loads fiscal book data from local storage and fetched data', async () => {
+    const localTransaction = {
+      id: 'tx1',
+      transactionName: 'Local Tx',
+      transactionDate: '2024-02-02T00:00:00.000Z',
+      items: [{ itemName: 'Local Item' }],
+      fiscalBookId: 'fb-local',
+      fiscalBookName: 'Local Book',
+      fiscalBookYear: 2022,
+    };
+
+    localStorage.get.mockImplementation((key) => {
+      if (key === 'fullTransactionsList') return [localTransaction];
+      if (key === 'transactionsPrintList') return [localTransaction];
+      return null;
+    });
+
+    findTransactionById.mockResolvedValueOnce({
+      data: {
+        ...transactionResponse,
+        fiscalBookId: 'fb-local',
+        fiscalBookName: 'Local Book',
+        fiscalBookYear: 2022,
+      },
+    });
+
+    render(<EditTransaction />);
+
+    await waitFor(() => {
+      expect(findTransactionById).toHaveBeenCalledWith('tx1');
+    });
+
+    expect(screen.getByTestId('selected-fiscal-book')).toHaveTextContent(
+      'fb-local'
+    );
+    expect(screen.getByTestId('selected-fiscal-book-name')).toHaveTextContent(
+      'Local Book'
+    );
   });
 });

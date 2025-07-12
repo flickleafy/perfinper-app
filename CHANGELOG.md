@@ -1,5 +1,29 @@
 # Changelog for Personal Finance Helper (perfinper-app)
 
+## 11 July 2025
+
+- **Coverage config**
+  - `jest.config.js` and `package.json`: exclude `src/test-utils/*.js` from coverage collection.
+
+- **Date adapter compatibility**
+  - `src/infrastructure/date/AdapterDateFnsCompat.js`: added a date-fns compatibility adapter for MUI X.
+  - `src/infrastructure/date/AdapterDateFnsCompat.test.js`: added adapter coverage for parsing, comparisons, ranges, and week/year helpers.
+  - `src/components/CompanyForm.js`, `src/components/PersonForm.js`, and `src/components/TransactionForm.js`: load pickers via CommonJS and use the compat adapter.
+
+- **Fiscal book selection**
+  - `src/components/InsertTransaction/InsertTransaction.js`: track selected fiscal book, write fiscal book metadata, and reset on new transaction.
+  - `src/components/EditTransaction/EditTransaction.js`: initialize fiscal book selection from local storage and fetched data.
+  - `src/components/TransactionFiscalBookSelector/TransactionFiscalBookSelector.js`: support `id`/`_id` values and stable selection fallback.
+  - `src/components/transactionPrototype.js` and `src/components/objectsBuilder.js`: include fiscal book fields on transaction payloads.
+
+- **Tests**
+  - `src/components/InsertTransaction/InsertTransaction.test.js`: cover fiscal book selection, legacy ids, and clearing.
+  - `src/components/EditTransaction/EditTransaction.test.js`: cover selection updates, missing id guard, and local storage initialization.
+
+- **Log cleanup**
+  - `src/components/CompaniesList/CompaniesList.js`, `src/components/PeopleList/PeopleList.js`, and `src/components/TransactionsList/TransactionsList.js`: silence debug logging.
+  - `src/components/EditCompany/EditCompany.js`, `src/components/EditPerson/EditPerson.js`, `src/components/InsertCompany/InsertCompany.js`, `src/components/InsertPerson/InsertPerson.js`, and `src/components/InsertTransaction/InsertTransaction.js`: silence debug logging.
+
 ## 10 July 2025
 
 - **Dependency upgrades**

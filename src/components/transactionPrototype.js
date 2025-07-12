@@ -26,5 +26,8 @@ export function transactionPrototype() {
     companyName: '', // company name
     companySellerName: '', // seller name from the company
     companyCnpj: '', // company identification key
+    fiscalBookId: null,
+    fiscalBookName: '',
+    fiscalBookYear: null,
   };
 }

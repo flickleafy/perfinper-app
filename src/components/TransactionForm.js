@@ -21,8 +21,8 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import LockIcon from '@mui/icons-material/Lock';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
+const { AdapterDateFns } = require('../infrastructure/date/AdapterDateFnsCompat');
+const { DatePicker, LocalizationProvider } = require('@mui/x-date-pickers');
 import { ptBR } from 'date-fns/locale';
 import { currencyFormat } from '../infrastructure/currency/currencyFormat';
 import TransactionFiscalBookSelector from './TransactionFiscalBookSelector/TransactionFiscalBookSelector';

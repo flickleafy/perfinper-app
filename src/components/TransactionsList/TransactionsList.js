@@ -95,7 +95,7 @@ const TransactionList = () => {
           setTransactionsPrintList(response.data);
           localStorage.set('fullTransactionsList', response.data);
           localStorage.set('transactionsPrintList', response.data);
-          console.log(response.data);
+          // console.log(response.data);
         })
         .catch((e) => {
           console.error(e);
@@ -164,7 +164,7 @@ const TransactionList = () => {
   const deleteAllTransactionsInPeriod = () => {
     removeAllTransactionsInPeriod()
       .then((response) => {
-        console.log(response.data);
+        // console.log(response.data);
         refreshList();
       })
       .catch((e) => {
@@ -175,7 +175,7 @@ const TransactionList = () => {
   const deleteAllTransactionsByName = () => {
     removeAllByNameDEPRECATED(searchTerm)
       .then((response) => {
-        console.log(response.data);
+        // console.log(response.data);
         refreshList();
         setSearchTerm('');
         localStorage.set('searchTerm', '');

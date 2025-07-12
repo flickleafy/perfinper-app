@@ -20,6 +20,8 @@ jest.mock('../TransactionForm.js', () => ({
     handleInputChange,
     handleDateChange,
     handleItemsChange,
+    handleFiscalBookChange,
+    selectedFiscalBook,
   }) => (
     <div>
       <div data-testid="transaction-value">{transaction.transactionValue}</div>
@@ -27,6 +29,18 @@ jest.mock('../TransactionForm.js', () => ({
       <div data-testid="transaction-name">{transaction.name}</div>
       <div data-testid="items-count">{transaction.items.length}</div>
       <div data-testid="categories-count">{categories.length}</div>
+      <div data-testid="fiscal-book-id">
+        {transaction.fiscalBookId ?? 'none'}
+      </div>
+      <div data-testid="fiscal-book-name">
+        {transaction.fiscalBookName || 'none'}
+      </div>
+      <div data-testid="fiscal-book-year">
+        {transaction.fiscalBookYear ?? 'none'}
+      </div>
+      <div data-testid="selected-fiscal-book">
+        {selectedFiscalBook?.id || 'none'}
+      </div>
       <button
         type="button"
         onClick={() =>
@@ -68,6 +82,33 @@ jest.mock('../TransactionForm.js', () => ({
         onClick={() => handleDateChange(new Date('2024-03-10T00:00:00.000Z'))}
       >
         Set Date
+      </button>
+      <button
+        type="button"
+        onClick={() =>
+          handleFiscalBookChange({
+            id: 'book-1',
+            bookName: 'Book One',
+            year: 2024,
+          })
+        }
+      >
+        Set Fiscal Book
+      </button>
+      <button
+        type="button"
+        onClick={() =>
+          handleFiscalBookChange({
+            _id: 'legacy-book',
+            name: 'Legacy Book',
+            year: 2023,
+          })
+        }
+      >
+        Set Legacy Fiscal Book
+      </button>
+      <button type="button" onClick={() => handleFiscalBookChange(null)}>
+        Clear Fiscal Book
       </button>
     </div>
   ),
@@ -181,6 +222,36 @@ describe('InsertTransaction', () => {
 
     await waitFor(() => expect(transactionBuilder).toHaveBeenCalled());
     expect(insertTransaction).not.toHaveBeenCalled();
+  });
+
+  it('updates fiscal book fields when selecting a book', async () => {
+    render(<InsertTransaction />);
+    await waitFor(() => expect(getCategories).toHaveBeenCalled());
+
+    fireEvent.click(screen.getByText('Set Fiscal Book'));
+
+    expect(screen.getByTestId('fiscal-book-id')).toHaveTextContent('book-1');
+    expect(screen.getByTestId('fiscal-book-name')).toHaveTextContent('Book One');
+    expect(screen.getByTestId('fiscal-book-year')).toHaveTextContent('2024');
+    expect(screen.getByTestId('selected-fiscal-book')).toHaveTextContent('book-1');
+  });
+
+  it('handles legacy fiscal book ids and clearing selection', async () => {
+    render(<InsertTransaction />);
+    await waitFor(() => expect(getCategories).toHaveBeenCalled());
+
+    fireEvent.click(screen.getByText('Set Legacy Fiscal Book'));
+
+    expect(screen.getByTestId('fiscal-book-id')).toHaveTextContent('legacy-book');
+    expect(screen.getByTestId('fiscal-book-name')).toHaveTextContent('Legacy Book');
+    expect(screen.getByTestId('fiscal-book-year')).toHaveTextContent('2023');
+
+    fireEvent.click(screen.getByText('Clear Fiscal Book'));
+
+    expect(screen.getByTestId('fiscal-book-id')).toHaveTextContent('none');
+    expect(screen.getByTestId('fiscal-book-name')).toHaveTextContent('none');
+    expect(screen.getByTestId('fiscal-book-year')).toHaveTextContent('none');
+    expect(screen.getByTestId('selected-fiscal-book')).toHaveTextContent('none');
   });
   
   it('handles Voltar button click safely', async () => {

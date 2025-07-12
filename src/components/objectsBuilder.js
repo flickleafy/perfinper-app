@@ -21,6 +21,7 @@ export function transactionBuilder(body, date) {
     companyName,
     companySellerName,
     companyCnpj,
+    fiscalBookId,
   } = body;
 
   if (date) {
@@ -50,6 +51,7 @@ export function transactionBuilder(body, date) {
     companyName,
     companySellerName,
     companyCnpj,
+    fiscalBookId,
   };
 }
 

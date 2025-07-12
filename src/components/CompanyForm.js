@@ -17,9 +17,9 @@ import {
   IconButton,
 } from '@mui/material';
 import { ExpandMore, Add, Delete } from '@mui/icons-material';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+const { DatePicker } = require('@mui/x-date-pickers/DatePicker');
+const { LocalizationProvider } = require('@mui/x-date-pickers/LocalizationProvider');
+const { AdapterDateFns } = require('../infrastructure/date/AdapterDateFnsCompat');
 import { ptBR } from 'date-fns/locale';
 
 const CompanyForm = ({
