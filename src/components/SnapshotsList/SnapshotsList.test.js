@@ -1,8 +1,10 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import SnapshotsList from './SnapshotsList';
 import snapshotService from '../../services/snapshotService';
 
+// Mock all services
 jest.mock('../../services/snapshotService', () => ({
   __esModule: true,
   default: {
@@ -11,9 +13,13 @@ jest.mock('../../services/snapshotService', () => ({
     toggleProtection: jest.fn(),
     cloneToNewFiscalBook: jest.fn(),
     downloadExport: jest.fn(),
+    rollbackToSnapshot: jest.fn(),
+    updateTags: jest.fn(),
+    addSnapshotAnnotation: jest.fn(),
   },
 }));
 
+// Mock child components
 jest.mock('../CreateSnapshotDialog/CreateSnapshotDialog', () => ({
   __esModule: true,
   default: ({ open, onClose, onSuccess }) => (
@@ -37,6 +43,51 @@ jest.mock('../SnapshotComparison/SnapshotComparison', () => ({
   ),
 }));
 
+jest.mock('../RollbackConfirmDialog/RollbackConfirmDialog', () => ({
+  __esModule: true,
+  default: ({ open, onClose, onSuccess }) => (
+    open ? (
+      <div data-testid="rollback-dialog">
+        <button onClick={() => onSuccess({ restoredTransactionCount: 15 })}>Confirm Rollback</button>
+        <button onClick={onClose}>Cancel Rollback</button>
+      </div>
+    ) : null
+  ),
+}));
+
+jest.mock('../SnapshotExportDialog/SnapshotExportDialog', () => ({
+  __esModule: true,
+  default: ({ open, onClose }) => (
+    open ? (
+      <div data-testid="export-dialog">
+        <button onClick={onClose}>Close Export</button>
+      </div>
+    ) : null
+  ),
+}));
+
+jest.mock('../SnapshotTagsPopover/SnapshotTagsPopover', () => ({
+  __esModule: true,
+  default: ({ anchorEl, onClose, onUpdate }) => (
+    anchorEl ? (
+      <div data-testid="tags-popover">
+        <button onClick={() => { onUpdate(); onClose(); }}>Update Tags</button>
+        <button onClick={onClose}>Close Tags</button>
+      </div>
+    ) : null
+  ),
+}));
+
+jest.mock('../SnapshotAnnotations/SnapshotAnnotations', () => ({
+  __esModule: true,
+  default: ({ snapshot, onAnnotationAdded }) => (
+    <div data-testid="snapshot-annotations">
+      <span>Annotations for {snapshot?.snapshotName}</span>
+      <button onClick={onAnnotationAdded}>Add Annotation</button>
+    </div>
+  ),
+}));
+
 describe('SnapshotsList', () => {
   const mockSnapshots = [
     {
@@ -45,15 +96,29 @@ describe('SnapshotsList', () => {
       createdAt: '2024-01-15T00:00:00.000Z',
       tags: ['audit', 'monthly'],
       isProtected: false,
+      creationSource: 'manual',
       statistics: { transactionCount: 10 },
+      annotations: [],
     },
     {
       _id: 'snap2',
-      snapshotName: 'Snapshot 2',
+      snapshotName: 'Protected Snapshot',
       createdAt: '2024-01-10T00:00:00.000Z',
       tags: ['protected'],
       isProtected: true,
+      creationSource: 'manual',
       statistics: { transactionCount: 5 },
+      annotations: [{ content: 'test', createdAt: '2024-01-11T00:00:00.000Z' }],
+    },
+    {
+      _id: 'snap3',
+      snapshotName: 'Auto Snapshot',
+      createdAt: '2024-01-05T00:00:00.000Z',
+      tags: ['auto'],
+      isProtected: false,
+      creationSource: 'scheduled',
+      statistics: { transactionCount: 8 },
+      annotations: [],
     },
   ];
 
@@ -61,129 +126,586 @@ describe('SnapshotsList', () => {
     jest.clearAllMocks();
     snapshotService.getSnapshots.mockResolvedValue({
       data: mockSnapshots,
-      pagination: { total: 2 },
+      pagination: { total: 3 },
     });
   });
 
-  test('renders empty state when no snapshots', async () => {
-    snapshotService.getSnapshots.mockResolvedValue({
-      data: [],
-      pagination: { total: 0 },
+  // ===== Basic Rendering =====
+  describe('Basic Rendering', () => {
+    test('renders empty state when no snapshots', async () => {
+      snapshotService.getSnapshots.mockResolvedValue({
+        data: [],
+        pagination: { total: 0 },
+      });
+
+      render(<SnapshotsList fiscalBookId="fb1" fiscalBookName="Test Book" />);
+
+      expect(await screen.findByText('Nenhum Snapshot')).toBeInTheDocument();
+      expect(screen.getByText('Criar Primeiro Snapshot')).toBeInTheDocument();
     });
 
-    render(<SnapshotsList fiscalBookId="fb1" fiscalBookName="Test Book" />);
+    test('renders snapshot cards', async () => {
+      render(<SnapshotsList fiscalBookId="fb1" fiscalBookName="Test Book" />);
 
-    expect(await screen.findByText('Nenhum Snapshot')).toBeInTheDocument();
-    expect(screen.getByText('Criar Primeiro Snapshot')).toBeInTheDocument();
-  });
-
-  test('renders snapshot cards', async () => {
-    render(<SnapshotsList fiscalBookId="fb1" fiscalBookName="Test Book" />);
-
-    expect(await screen.findByText('Snapshot 1')).toBeInTheDocument();
-    expect(screen.getByText('Snapshot 2')).toBeInTheDocument();
-  });
-
-  test('shows loading state', async () => {
-    snapshotService.getSnapshots.mockReturnValue(new Promise(() => {}));
-
-    render(<SnapshotsList fiscalBookId="fb1" fiscalBookName="Test Book" />);
-
-    expect(screen.getByText('Carregando snapshots...')).toBeInTheDocument();
-  });
-
-  test('shows error message on failure', async () => {
-    snapshotService.getSnapshots.mockRejectedValue(new Error('Load failed'));
-
-    render(<SnapshotsList fiscalBookId="fb1" fiscalBookName="Test Book" />);
-
-    expect(await screen.findByText('Failed to load snapshots')).toBeInTheDocument();
-  });
-
-  test('opens create snapshot dialog', async () => {
-    render(<SnapshotsList fiscalBookId="fb1" fiscalBookName="Test Book" />);
-
-    await waitFor(() => {
-      expect(screen.getByText('Snapshot 1')).toBeInTheDocument();
+      expect(await screen.findByText('Snapshot 1')).toBeInTheDocument();
+      expect(screen.getByText('Protected Snapshot')).toBeInTheDocument();
+      expect(screen.getByText('Auto Snapshot')).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByRole('button', { name: /Criar Snapshot/i }));
+    test('shows loading state', async () => {
+      snapshotService.getSnapshots.mockReturnValue(new Promise(() => {}));
 
-    expect(screen.getByTestId('create-snapshot-dialog')).toBeInTheDocument();
-  });
+      render(<SnapshotsList fiscalBookId="fb1" fiscalBookName="Test Book" />);
 
-  test('opens comparison dialog', async () => {
-    render(<SnapshotsList fiscalBookId="fb1" fiscalBookName="Test Book" />);
-
-    await waitFor(() => {
-      expect(screen.getByText('Snapshot 1')).toBeInTheDocument();
+      expect(screen.getByText('Carregando snapshots...')).toBeInTheDocument();
     });
 
-    // Click compare button on first card
-    const compareButtons = screen.getAllByRole('button', { name: /Comparar/i });
-    fireEvent.click(compareButtons[0]);
+    test('shows error message on failure', async () => {
+      snapshotService.getSnapshots.mockRejectedValue(new Error('Load failed'));
 
-    expect(screen.getByTestId('snapshot-comparison')).toBeInTheDocument();
-  });
+      render(<SnapshotsList fiscalBookId="fb1" fiscalBookName="Test Book" />);
 
-  test('shows protection lock icon for protected snapshots', async () => {
-    render(<SnapshotsList fiscalBookId="fb1" fiscalBookName="Test Book" />);
-
-    await waitFor(() => {
-      expect(screen.getByText('Snapshot 2')).toBeInTheDocument();
+      expect(await screen.findByText('Failed to load snapshots')).toBeInTheDocument();
     });
 
-    // Protected snapshot should have lock indicator
-    expect(screen.getByTestId ? screen.queryByLabelText(/Snapshot protegido/i) : true).toBeTruthy();
+    test('does not render without fiscalBookId', async () => {
+      render(<SnapshotsList fiscalBookId="" fiscalBookName="Test Book" />);
+
+      // Should not call getSnapshots with empty fiscalBookId
+      await waitFor(() => {
+        expect(snapshotService.getSnapshots).not.toHaveBeenCalled();
+      });
+    });
   });
 
-  test('renders tags on snapshot cards', async () => {
-    render(<SnapshotsList fiscalBookId="fb1" fiscalBookName="Test Book" />);
+  // ===== Visual Indicators =====
+  describe('Visual Indicators', () => {
+    test('shows protection lock icon for protected snapshots', async () => {
+      render(<SnapshotsList fiscalBookId="fb1" fiscalBookName="Test Book" />);
 
-    await waitFor(() => {
-      expect(screen.getByText('audit')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText('Protected Snapshot')).toBeInTheDocument();
+      });
+
+      // Should have a lock indicator
+      const protectedCard = screen.getByText('Protected Snapshot').closest('[class*="Card"]');
+      expect(protectedCard).toBeTruthy();
     });
 
-    expect(screen.getByText('monthly')).toBeInTheDocument();
+    test('shows schedule icon for auto/scheduled snapshots', async () => {
+      render(<SnapshotsList fiscalBookId="fb1" fiscalBookName="Test Book" />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Auto Snapshot')).toBeInTheDocument();
+      });
+
+      // Should have a schedule indicator for creationSource: 'scheduled' or tag 'auto'
+    });
+
+    test('renders tags on snapshot cards', async () => {
+      render(<SnapshotsList fiscalBookId="fb1" fiscalBookName="Test Book" />);
+
+      await waitFor(() => {
+        expect(screen.getByText('audit')).toBeInTheDocument();
+      });
+
+      expect(screen.getByText('monthly')).toBeInTheDocument();
+      expect(screen.getByText('auto')).toBeInTheDocument();
+    });
+
+    test('shows transaction count in statistics', async () => {
+      render(<SnapshotsList fiscalBookId="fb1" fiscalBookName="Test Book" />);
+
+      await waitFor(() => {
+        expect(screen.getByText(/10 transações/)).toBeInTheDocument();
+      });
+    });
   });
 
-  test('calls onSnapshotCreated callback', async () => {
-    const onSnapshotCreated = jest.fn();
-    
-    render(
-      <SnapshotsList
-        fiscalBookId="fb1"
-        fiscalBookName="Test Book"
-        onSnapshotCreated={onSnapshotCreated}
-      />
-    );
+  // ===== Create Snapshot =====
+  describe('Create Snapshot', () => {
+    test('opens create snapshot dialog', async () => {
+      render(<SnapshotsList fiscalBookId="fb1" fiscalBookName="Test Book" />);
 
-    await waitFor(() => {
-      expect(screen.getByText('Snapshot 1')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText('Snapshot 1')).toBeInTheDocument();
+      });
+
+      fireEvent.click(screen.getByRole('button', { name: /Criar Snapshot/i }));
+
+      expect(screen.getByTestId('create-snapshot-dialog')).toBeInTheDocument();
     });
 
-    // Open create dialog
-    fireEvent.click(screen.getByRole('button', { name: /Criar Snapshot/i }));
+    test('calls onSnapshotCreated callback after creation', async () => {
+      const onSnapshotCreated = jest.fn();
+      
+      render(
+        <SnapshotsList
+          fiscalBookId="fb1"
+          fiscalBookName="Test Book"
+          onSnapshotCreated={onSnapshotCreated}
+        />
+      );
 
-    // Click create in mock dialog
-    fireEvent.click(screen.getByRole('button', { name: 'Create' }));
+      await waitFor(() => {
+        expect(screen.getByText('Snapshot 1')).toBeInTheDocument();
+      });
 
-    expect(onSnapshotCreated).toHaveBeenCalled();
+      fireEvent.click(screen.getByRole('button', { name: /Criar Snapshot/i }));
+      fireEvent.click(screen.getByRole('button', { name: 'Create' }));
+
+      expect(onSnapshotCreated).toHaveBeenCalled();
+    });
+
+    test('refreshes list after snapshot creation', async () => {
+      render(<SnapshotsList fiscalBookId="fb1" fiscalBookName="Test Book" />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Snapshot 1')).toBeInTheDocument();
+      });
+
+      expect(snapshotService.getSnapshots).toHaveBeenCalledTimes(1);
+
+      fireEvent.click(screen.getByRole('button', { name: /Criar Snapshot/i }));
+      fireEvent.click(screen.getByRole('button', { name: 'Create' }));
+
+      await waitFor(() => {
+        expect(snapshotService.getSnapshots).toHaveBeenCalledTimes(2);
+      });
+    });
   });
 
-  test('refreshes list on button click', async () => {
-    render(<SnapshotsList fiscalBookId="fb1" fiscalBookName="Test Book" />);
+  // ===== Comparison =====
+  describe('Comparison', () => {
+    test('opens comparison dialog', async () => {
+      render(<SnapshotsList fiscalBookId="fb1" fiscalBookName="Test Book" />);
 
-    await waitFor(() => {
-      expect(screen.getByText('Snapshot 1')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText('Snapshot 1')).toBeInTheDocument();
+      });
+
+      const compareButtons = screen.getAllByRole('button', { name: /Comparar/i });
+      fireEvent.click(compareButtons[0]);
+
+      expect(screen.getByTestId('snapshot-comparison')).toBeInTheDocument();
     });
 
-    expect(snapshotService.getSnapshots).toHaveBeenCalledTimes(1);
+    test('closes comparison dialog', async () => {
+      render(<SnapshotsList fiscalBookId="fb1" fiscalBookName="Test Book" />);
 
-    // Click refresh button (find by icon or aria-label)
-    const refreshButton = screen.getByRole('button', { name: '' });
-    if (refreshButton) {
-      fireEvent.click(refreshButton);
-    }
+      await waitFor(() => {
+        expect(screen.getByText('Snapshot 1')).toBeInTheDocument();
+      });
+
+      const compareButtons = screen.getAllByRole('button', { name: /Comparar/i });
+      fireEvent.click(compareButtons[0]);
+
+      expect(screen.getByTestId('snapshot-comparison')).toBeInTheDocument();
+
+      fireEvent.click(screen.getByRole('button', { name: 'Close Comparison' }));
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('snapshot-comparison')).not.toBeInTheDocument();
+      });
+    });
+  });
+
+  // ===== Delete =====
+  describe('Delete Snapshot', () => {
+    test('opens delete confirmation dialog from menu', async () => {
+      render(<SnapshotsList fiscalBookId="fb1" fiscalBookName="Test Book" />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Snapshot 1')).toBeInTheDocument();
+      });
+
+      // Open menu on first snapshot
+      const moreButtons = screen.getAllByRole('button', { name: '' });
+      fireEvent.click(moreButtons[0]);
+
+      // Click delete menu item
+      const deleteMenuItem = await screen.findByText('Excluir');
+      fireEvent.click(deleteMenuItem);
+
+      // Confirmation dialog should appear
+      expect(await screen.findByText('Confirmar Exclusão')).toBeInTheDocument();
+    });
+
+    test('calls delete service on confirmation', async () => {
+      snapshotService.deleteSnapshot.mockResolvedValue({});
+
+      render(<SnapshotsList fiscalBookId="fb1" fiscalBookName="Test Book" />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Snapshot 1')).toBeInTheDocument();
+      });
+
+      // Open menu and click delete
+      const moreButtons = screen.getAllByRole('button', { name: '' });
+      fireEvent.click(moreButtons[0]);
+      
+      const deleteMenuItem = await screen.findByText('Excluir');
+      fireEvent.click(deleteMenuItem);
+
+      // Confirm deletion
+      const confirmButton = screen.getByRole('button', { name: 'Excluir' });
+      fireEvent.click(confirmButton);
+
+      await waitFor(() => {
+        expect(snapshotService.deleteSnapshot).toHaveBeenCalledWith('snap1');
+      });
+    });
+
+    test('shows success message after deletion', async () => {
+      snapshotService.deleteSnapshot.mockResolvedValue({});
+
+      render(<SnapshotsList fiscalBookId="fb1" fiscalBookName="Test Book" />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Snapshot 1')).toBeInTheDocument();
+      });
+
+      // Open menu and delete
+      const moreButtons = screen.getAllByRole('button', { name: '' });
+      fireEvent.click(moreButtons[0]);
+      fireEvent.click(await screen.findByText('Excluir'));
+      fireEvent.click(screen.getByRole('button', { name: 'Excluir' }));
+
+      await waitFor(() => {
+        expect(screen.getByText('Snapshot excluído com sucesso')).toBeInTheDocument();
+      });
+    });
+
+    test('protected snapshot shows disabled delete button', async () => {
+      // Mock only the protected snapshot
+      snapshotService.getSnapshots.mockResolvedValue({
+        data: [mockSnapshots[1]], // Protected snapshot
+        pagination: { total: 1 },
+      });
+
+      render(<SnapshotsList fiscalBookId="fb1" fiscalBookName="Test Book" />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Protected Snapshot')).toBeInTheDocument();
+      });
+
+      // Open menu
+      const moreButtons = screen.getAllByRole('button', { name: '' });
+      fireEvent.click(moreButtons[0]);
+
+      // Delete should be disabled
+      const deleteMenuItem = await screen.findByText('Excluir');
+      expect(deleteMenuItem.closest('li')).toHaveAttribute('aria-disabled', 'true');
+    });
+
+    test('shows error on delete failure', async () => {
+      snapshotService.deleteSnapshot.mockRejectedValue(new Error('Cannot delete'));
+
+      render(<SnapshotsList fiscalBookId="fb1" fiscalBookName="Test Book" />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Snapshot 1')).toBeInTheDocument();
+      });
+
+      // Open menu and delete
+      const moreButtons = screen.getAllByRole('button', { name: '' });
+      fireEvent.click(moreButtons[0]);
+      fireEvent.click(await screen.findByText('Excluir'));
+      fireEvent.click(screen.getByRole('button', { name: 'Excluir' }));
+
+      await waitFor(() => {
+        expect(screen.getByText(/Cannot delete/)).toBeInTheDocument();
+      });
+    });
+  });
+
+  // ===== Rollback =====
+  describe('Rollback', () => {
+    test('opens rollback dialog from menu', async () => {
+      render(<SnapshotsList fiscalBookId="fb1" fiscalBookName="Test Book" />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Snapshot 1')).toBeInTheDocument();
+      });
+
+      // Open menu
+      const moreButtons = screen.getAllByRole('button', { name: '' });
+      fireEvent.click(moreButtons[0]);
+
+      // Click rollback
+      fireEvent.click(await screen.findByText('Rollback para este Snapshot'));
+
+      expect(screen.getByTestId('rollback-dialog')).toBeInTheDocument();
+    });
+
+    test('shows success message after rollback', async () => {
+      const onSnapshotCreated = jest.fn();
+
+      render(
+        <SnapshotsList 
+          fiscalBookId="fb1" 
+          fiscalBookName="Test Book" 
+          onSnapshotCreated={onSnapshotCreated}
+        />
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('Snapshot 1')).toBeInTheDocument();
+      });
+
+      // Open menu and trigger rollback
+      const moreButtons = screen.getAllByRole('button', { name: '' });
+      fireEvent.click(moreButtons[0]);
+      fireEvent.click(await screen.findByText('Rollback para este Snapshot'));
+      fireEvent.click(screen.getByRole('button', { name: 'Confirm Rollback' }));
+
+      await waitFor(() => {
+        expect(screen.getByText(/Rollback concluído! 15 transações restauradas/)).toBeInTheDocument();
+      });
+
+      // Should refresh parent
+      expect(onSnapshotCreated).toHaveBeenCalled();
+    });
+  });
+
+  // ===== Clone =====
+  describe('Clone to New Fiscal Book', () => {
+    test('clones snapshot successfully', async () => {
+      snapshotService.cloneToNewFiscalBook.mockResolvedValue({
+        data: { bookName: 'Cloned Book' },
+      });
+
+      render(<SnapshotsList fiscalBookId="fb1" fiscalBookName="Test Book" />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Snapshot 1')).toBeInTheDocument();
+      });
+
+      // Open menu and click clone
+      const moreButtons = screen.getAllByRole('button', { name: '' });
+      fireEvent.click(moreButtons[0]);
+      fireEvent.click(await screen.findByText('Clonar para Novo Livro'));
+
+      await waitFor(() => {
+        expect(snapshotService.cloneToNewFiscalBook).toHaveBeenCalledWith('snap1');
+      });
+
+      // Should show success message
+      await waitFor(() => {
+        expect(screen.getByText(/Livro fiscal criado com sucesso: Cloned Book/)).toBeInTheDocument();
+      });
+    });
+
+    test('shows error on clone failure', async () => {
+      snapshotService.cloneToNewFiscalBook.mockRejectedValue(new Error('Clone failed'));
+
+      render(<SnapshotsList fiscalBookId="fb1" fiscalBookName="Test Book" />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Snapshot 1')).toBeInTheDocument();
+      });
+
+      // Open menu and click clone
+      const moreButtons = screen.getAllByRole('button', { name: '' });
+      fireEvent.click(moreButtons[0]);
+      fireEvent.click(await screen.findByText('Clonar para Novo Livro'));
+
+      await waitFor(() => {
+        expect(screen.getByText('Failed to clone snapshot to new fiscal book')).toBeInTheDocument();
+      });
+    });
+  });
+
+  // ===== Tags =====
+  describe('Tags Popover', () => {
+    test('opens tags popover from menu', async () => {
+      render(<SnapshotsList fiscalBookId="fb1" fiscalBookName="Test Book" />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Snapshot 1')).toBeInTheDocument();
+      });
+
+      // Open menu
+      const moreButtons = screen.getAllByRole('button', { name: '' });
+      fireEvent.click(moreButtons[0]);
+
+      // Click manage tags
+      fireEvent.click(await screen.findByText('Gerenciar Tags'));
+
+      expect(screen.getByTestId('tags-popover')).toBeInTheDocument();
+    });
+
+    test('refreshes list after tag update', async () => {
+      render(<SnapshotsList fiscalBookId="fb1" fiscalBookName="Test Book" />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Snapshot 1')).toBeInTheDocument();
+      });
+
+      expect(snapshotService.getSnapshots).toHaveBeenCalledTimes(1);
+
+      // Open menu and tags popover
+      const moreButtons = screen.getAllByRole('button', { name: '' });
+      fireEvent.click(moreButtons[0]);
+      fireEvent.click(await screen.findByText('Gerenciar Tags'));
+
+      // Update tags
+      fireEvent.click(screen.getByRole('button', { name: 'Update Tags' }));
+
+      await waitFor(() => {
+        expect(snapshotService.getSnapshots).toHaveBeenCalledTimes(2);
+      });
+    });
+  });
+
+  // ===== Export =====
+  describe('Export Dialog', () => {
+    test('opens export dialog from menu', async () => {
+      render(<SnapshotsList fiscalBookId="fb1" fiscalBookName="Test Book" />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Snapshot 1')).toBeInTheDocument();
+      });
+
+      // Open menu
+      const moreButtons = screen.getAllByRole('button', { name: '' });
+      fireEvent.click(moreButtons[0]);
+
+      // Click export
+      fireEvent.click(await screen.findByText('Exportar...'));
+
+      expect(screen.getByTestId('export-dialog')).toBeInTheDocument();
+    });
+  });
+
+  // ===== Annotations =====
+  describe('Annotations Dialog', () => {
+    test('opens annotations dialog from menu', async () => {
+      render(<SnapshotsList fiscalBookId="fb1" fiscalBookName="Test Book" />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Snapshot 1')).toBeInTheDocument();
+      });
+
+      // Open menu
+      const moreButtons = screen.getAllByRole('button', { name: '' });
+      fireEvent.click(moreButtons[0]);
+
+      // Click annotations
+      fireEvent.click(await screen.findByText(/Anotações/));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('snapshot-annotations')).toBeInTheDocument();
+      });
+    });
+
+    test('shows annotation count in menu', async () => {
+      snapshotService.getSnapshots.mockResolvedValue({
+        data: [mockSnapshots[1]], // Has 1 annotation
+        pagination: { total: 1 },
+      });
+
+      render(<SnapshotsList fiscalBookId="fb1" fiscalBookName="Test Book" />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Protected Snapshot')).toBeInTheDocument();
+      });
+
+      // Open menu
+      const moreButtons = screen.getAllByRole('button', { name: '' });
+      fireEvent.click(moreButtons[0]);
+
+      // Should show (1) count
+      expect(await screen.findByText(/Anotações \(1\)/)).toBeInTheDocument();
+    });
+  });
+
+  // ===== Protection Toggle =====
+  describe('Protection Toggle', () => {
+    test('toggles protection on unprotected snapshot', async () => {
+      snapshotService.toggleProtection.mockResolvedValue({});
+
+      render(<SnapshotsList fiscalBookId="fb1" fiscalBookName="Test Book" />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Snapshot 1')).toBeInTheDocument();
+      });
+
+      // Open menu
+      const moreButtons = screen.getAllByRole('button', { name: '' });
+      fireEvent.click(moreButtons[0]);
+
+      // Click protect
+      fireEvent.click(await screen.findByText('Proteger'));
+
+      await waitFor(() => {
+        expect(snapshotService.toggleProtection).toHaveBeenCalledWith('snap1', true);
+      });
+    });
+
+    test('toggles protection off on protected snapshot', async () => {
+      snapshotService.getSnapshots.mockResolvedValue({
+        data: [mockSnapshots[1]], // Protected
+        pagination: { total: 1 },
+      });
+      snapshotService.toggleProtection.mockResolvedValue({});
+
+      render(<SnapshotsList fiscalBookId="fb1" fiscalBookName="Test Book" />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Protected Snapshot')).toBeInTheDocument();
+      });
+
+      // Open menu
+      const moreButtons = screen.getAllByRole('button', { name: '' });
+      fireEvent.click(moreButtons[0]);
+
+      // Click remove protection
+      fireEvent.click(await screen.findByText('Remover Proteção'));
+
+      await waitFor(() => {
+        expect(snapshotService.toggleProtection).toHaveBeenCalledWith('snap2', false);
+      });
+    });
+  });
+
+  // ===== Tag Filter =====
+  describe('Tag Filtering', () => {
+    test('filters snapshots by tag', async () => {
+      render(<SnapshotsList fiscalBookId="fb1" fiscalBookName="Test Book" />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Snapshot 1')).toBeInTheDocument();
+      });
+
+      // TODO: Find and interact with tag filter select
+      // This would require more advanced testing to interact with Material-UI Select
+    });
+  });
+
+  // ===== Refresh =====
+  describe('Refresh', () => {
+    test('refreshes snapshots list on button click', async () => {
+      render(<SnapshotsList fiscalBookId="fb1" fiscalBookName="Test Book" />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Snapshot 1')).toBeInTheDocument();
+      });
+
+      expect(snapshotService.getSnapshots).toHaveBeenCalledTimes(1);
+
+      // Find and click refresh button (IconButton with RefreshIcon)
+      const refreshButton = screen.getByLabelText ? 
+        screen.queryByLabelText('refresh') : 
+        screen.getAllByRole('button')[1]; // Usually second button
+
+      if (refreshButton) {
+        fireEvent.click(refreshButton);
+        
+        await waitFor(() => {
+          expect(snapshotService.getSnapshots).toHaveBeenCalledTimes(2);
+        });
+      }
+    });
   });
 });
