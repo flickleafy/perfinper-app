@@ -50,6 +50,7 @@ import {
 import fiscalBookService from '../../services/fiscalBookService';
 import LoadingIndicator from '../../ui/LoadingIndicator';
 import FiscalBookDrawer from '../FiscalBookDrawer/FiscalBookDrawer';
+import { useToast } from '../../ui/ToastProvider';
 
 /**
  * FiscalBooksList - Component for displaying and managing fiscal books
@@ -70,6 +71,7 @@ function FiscalBooksList({
   allowDelete = true,
 }) {
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [fiscalBooks, setFiscalBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -99,12 +101,28 @@ function FiscalBooksList({
       setLoading(true);
       setError('');
       const books = await fiscalBookService.getAll();
-      setFiscalBooks(books.map(formatFiscalBookForDisplay));
+      const formattedBooks = books.map(formatFiscalBookForDisplay);
+      setFiscalBooks(formattedBooks);
+      return formattedBooks; // Return for use in handleDrawerRefresh
     } catch (err) {
       console.error('Error loading fiscal books:', err);
       setError('Failed to load fiscal books. Please try again.');
+      return null;
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Refresh list and update drawer's fiscal book state
+  const handleDrawerRefresh = async () => {
+    const updatedBooks = await loadFiscalBooks();
+    // Update the drawer's fiscal book with fresh data from the list
+    if (updatedBooks && drawerFiscalBook) {
+      const bookId = drawerFiscalBook._id || drawerFiscalBook.id;
+      const updatedBook = updatedBooks.find(b => (b._id || b.id) === bookId);
+      if (updatedBook) {
+        setDrawerFiscalBook(updatedBook);
+      }
     }
   };
 
@@ -126,7 +144,7 @@ function FiscalBooksList({
   };
 
   // Handle edit
-  const handleEdit = (book = selectedBook) => {
+  const handleEdit = (book) => {
     const bookToEdit = book || selectedBook;
     if (bookToEdit) {
       if (onEdit) {
@@ -165,17 +183,17 @@ function FiscalBooksList({
   };
 
   // Handle view statistics
-  const handleViewTransactions = (book = selectedBook) => {
+  const handleViewTransactions = (book) => {
     handleView(book, 1); // Open to transactions tab (index 1)
   };
 
   // Handle view statistics
-  const handleViewStatistics = (book = selectedBook) => {
+  const handleViewStatistics = (book) => {
     handleView(book, 2); // Open to statistics tab (index 2)
   };
 
   // Handle view snapshots (and create)
-  const handleViewSnapshots = (book = selectedBook) => {
+  const handleViewSnapshots = (book) => {
     handleView(book, 3); // Open to snapshots tab (index 3)
   };
 
@@ -196,15 +214,22 @@ function FiscalBooksList({
   const handleToggleArchive = async () => {
     if (!selectedBook) return;
 
+    const bookName = selectedBook.bookName || selectedBook.name;
+    const isReopening = selectedBook.status === FISCAL_BOOK_STATUS_OBJ.FECHADO;
+
     try {
-      if (selectedBook.status === FISCAL_BOOK_STATUS_OBJ.FECHADO) {
+      if (isReopening) {
         await fiscalBookService.reopen(selectedBook.id || selectedBook._id);
+        showToast(`Livro fiscal "${bookName}" reaberto com sucesso!`, 'success');
       } else {
         await fiscalBookService.close(selectedBook.id || selectedBook._id);
+        showToast(`Livro fiscal "${bookName}" fechado com sucesso!`, 'success');
       }
       await loadFiscalBooks();
     } catch (err) {
       console.error('Error toggling archive status:', err);
+      const action = isReopening ? 'reabrir' : 'fechar';
+      showToast(`Erro ao ${action} o livro fiscal`, 'error');
       setError('Failed to update fiscal book status');
     }
     handleMenuClose();
@@ -545,7 +570,7 @@ function FiscalBooksList({
           Criar Snapshot
         </MenuItem>
         <MenuItem onClick={handleToggleArchive}>
-          {selectedBook?.status === 'Fechado' ? (
+          {selectedBook?.status === FISCAL_BOOK_STATUS_OBJ.FECHADO ? (
             <>
               <UnarchiveIcon sx={{ mr: 1 }} />
               Reabrir
@@ -617,7 +642,7 @@ function FiscalBooksList({
         onClose={handleDrawerClose}
         fiscalBook={drawerFiscalBook}
         onEdit={handleDrawerEdit}
-        onRefresh={loadFiscalBooks}
+        onRefresh={handleDrawerRefresh}
         initialTab={drawerInitialTab}
       />
     </Box>

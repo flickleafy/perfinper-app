@@ -70,4 +70,27 @@ describe('Buttons', () => {
     expect(onClick).toHaveBeenCalled();
     expect(screen.getByText('Child')).toBeInTheDocument();
   });
+
+  // Tests for default onClick handlers (to reach 90%+ function coverage)
+  describe('Default onClick handlers', () => {
+    it.each(buttonCases)('triggers default onClick for %s without crashing', (_, Component, iconTestId) => {
+      // Render without onClick prop - uses default () => {}
+      renderWithRouter(<Component />);
+
+      const icon = screen.getByTestId(iconTestId);
+      // Click should not throw - it calls the default empty function
+      expect(() => fireEvent.click(icon.closest('a'))).not.toThrow();
+    });
+
+    it('triggers default onClick for SquircleButton without crashing', () => {
+      renderWithRouter(
+        <SquircleButton>
+          <span>Test</span>
+        </SquircleButton>
+      );
+
+      expect(() => fireEvent.click(screen.getByText('Test').closest('a'))).not.toThrow();
+    });
+  });
 });
+

@@ -122,4 +122,122 @@ describe('CreateSnapshotDialog', () => {
       expect(screen.getByRole('button', { name: /Cancelar/i })).toBeDisabled();
     });
   });
+
+  test('can dismiss error alert', async () => {
+    snapshotService.createSnapshot.mockRejectedValue(new Error('Create failed'));
+
+    render(<CreateSnapshotDialog {...defaultProps} />);
+
+    fireEvent.click(screen.getByRole('button', { name: /Criar Snapshot/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Create failed')).toBeInTheDocument();
+    });
+
+    // Click close button on error alert
+    const closeButton = screen.getByRole('button', { name: 'Close' });
+    fireEvent.click(closeButton);
+
+    expect(screen.queryByText('Create failed')).not.toBeInTheDocument();
+  });
+
+  test('adds tags via autocomplete', async () => {
+    render(<CreateSnapshotDialog {...defaultProps} />);
+
+    const tagsInput = screen.getByLabelText(/Tags/i);
+    fireEvent.change(tagsInput, { target: { value: 'custom-tag' } });
+    fireEvent.keyDown(tagsInput, { key: 'Enter', code: 'Enter' });
+
+    // Tag should appear as chip
+    await waitFor(() => {
+      expect(screen.getByText('custom-tag')).toBeInTheDocument();
+    });
+  });
+
+  test('normalizes tags to lowercase', async () => {
+    render(<CreateSnapshotDialog {...defaultProps} />);
+
+    const tagsInput = screen.getByLabelText(/Tags/i);
+    fireEvent.change(tagsInput, { target: { value: 'UPPERCASE-TAG' } });
+    fireEvent.keyDown(tagsInput, { key: 'Enter', code: 'Enter' });
+
+    await waitFor(() => {
+      expect(screen.getByText('uppercase-tag')).toBeInTheDocument();
+    });
+  });
+
+  test('prevents close during loading', async () => {
+    snapshotService.createSnapshot.mockReturnValue(new Promise(() => {}));
+
+    render(<CreateSnapshotDialog {...defaultProps} />);
+
+    // Start loading
+    fireEvent.click(screen.getByRole('button', { name: /Criar Snapshot/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Criando...')).toBeInTheDocument();
+    });
+
+    // Try to close - defaultProps.onClose should not be called again
+    jest.clearAllMocks();
+    fireEvent.click(screen.getByRole('button', { name: /Cancelar/i }));
+
+    expect(defaultProps.onClose).not.toHaveBeenCalled();
+  });
+
+  test('shows fallback error message', async () => {
+    snapshotService.createSnapshot.mockRejectedValue({});
+
+    render(<CreateSnapshotDialog {...defaultProps} />);
+
+    fireEvent.click(screen.getByRole('button', { name: /Criar Snapshot/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Failed to create snapshot')).toBeInTheDocument();
+    });
+  });
+
+  test('handles missing fiscalBookName', () => {
+    render(<CreateSnapshotDialog {...defaultProps} fiscalBookName="" />);
+
+    expect(screen.getByText(/Livro Fiscal/)).toBeInTheDocument();
+  });
+
+  test('sends tags with submission', async () => {
+    render(<CreateSnapshotDialog {...defaultProps} />);
+
+    // Add a tag
+    const tagsInput = screen.getByLabelText(/Tags/i);
+    fireEvent.change(tagsInput, { target: { value: 'audit-ready' } });
+    fireEvent.keyDown(tagsInput, { key: 'Enter', code: 'Enter' });
+
+    await waitFor(() => {
+      expect(screen.getByText('audit-ready')).toBeInTheDocument();
+    });
+
+    // Submit
+    fireEvent.click(screen.getByRole('button', { name: /Criar Snapshot/i }));
+
+    await waitFor(() => {
+      expect(snapshotService.createSnapshot).toHaveBeenCalledWith('fb1', expect.objectContaining({
+        tags: ['audit-ready'],
+      }));
+    });
+  });
+
+  test('works without onSuccess callback', async () => {
+    render(<CreateSnapshotDialog {...defaultProps} onSuccess={null} />);
+
+    fireEvent.click(screen.getByRole('button', { name: /Criar Snapshot/i }));
+
+    await waitFor(() => {
+      expect(snapshotService.createSnapshot).toHaveBeenCalled();
+    });
+
+    // Should not crash and should close dialog
+    await waitFor(() => {
+      expect(defaultProps.onClose).toHaveBeenCalled();
+    });
+  });
 });
+

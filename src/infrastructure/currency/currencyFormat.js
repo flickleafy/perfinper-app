@@ -21,3 +21,16 @@ export function currencyFormat(input) {
 
   return result;
 }
+
+/**
+ * Parse monetary value handling both comma and period decimal formats
+ * @param {string|number} value - The monetary value to parse
+ * @returns {number} Parsed numeric value
+ */
+export function parseMonetaryValue(value) {
+  if (typeof value === 'number') return value;
+  if (!value) return 0;
+  // Convert comma decimal format to period before parsing
+  const normalized = String(value).replace(',', '.');
+  return parseFloat(normalized) || 0;
+}

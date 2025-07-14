@@ -186,8 +186,9 @@ function FiscalBookForm({
       };
 
       let result;
-      if (isEditing && fiscalBook?._id) {
-        result = await fiscalBookService.update(fiscalBook._id, submissionData);
+      const bookId = fiscalBook?._id || fiscalBook?.id;
+      if (isEditing && bookId) {
+        result = await fiscalBookService.update(bookId, submissionData);
       } else {
         result = await fiscalBookService.create(submissionData);
       }

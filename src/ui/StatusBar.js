@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Grid, Typography, Box } from '@mui/material';
 
+import { parseMonetaryValue } from '../infrastructure/currency/currencyFormat';
+
 const StatusBar = ({ array }) => {
   const [totalExpense, setTotalExpense] = useState(0);
   const [totalRevenue, setTotalRevenue] = useState(0);
@@ -21,7 +23,7 @@ const StatusBar = ({ array }) => {
 
   const calculateTotal = (transactions, setter) => {
     const total = transactions.reduce(
-      (acc, current) => acc + Number(parseFloat(current.transactionValue)),
+      (acc, current) => acc + parseMonetaryValue(current.transactionValue),
       0
     );
     setter(total);

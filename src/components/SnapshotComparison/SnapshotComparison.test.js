@@ -149,17 +149,17 @@ describe('SnapshotComparison', () => {
 
   // ===== Summary Statistics =====
   describe('Summary Statistics', () => {
-    // TODO: Component doesn't have 'Resumo das Diferenças' text
-    test.skip('displays summary card with counts', async () => {
+    test('displays summary card with counts', async () => {
       render(<SnapshotComparison {...defaultProps} />);
 
       await waitFor(() => {
-        expect(screen.getByText('Resumo das Diferenças')).toBeInTheDocument();
+        // Component has emoji: "📊 Resumo das Diferenças"
+        expect(screen.getByText(/Resumo das Diferenças/)).toBeInTheDocument();
       });
 
-      // Check counts are displayed
-      expect(screen.getByText('2')).toBeInTheDocument(); // Added
-      expect(screen.getByText('5')).toBeInTheDocument(); // Unchanged
+      // Check counts are displayed (added=2, unchanged=5)
+      expect(screen.getByText('2')).toBeInTheDocument();
+      expect(screen.getByText('5')).toBeInTheDocument();
     });
 
     test('displays financial statistics', async () => {
@@ -171,13 +171,15 @@ describe('SnapshotComparison', () => {
       });
     });
 
-    // TODO: Assertion for + character not matching rendered output  
-    test.skip('shows positive difference in green', async () => {
+    test('shows positive difference in green', async () => {
       render(<SnapshotComparison {...defaultProps} />);
 
       await waitFor(() => {
-        // netAmountDiff is +100, should be displayed with green color
-        expect(screen.getByText(/\+/)).toBeInTheDocument();
+        // netAmountDiff is +100, rendered as "+R$ 100,00"
+        // Look for the "Diferença:" text which contains the positive value
+        expect(screen.getByText(/Diferença:/)).toBeInTheDocument();
+        // Check for positive transaction count diff (+2 transações)
+        expect(screen.getByText(/\+2 transações/)).toBeInTheDocument();
       });
     });
 
@@ -387,11 +389,15 @@ describe('SnapshotComparison', () => {
       });
     });
 
-    // TODO: Cannot mock document.createElement safely - React Testing Library uses it 
-    // to create the render container. This test approach doesn't work with RTL.
-    // Consider testing export functionality via integration tests instead.
-    test.skip('clicking export creates downloadable JSON', async () => {
-      // Save original functions before mocking
+    test('clicking export creates downloadable JSON', async () => {
+      // Render first - RTL needs document.createElement
+      render(<SnapshotComparison {...defaultProps} />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Added Transaction')).toBeInTheDocument();
+      });
+
+      // Now mock only when we're about to click export
       const originalCreateElement = document.createElement.bind(document);
       const originalAppendChild = document.body.appendChild.bind(document.body);
       const originalRemoveChild = document.body.removeChild.bind(document.body);
@@ -410,19 +416,13 @@ describe('SnapshotComparison', () => {
         document.body.appendChild = jest.fn();
         document.body.removeChild = jest.fn();
 
-        render(<SnapshotComparison {...defaultProps} />);
-
-        await waitFor(() => {
-          expect(screen.getByText('Added Transaction')).toBeInTheDocument();
-        });
-
         fireEvent.click(screen.getByRole('button', { name: /Exportar Relatório/i }));
 
         expect(global.URL.createObjectURL).toHaveBeenCalled();
         expect(mockLink.click).toHaveBeenCalled();
         expect(mockLink.download).toMatch(/comparison-Test Snapshot/);
       } finally {
-        // Always restore, even if test fails
+        // Always restore
         document.createElement = originalCreateElement;
         document.body.appendChild = originalAppendChild;
         document.body.removeChild = originalRemoveChild;
@@ -548,24 +548,26 @@ describe('SnapshotComparison', () => {
 
   // ===== Data Handling =====
   describe('Data Handling', () => {
-    // TODO: Test assertions need updating to match actual component UI
-    test.skip('handles API response with data wrapper', async () => {
-      // Already using { data: ... } structure
+    test('handles API response with data wrapper', async () => {
+      // Already using { data: ... } structure - verify component renders correctly
       render(<SnapshotComparison {...defaultProps} />);
 
       await waitFor(() => {
-        expect(screen.getByText('Test Snapshot')).toBeInTheDocument();
+        // Title contains snapshot name
+        expect(screen.getByText(/Test Snapshot/)).toBeInTheDocument();
+        // Summary is rendered
+        expect(screen.getByText(/Resumo das Diferenças/)).toBeInTheDocument();
       });
     });
 
-    // TODO: Test assertion needs updating - component may not show "Transações Adicionadas"
-    test.skip('handles API response without data wrapper', async () => {
-      // Direct response structure
+    test('handles API response without data wrapper', async () => {
+      // Direct response structure (component handles both via result.data || result)
       snapshotService.compareSnapshot.mockResolvedValue(mockComparison.data);
 
       render(<SnapshotComparison {...defaultProps} />);
 
       await waitFor(() => {
+        // Component renders "Transações Adicionadas" in the accordion
         expect(screen.getByText(/Transações Adicionadas/)).toBeInTheDocument();
       });
     });

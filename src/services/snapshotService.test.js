@@ -223,5 +223,467 @@ describe('snapshotService', () => {
       });
       expect(result.success).toBe(true);
     });
+
+    test('throws on error', async () => {
+      http.put.mockRejectedValue({
+        response: { data: { message: 'Schedule update failed' } },
+      });
+
+      await expect(snapshotService.updateSchedule('fb1', {})).rejects.toThrow('Schedule update failed');
+    });
+
+    test('throws default message when no response message', async () => {
+      http.put.mockRejectedValue(new Error('Network error'));
+
+      await expect(snapshotService.updateSchedule('fb1', {})).rejects.toThrow('Failed to update schedule');
+    });
+  });
+
+  // ===== Error Path Tests =====
+  describe('getSnapshots error handling', () => {
+    test('throws on error with response message', async () => {
+      http.get.mockRejectedValue({
+        response: { data: { message: 'Snapshot fetch failed' } },
+      });
+
+      await expect(snapshotService.getSnapshots('fb1')).rejects.toThrow('Snapshot fetch failed');
+    });
+
+    test('throws default message when no response message', async () => {
+      http.get.mockRejectedValue(new Error('Network error'));
+
+      await expect(snapshotService.getSnapshots('fb1')).rejects.toThrow('Failed to fetch snapshots');
+    });
+
+    test('handles skip filter parameter', async () => {
+      http.get.mockResolvedValue({ data: { success: true, data: [] } });
+
+      await snapshotService.getSnapshots('fb1', { skip: 5 });
+
+      expect(http.get).toHaveBeenCalledWith('/api/fiscal-book/fb1/snapshots', {
+        params: { skip: 5 },
+      });
+    });
+
+    test('handles all filter parameters together', async () => {
+      http.get.mockResolvedValue({ data: { success: true, data: [] } });
+
+      await snapshotService.getSnapshots('fb1', { tags: ['a', 'b'], limit: 10, skip: 5 });
+
+      expect(http.get).toHaveBeenCalledWith('/api/fiscal-book/fb1/snapshots', {
+        params: { tags: 'a,b', limit: 10, skip: 5 },
+      });
+    });
+
+    test('ignores empty tags array', async () => {
+      http.get.mockResolvedValue({ data: { success: true, data: [] } });
+
+      await snapshotService.getSnapshots('fb1', { tags: [] });
+
+      expect(http.get).toHaveBeenCalledWith('/api/fiscal-book/fb1/snapshots', {
+        params: {},
+      });
+    });
+  });
+
+  describe('getSnapshotById error handling', () => {
+    test('throws on error with response message', async () => {
+      http.get.mockRejectedValue({
+        response: { data: { message: 'Snapshot not found' } },
+      });
+
+      await expect(snapshotService.getSnapshotById('snap1')).rejects.toThrow('Snapshot not found');
+    });
+
+    test('throws default message when no response message', async () => {
+      http.get.mockRejectedValue(new Error('Network error'));
+
+      await expect(snapshotService.getSnapshotById('snap1')).rejects.toThrow('Failed to fetch snapshot');
+    });
+  });
+
+  describe('getSnapshotTransactions error handling', () => {
+    test('throws on error with response message', async () => {
+      http.get.mockRejectedValue({
+        response: { data: { message: 'Transactions fetch failed' } },
+      });
+
+      await expect(snapshotService.getSnapshotTransactions('snap1')).rejects.toThrow('Transactions fetch failed');
+    });
+
+    test('throws default message when no response message', async () => {
+      http.get.mockRejectedValue(new Error('Network error'));
+
+      await expect(snapshotService.getSnapshotTransactions('snap1')).rejects.toThrow('Failed to fetch snapshot transactions');
+    });
+
+    test('handles skip pagination parameter', async () => {
+      http.get.mockResolvedValue({ data: { success: true, data: [] } });
+
+      await snapshotService.getSnapshotTransactions('snap1', { skip: 10 });
+
+      expect(http.get).toHaveBeenCalledWith('/api/snapshots/snap1/transactions', {
+        params: { skip: 10 },
+      });
+    });
+
+    test('handles both pagination parameters', async () => {
+      http.get.mockResolvedValue({ data: { success: true, data: [] } });
+
+      await snapshotService.getSnapshotTransactions('snap1', { limit: 20, skip: 10 });
+
+      expect(http.get).toHaveBeenCalledWith('/api/snapshots/snap1/transactions', {
+        params: { limit: 20, skip: 10 },
+      });
+    });
+
+    test('handles empty pagination', async () => {
+      http.get.mockResolvedValue({ data: { success: true, data: [] } });
+
+      await snapshotService.getSnapshotTransactions('snap1');
+
+      expect(http.get).toHaveBeenCalledWith('/api/snapshots/snap1/transactions', {
+        params: {},
+      });
+    });
+  });
+
+  describe('deleteSnapshot error handling', () => {
+    test('throws default message when no response message', async () => {
+      http.delete.mockRejectedValue(new Error('Network error'));
+
+      await expect(snapshotService.deleteSnapshot('snap1')).rejects.toThrow('Failed to delete snapshot');
+    });
+  });
+
+  describe('compareSnapshot error handling', () => {
+    test('throws on error with response message', async () => {
+      http.get.mockRejectedValue({
+        response: { data: { message: 'Comparison failed' } },
+      });
+
+      await expect(snapshotService.compareSnapshot('snap1')).rejects.toThrow('Comparison failed');
+    });
+
+    test('throws default message when no response message', async () => {
+      http.get.mockRejectedValue(new Error('Network error'));
+
+      await expect(snapshotService.compareSnapshot('snap1')).rejects.toThrow('Failed to compare snapshot');
+    });
+  });
+
+  describe('updateTags error handling', () => {
+    test('throws on error with response message', async () => {
+      http.put.mockRejectedValue({
+        response: { data: { message: 'Tags update failed' } },
+      });
+
+      await expect(snapshotService.updateTags('snap1', ['a'])).rejects.toThrow('Tags update failed');
+    });
+
+    test('throws default message when no response message', async () => {
+      http.put.mockRejectedValue(new Error('Network error'));
+
+      await expect(snapshotService.updateTags('snap1', ['a'])).rejects.toThrow('Failed to update tags');
+    });
+  });
+
+  describe('toggleProtection error handling', () => {
+    test('throws on error with response message', async () => {
+      http.put.mockRejectedValue({
+        response: { data: { message: 'Protection toggle failed' } },
+      });
+
+      await expect(snapshotService.toggleProtection('snap1', true)).rejects.toThrow('Protection toggle failed');
+    });
+
+    test('throws default message when no response message', async () => {
+      http.put.mockRejectedValue(new Error('Network error'));
+
+      await expect(snapshotService.toggleProtection('snap1', true)).rejects.toThrow('Failed to toggle protection');
+    });
+  });
+
+  describe('addSnapshotAnnotation error handling', () => {
+    test('throws on error with response message', async () => {
+      http.post.mockRejectedValue({
+        response: { data: { message: 'Annotation failed' } },
+      });
+
+      await expect(snapshotService.addSnapshotAnnotation('snap1', 'note')).rejects.toThrow('Annotation failed');
+    });
+
+    test('throws default message when no response message', async () => {
+      http.post.mockRejectedValue(new Error('Network error'));
+
+      await expect(snapshotService.addSnapshotAnnotation('snap1', 'note')).rejects.toThrow('Failed to add annotation');
+    });
+
+    test('uses default createdBy value', async () => {
+      http.post.mockResolvedValue({ data: { success: true } });
+
+      await snapshotService.addSnapshotAnnotation('snap1', 'content');
+
+      expect(http.post).toHaveBeenCalledWith('/api/snapshots/snap1/annotations', {
+        content: 'content',
+        createdBy: 'user',
+      });
+    });
+  });
+
+  // ===== addTransactionAnnotation =====
+  describe('addTransactionAnnotation', () => {
+    test('calls API with content', async () => {
+      http.post.mockResolvedValue({ data: { success: true } });
+
+      const result = await snapshotService.addTransactionAnnotation('snap1', 'tx1', 'Note', 'user1');
+
+      expect(http.post).toHaveBeenCalledWith(
+        '/api/snapshots/snap1/transactions/tx1/annotations',
+        { content: 'Note', createdBy: 'user1' }
+      );
+      expect(result.success).toBe(true);
+    });
+
+    test('uses default createdBy value', async () => {
+      http.post.mockResolvedValue({ data: { success: true } });
+
+      await snapshotService.addTransactionAnnotation('snap1', 'tx1', 'content');
+
+      expect(http.post).toHaveBeenCalledWith(
+        '/api/snapshots/snap1/transactions/tx1/annotations',
+        { content: 'content', createdBy: 'user' }
+      );
+    });
+
+    test('throws on error with response message', async () => {
+      http.post.mockRejectedValue({
+        response: { data: { message: 'Transaction annotation failed' } },
+      });
+
+      await expect(snapshotService.addTransactionAnnotation('snap1', 'tx1', 'note'))
+        .rejects.toThrow('Transaction annotation failed');
+    });
+
+    test('throws default message when no response message', async () => {
+      http.post.mockRejectedValue(new Error('Network error'));
+
+      await expect(snapshotService.addTransactionAnnotation('snap1', 'tx1', 'note'))
+        .rejects.toThrow('Failed to add annotation');
+    });
+  });
+
+  describe('exportSnapshot error handling', () => {
+    test('throws on error', async () => {
+      http.get.mockRejectedValue(new Error('Export failed'));
+
+      await expect(snapshotService.exportSnapshot('snap1')).rejects.toThrow('Failed to export snapshot');
+    });
+
+    test('uses default format', async () => {
+      const mockBlob = new Blob(['data']);
+      http.get.mockResolvedValue({ data: mockBlob });
+
+      await snapshotService.exportSnapshot('snap1');
+
+      expect(http.get).toHaveBeenCalledWith('/api/snapshots/snap1/export', {
+        params: { format: 'json' },
+        responseType: 'blob',
+      });
+    });
+
+    test('accepts csv format', async () => {
+      const mockBlob = new Blob(['data']);
+      http.get.mockResolvedValue({ data: mockBlob });
+
+      await snapshotService.exportSnapshot('snap1', 'csv');
+
+      expect(http.get).toHaveBeenCalledWith('/api/snapshots/snap1/export', {
+        params: { format: 'csv' },
+        responseType: 'blob',
+      });
+    });
+
+    test('accepts pdf format', async () => {
+      const mockBlob = new Blob(['data']);
+      http.get.mockResolvedValue({ data: mockBlob });
+
+      await snapshotService.exportSnapshot('snap1', 'pdf');
+
+      expect(http.get).toHaveBeenCalledWith('/api/snapshots/snap1/export', {
+        params: { format: 'pdf' },
+        responseType: 'blob',
+      });
+    });
+  });
+
+  // ===== downloadExport =====
+  describe('downloadExport', () => {
+    let mockAnchor;
+    let originalCreateObjectURL;
+    let originalRevokeObjectURL;
+    let originalCreateElement;
+    let originalAppendChild;
+    let originalRemoveChild;
+
+    beforeEach(() => {
+      mockAnchor = {
+        href: '',
+        download: '',
+        click: jest.fn(),
+      };
+
+      // Store originals
+      originalCreateObjectURL = window.URL.createObjectURL;
+      originalRevokeObjectURL = window.URL.revokeObjectURL;
+      originalCreateElement = document.createElement.bind(document);
+      originalAppendChild = document.body.appendChild.bind(document.body);
+      originalRemoveChild = document.body.removeChild.bind(document.body);
+
+      // Mock window.URL methods
+      window.URL.createObjectURL = jest.fn().mockReturnValue('blob:url');
+      window.URL.revokeObjectURL = jest.fn();
+
+      // Mock document methods
+      document.createElement = jest.fn().mockReturnValue(mockAnchor);
+      document.body.appendChild = jest.fn();
+      document.body.removeChild = jest.fn();
+    });
+
+    afterEach(() => {
+      // Restore originals
+      window.URL.createObjectURL = originalCreateObjectURL;
+      window.URL.revokeObjectURL = originalRevokeObjectURL;
+      document.createElement = originalCreateElement;
+      document.body.appendChild = originalAppendChild;
+      document.body.removeChild = originalRemoveChild;
+    });
+
+    test('downloads with default format and filename', async () => {
+      const mockBlob = new Blob(['data']);
+      http.get.mockResolvedValue({ data: mockBlob });
+
+      await snapshotService.downloadExport('snap1');
+
+      expect(http.get).toHaveBeenCalledWith('/api/snapshots/snap1/export', {
+        params: { format: 'json' },
+        responseType: 'blob',
+      });
+      expect(window.URL.createObjectURL).toHaveBeenCalledWith(mockBlob);
+      expect(document.createElement).toHaveBeenCalledWith('a');
+      expect(mockAnchor.href).toBe('blob:url');
+      expect(mockAnchor.download).toBe('snapshot-export.json');
+      expect(document.body.appendChild).toHaveBeenCalledWith(mockAnchor);
+      expect(mockAnchor.click).toHaveBeenCalled();
+      expect(window.URL.revokeObjectURL).toHaveBeenCalledWith('blob:url');
+      expect(document.body.removeChild).toHaveBeenCalledWith(mockAnchor);
+    });
+
+    test('downloads with custom format', async () => {
+      const mockBlob = new Blob(['data']);
+      http.get.mockResolvedValue({ data: mockBlob });
+
+      await snapshotService.downloadExport('snap1', 'csv');
+
+      expect(mockAnchor.download).toBe('snapshot-export.csv');
+    });
+
+    test('downloads with custom filename', async () => {
+      const mockBlob = new Blob(['data']);
+      http.get.mockResolvedValue({ data: mockBlob });
+
+      await snapshotService.downloadExport('snap1', 'json', 'my-export.json');
+
+      expect(mockAnchor.download).toBe('my-export.json');
+    });
+
+    test('downloads with pdf format', async () => {
+      const mockBlob = new Blob(['data']);
+      http.get.mockResolvedValue({ data: mockBlob });
+
+      await snapshotService.downloadExport('snap1', 'pdf');
+
+      expect(mockAnchor.download).toBe('snapshot-export.pdf');
+    });
+  });
+
+  describe('cloneToNewFiscalBook error handling', () => {
+    test('throws on error with response message', async () => {
+      http.post.mockRejectedValue({
+        response: { data: { message: 'Clone failed' } },
+      });
+
+      await expect(snapshotService.cloneToNewFiscalBook('snap1')).rejects.toThrow('Clone failed');
+    });
+
+    test('throws default message when no response message', async () => {
+      http.post.mockRejectedValue(new Error('Network error'));
+
+      await expect(snapshotService.cloneToNewFiscalBook('snap1')).rejects.toThrow('Failed to clone snapshot');
+    });
+
+    test('handles empty newBookData', async () => {
+      http.post.mockResolvedValue({ data: { success: true, data: { _id: 'fb2' } } });
+
+      await snapshotService.cloneToNewFiscalBook('snap1');
+
+      expect(http.post).toHaveBeenCalledWith('/api/snapshots/snap1/clone', {});
+    });
+  });
+
+  describe('rollbackToSnapshot error handling', () => {
+    test('throws on error with response message', async () => {
+      http.post.mockRejectedValue({
+        response: { data: { message: 'Rollback failed' } },
+      });
+
+      await expect(snapshotService.rollbackToSnapshot('snap1')).rejects.toThrow('Rollback failed');
+    });
+
+    test('throws default message when no response message', async () => {
+      http.post.mockRejectedValue(new Error('Network error'));
+
+      await expect(snapshotService.rollbackToSnapshot('snap1')).rejects.toThrow('Failed to rollback to snapshot');
+    });
+
+    test('handles empty options', async () => {
+      http.post.mockResolvedValue({ data: { success: true } });
+
+      await snapshotService.rollbackToSnapshot('snap1');
+
+      expect(http.post).toHaveBeenCalledWith('/api/snapshots/snap1/rollback', {});
+    });
+  });
+
+  describe('getSchedule error handling', () => {
+    test('throws on error with response message', async () => {
+      http.get.mockRejectedValue({
+        response: { data: { message: 'Schedule fetch failed' } },
+      });
+
+      await expect(snapshotService.getSchedule('fb1')).rejects.toThrow('Schedule fetch failed');
+    });
+
+    test('throws default message when no response message', async () => {
+      http.get.mockRejectedValue(new Error('Network error'));
+
+      await expect(snapshotService.getSchedule('fb1')).rejects.toThrow('Failed to fetch schedule');
+    });
+  });
+
+  describe('createSnapshot error handling', () => {
+    test('throws default message when no response message', async () => {
+      http.post.mockRejectedValue(new Error('Network error'));
+
+      await expect(snapshotService.createSnapshot('fb1', {})).rejects.toThrow('Failed to create snapshot');
+    });
+
+    test('handles empty snapshotData', async () => {
+      http.post.mockResolvedValue({ data: { success: true } });
+
+      await snapshotService.createSnapshot('fb1');
+
+      expect(http.post).toHaveBeenCalledWith('/api/fiscal-book/fb1/snapshots', {});
+    });
   });
 });

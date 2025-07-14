@@ -139,7 +139,8 @@ function SnapshotsList({ fiscalBookId, fiscalBookName, onSnapshotCreated }) {
   // Handle delete snapshot (opens confirmation)
   const handleDeleteClick = () => {
     setDeleteConfirmOpen(true);
-    handleMenuClose();
+    // Only close menu anchor, NOT selectedSnapshot - we need it for the confirmation
+    setMenuAnchor(null);
   };
 
   // Handle delete confirmation
@@ -571,7 +572,7 @@ function SnapshotsList({ fiscalBookId, fiscalBookName, onSnapshotCreated }) {
           <Button onClick={() => setDeleteConfirmOpen(false)}>
             Cancelar
           </Button>
-          <Button onClick={handleDeleteConfirm} color="error" variant="contained">
+          <Button onClick={handleDeleteConfirm} color="error" variant="contained" data-testid="delete-confirm-button">
             Excluir
           </Button>
         </DialogActions>

@@ -192,6 +192,8 @@ export function isFiscalBookClosed(fiscalBook) {
 export function formatFiscalBookForDisplay(fiscalBook) {
   return {
     ...fiscalBook,
+    // Ensure transactionCount has a default value
+    transactionCount: fiscalBook.transactionCount ?? 0,
     displayName: `${fiscalBook.bookName} (${fiscalBook.bookPeriod})`,
     status: getFiscalBookStatus(fiscalBook),
     isEditable: isFiscalBookEditable(fiscalBook),
@@ -204,10 +206,10 @@ export function formatFiscalBookForDisplay(fiscalBook) {
     updatedAtFormatted: formatDate(fiscalBook.updatedAt),
     closedAtFormatted: fiscalBook.closedAt ? formatDate(fiscalBook.closedAt) : null,
     // Extract year from bookPeriod for compatibility
-    year: extractYearFromPeriod(fiscalBook.bookPeriod),
+    year: fiscalBook.bookPeriod ? extractYearFromPeriod(fiscalBook.bookPeriod) : (fiscalBook.year || extractYearFromPeriod(null)),
     // Legacy name field for compatibility
-    name: fiscalBook.bookName,
-    description: fiscalBook.notes,
+    name: fiscalBook.bookName || fiscalBook.name,
+    description: fiscalBook.notes || fiscalBook.description,
   };
 }
 

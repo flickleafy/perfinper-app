@@ -363,4 +363,112 @@ describe('FiscalBookBulkOperations', () => {
     expect(fiscalBookService.addTransactions).not.toHaveBeenCalled();
     expect(screen.queryByText('Operação inválida')).not.toBeInTheDocument();
   });
+
+  it('uses empty array when selectedTransactions is undefined', async () => {
+    render(
+      <FiscalBookBulkOperations
+        open
+        onClose={jest.fn()}
+      />
+    );
+
+    await waitFor(() => {
+      expect(fiscalBookService.getAll).toHaveBeenCalled();
+    });
+
+    expect(screen.getByText('Transações Selecionadas (0)')).toBeInTheDocument();
+  });
+
+  it('does not load fiscal books when dialog is closed', async () => {
+    const { rerender } = render(
+      <FiscalBookBulkOperations
+        open={false}
+        onClose={jest.fn()}
+        selectedTransactions={selectedTransactions}
+      />
+    );
+
+    expect(fiscalBookService.getAll).not.toHaveBeenCalled();
+
+    rerender(
+      <FiscalBookBulkOperations
+        open
+        onClose={jest.fn()}
+        selectedTransactions={selectedTransactions}
+      />
+    );
+
+    await waitFor(() => {
+      expect(fiscalBookService.getAll).toHaveBeenCalled();
+    });
+  });
+
+  it('handles null response from API gracefully', async () => {
+    fiscalBookService.getAll.mockResolvedValueOnce(null);
+
+    render(
+      <FiscalBookBulkOperations
+        open
+        onClose={jest.fn()}
+        selectedTransactions={selectedTransactions}
+      />
+    );
+
+    await waitFor(() => {
+      expect(fiscalBookService.getAll).toHaveBeenCalled();
+    });
+
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
+  it('displays transactionCount as 0 when missing', async () => {
+    const booksWithoutCount = [
+      { _id: 'fb1', name: 'Livro Sem Count', year: 2024, status: 'Ativo' },
+    ];
+    fiscalBookService.getAll.mockResolvedValueOnce(booksWithoutCount);
+
+    render(
+      <FiscalBookBulkOperations
+        open
+        onClose={jest.fn()}
+        selectedTransactions={selectedTransactions}
+      />
+    );
+
+    await waitFor(() => {
+      expect(fiscalBookService.getAll).toHaveBeenCalled();
+    });
+
+    await openSelectByLabel('Tipo de Operação');
+    fireEvent.click(
+      await screen.findByRole('option', { name: /Atribuir ao Livro Fiscal/i })
+    );
+
+    await openSelectByLabel('Livro Fiscal de Destino');
+
+    expect(await screen.findByText(/0 transações/)).toBeInTheDocument();
+  });
+
+  it('shows truncated list when more than 5 transactions selected', async () => {
+    const manyTransactions = Array.from({ length: 7 }, (_, i) => ({
+      id: `t${i}`,
+      transactionDescription: `Transação ${i + 1}`,
+      transactionValue: `${(i + 1) * 10},00`,
+    }));
+
+    render(
+      <FiscalBookBulkOperations
+        open
+        onClose={jest.fn()}
+        selectedTransactions={manyTransactions}
+      />
+    );
+
+    await waitFor(() => {
+      expect(fiscalBookService.getAll).toHaveBeenCalled();
+    });
+
+    expect(screen.getByText('Transações Selecionadas (7)')).toBeInTheDocument();
+    expect(screen.getByText('... e mais 2 transações')).toBeInTheDocument();
+  });
 });

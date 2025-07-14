@@ -34,11 +34,13 @@ import {
 } from '@mui/icons-material';
 import fiscalBookService from '../../services/fiscalBookService';
 import { 
-  formatFiscalBookForDisplay, 
+  formatFiscalBookForDisplay,
+  FISCAL_BOOK_STATUS_OBJ,
 } from '../fiscalBookPrototype';
 import LoadingIndicator from '../../ui/LoadingIndicator';
 import SnapshotsList from '../SnapshotsList/SnapshotsList';
 import SnapshotScheduleForm from '../SnapshotScheduleForm/SnapshotScheduleForm';
+import { useToast } from '../../ui/ToastProvider';
 
 /**
  * TabPanel - Helper component for tab content
@@ -74,6 +76,7 @@ TabPanel.propTypes = {
  * @param {number} props.initialTab - Initial tab to open (0=Overview, 1=Transactions, 2=Statistics)
  */
 function FiscalBookDrawer({ open, onClose, fiscalBook, onEdit, onRefresh, initialTab = 0 }) {
+  const { showToast } = useToast();
   const [tabValue, setTabValue] = useState(initialTab);
   const [statistics, setStatistics] = useState(null);
   const [loadingStats, setLoadingStats] = useState(false);
@@ -81,6 +84,7 @@ function FiscalBookDrawer({ open, onClose, fiscalBook, onEdit, onRefresh, initia
   const [transactions, setTransactions] = useState([]);
   const [loadingTransactions, setLoadingTransactions] = useState(false);
   const [transactionsError, setTransactionsError] = useState('');
+  const [isTogglingStatus, setIsTogglingStatus] = useState(false);
 
   // Reset tab when initialTab changes
   useEffect(() => {
@@ -103,7 +107,7 @@ function FiscalBookDrawer({ open, onClose, fiscalBook, onEdit, onRefresh, initia
 
   // Load fiscal book statistics
   const loadStatistics = async () => {
-    if (!fiscalBook?._id) return;
+    if (!(fiscalBook?._id || fiscalBook?.id)) return;
 
     try {
       setLoadingStats(true);
@@ -121,12 +125,14 @@ function FiscalBookDrawer({ open, onClose, fiscalBook, onEdit, onRefresh, initia
 
   // Load fiscal book transactions
   const loadTransactions = async () => {
-    if (!fiscalBook?._id) return;
+    if (!(fiscalBook?._id || fiscalBook?.id)) return;
+
+    const bookId = fiscalBook._id || fiscalBook.id;
 
     try {
       setLoadingTransactions(true);
       setTransactionsError('');
-      const result = await fiscalBookService.getTransactions(fiscalBook._id, {
+      const result = await fiscalBookService.getTransactions(bookId, {
         limit: 10,
         sort: 'createdAt',
         order: 'desc'
@@ -147,20 +153,36 @@ function FiscalBookDrawer({ open, onClose, fiscalBook, onEdit, onRefresh, initia
 
   // Handle close/reopen
   const handleToggleStatus = async () => {
-    if (!fiscalBook) return;
+    if (!fiscalBook || isTogglingStatus) return;
 
+    const bookId = fiscalBook._id || fiscalBook.id;
+    if (!bookId) {
+      console.error('Error: Fiscal book has no valid ID');
+      return;
+    }
+
+    const bookName = fiscalBook.bookName || fiscalBook.name;
+    const isReopening = fiscalBook.status === FISCAL_BOOK_STATUS_OBJ.FECHADO;
+
+    setIsTogglingStatus(true);
     try {
-      if (fiscalBook.status === 'Fechado') {
-        await fiscalBookService.reopen(fiscalBook._id);
+      if (isReopening) {
+        await fiscalBookService.reopen(bookId);
+        showToast(`Livro fiscal "${bookName}" reaberto com sucesso!`, 'success');
       } else {
-        await fiscalBookService.close(fiscalBook._id);
+        await fiscalBookService.close(bookId);
+        showToast(`Livro fiscal "${bookName}" fechado com sucesso!`, 'success');
       }
       
       if (onRefresh) {
-        onRefresh();
+        await onRefresh();
       }
     } catch (error) {
       console.error('Error toggling fiscal book status:', error);
+      const action = isReopening ? 'reabrir' : 'fechar';
+      showToast(`Erro ao ${action} o livro fiscal`, 'error');
+    } finally {
+      setIsTogglingStatus(false);
     }
   };
 
@@ -168,8 +190,14 @@ function FiscalBookDrawer({ open, onClose, fiscalBook, onEdit, onRefresh, initia
   const handleExport = async () => {
     if (!fiscalBook) return;
 
+    const bookId = fiscalBook._id || fiscalBook.id;
+    if (!bookId) {
+      console.error('Error: Fiscal book has no valid ID for export');
+      return;
+    }
+
     try {
-      const blob = await fiscalBookService.export(fiscalBook._id, 'csv');
+      const blob = await fiscalBookService.export(bookId, 'csv');
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -345,10 +373,11 @@ function FiscalBookDrawer({ open, onClose, fiscalBook, onEdit, onRefresh, initia
             <Grid item>
               <Button
                 size="small"
-                startIcon={formattedBook.status === 'Fechado' ? <UnarchiveIcon /> : <ArchiveIcon />}
+                startIcon={formattedBook.status === FISCAL_BOOK_STATUS_OBJ.FECHADO ? <UnarchiveIcon /> : <ArchiveIcon />}
                 onClick={handleToggleStatus}
+                disabled={isTogglingStatus}
               >
-                {formattedBook.status === 'Fechado' ? 'Reabrir' : 'Fechar'}
+                {isTogglingStatus ? 'Aguarde...' : (formattedBook.status === FISCAL_BOOK_STATUS_OBJ.FECHADO ? 'Reabrir' : 'Fechar')}
               </Button>
             </Grid>
             <Grid item>
@@ -426,9 +455,19 @@ function FiscalBookDrawer({ open, onClose, fiscalBook, onEdit, onRefresh, initia
                       Financial Summary
                     </Typography>
                     <Grid container spacing={2}>
-                      <Grid item xs={12} sm={4}>
+                      <Grid item xs={6}>
                         <Box sx={{ textAlign: 'center', p: 1 }}>
-                          <Typography variant="h4" color="success.main">
+                          <Typography
+                            variant="h6"
+                            color="success.main"
+                            sx={{
+                              fontWeight: 'bold',
+                              mb: 0.5,
+                              whiteSpace: 'nowrap',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                            }}
+                          >
                             {formattedBook.formattedTotalIncome}
                           </Typography>
                           <Typography variant="body2" color="text.secondary">
@@ -436,9 +475,19 @@ function FiscalBookDrawer({ open, onClose, fiscalBook, onEdit, onRefresh, initia
                           </Typography>
                         </Box>
                       </Grid>
-                      <Grid item xs={12} sm={4}>
+                      <Grid item xs={6}>
                         <Box sx={{ textAlign: 'center', p: 1 }}>
-                          <Typography variant="h4" color="error.main">
+                          <Typography
+                            variant="h6"
+                            color="error.main"
+                            sx={{
+                              fontWeight: 'bold',
+                              mb: 0.5,
+                              whiteSpace: 'nowrap',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                            }}
+                          >
                             {formattedBook.formattedTotalExpenses}
                           </Typography>
                           <Typography variant="body2" color="text.secondary">
@@ -446,9 +495,27 @@ function FiscalBookDrawer({ open, onClose, fiscalBook, onEdit, onRefresh, initia
                           </Typography>
                         </Box>
                       </Grid>
-                      <Grid item xs={12} sm={4}>
-                        <Box sx={{ textAlign: 'center', p: 1 }}>
-                          <Typography variant="h4" color="text.primary">
+                      <Grid item xs={12}>
+                        <Box
+                          sx={{
+                            textAlign: 'center',
+                            p: 1,
+                            borderTop: '1px dashed rgba(0, 0, 0, 0.12)',
+                            mt: 1,
+                            pt: 2,
+                          }}
+                        >
+                          <Typography
+                            variant="h5"
+                            color="text.primary"
+                            sx={{
+                              fontWeight: 'bold',
+                              mb: 0.5,
+                              whiteSpace: 'nowrap',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                            }}
+                          >
                             {formattedBook.formattedNetAmount}
                           </Typography>
                           <Typography variant="body2" color="text.secondary">

@@ -93,4 +93,24 @@ describe('ToastProvider', () => {
 
     expect(screen.getByRole('alert')).toHaveTextContent('Default severity');
   });
+
+  it('useToast returns safe no-op when used outside ToastProvider', () => {
+    // Component that uses useToast without ToastProvider wrapper
+    const OrphanComponent = () => {
+      const { showToast } = useToast();
+      return (
+        <button type="button" onClick={() => showToast('Test message')}>
+          Orphan Show
+        </button>
+      );
+    };
+
+    // Render without ToastProvider - should not throw
+    render(<OrphanComponent />);
+    
+    // Click should invoke the default no-op showToast without error
+    expect(() => {
+      fireEvent.click(screen.getByRole('button', { name: 'Orphan Show' }));
+    }).not.toThrow();
+  });
 });
