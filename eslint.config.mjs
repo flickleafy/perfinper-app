@@ -26,6 +26,10 @@ export default [
       semi: ['warn', 'always'], // Enforces semicolons at the end of statements
       'react/react-in-jsx-scope': 'off',
       'react/jsx-uses-react': 'off',
+      'linebreak-style': 'off', // Turn off linebreak-style rule
+      'import/extensions': 'off', // Disable the import/extensions rule
+      namedComponents: 'arrow-function', // or 'function-declaration' or 'function-expression'
+      unnamedComponents: 'arrow-function', // or 'function-declaration' or 'function-expression'
     },
   },
 ];
