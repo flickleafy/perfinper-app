@@ -1,5 +1,57 @@
 # Changelog for Personal Finance Helper (perfinper-app)
 
+## 13 July 2025
+
+### Bug Fixes
+- Fixed Financial Summary layout in `FiscalBookDrawer.js` (2-row grid, nowrap)
+- Fixed Edit Fiscal Book duplication bug in `FiscalBookForm.js` (handle `id`/`_id`)
+- Fixed StatusBar precision in `StatusBar.js` using centralized `currencyFormat.js`
+- Refactored monetary parsing logic to `infrastructure/currency/currencyFormat.js`
+
+### Tests
+- Added `RollbackConfirmDialog.test.js` for rollback confirmation coverage
+- Added `SnapshotAnnotations.test.js` for annotations component coverage
+- Added `SnapshotExportDialog.test.js` for export dialog coverage
+- Added `SnapshotScheduleForm.test.js` for schedule form coverage
+- Added `SnapshotTagsPopover.test.js` for tags popover coverage
+- Updated `FiscalBookDrawer.test.js` with layout and state tests
+- Updated `FiscalBookForm.test.js` with id handling regression test
+- Updated `FiscalBooksList.test.js` with additional coverage
+- Updated `FiscalBookBulkOperations.test.js` with bulk action tests
+- Updated `SnapshotComparison.test.js` with comparison edge cases
+- Updated `SnapshotsList.test.js` with comprehensive list tests
+- Updated `CreateSnapshotDialog.test.js` with dialog flow tests
+- Updated `snapshotService.test.js` with service layer tests
+- Added `currencyFormat.test.js` for monetary parsing tests
+- Updated `Buttons.test.jsx` and `ToastProvider.test.js` for UI coverage
+
+## 12 July 2025
+
+### Features
+- **Fiscal Book Snapshots Implementation**
+  - Added `CreateSnapshotDialog.js` for creating new snapshots
+  - Added `SnapshotsList.js` for viewing and managing snapshots
+  - Added `SnapshotComparison.js` for comparing fiscal book states
+  - Added `SnapshotTagsPopover.js` for managing snapshot tags
+  - Added `SnapshotExportDialog.js` for exporting snapshot data
+  - Added `SnapshotScheduleForm.js` for configuring automatic snapshots
+  - Added `SnapshotAnnotations.js` for snapshot notes and metadata
+  - Added `RollbackConfirmDialog.js` for confirming rollback operations
+  - Added `snapshotService.js` with API integration for all snapshot operations
+  - Integrated snapshot dialogs and settings in `FiscalBookDrawer.js`
+  - Added snapshot access from `FiscalBooksList.js`
+
+### Bug Fixes
+- Added delete confirmation and success feedback to `SnapshotsList.js`
+- Added component index exports for all snapshot components
+
+### Tests
+- Added `CreateSnapshotDialog.test.js` for dialog tests
+- Added `SnapshotComparison.test.js` for comparison tests
+- Added `SnapshotsList.test.js` for list component tests
+- Added `snapshotService.test.js` for service layer tests
+- Fixed all remaining test failures in `EditTransaction.test.js`
+
 ## 11 July 2025
 
 - **Coverage config**

@@ -4,6 +4,7 @@ import FiscalBooksList from './FiscalBooksList';
 import fiscalBookService from '../../services/fiscalBookService';
 import { useNavigate } from 'react-router-dom';
 import FiscalBookDrawer from '../FiscalBookDrawer/FiscalBookDrawer';
+import { formatFiscalBookForDisplay } from '../fiscalBookPrototype';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -815,5 +816,309 @@ describe('FiscalBooksList', () => {
     
     expect(await screen.findByText('Closed Book')).toBeInTheDocument();
     expect(screen.getByText(/Fechado:/)).toBeInTheDocument();
+  });
+
+  it('handles view snapshots action from menu', async () => {
+    render(<FiscalBooksList />);
+
+    await screen.findByText('Livro A');
+
+    openMenuAtIndex(0);
+    fireEvent.click(await screen.findByText('Criar Snapshot'));
+
+    const drawerProps =
+      FiscalBookDrawer.mock.calls[FiscalBookDrawer.mock.calls.length - 1][0];
+    expect(drawerProps.open).toBe(true);
+    expect(drawerProps.initialTab).toBe(3);
+  });
+
+  it('displays Aberto for null/undefined status (via formatFiscalBookForDisplay)', async () => {
+    const nullStatusBook = {
+      _id: 'fb_null_status',
+      bookName: 'Null Status Book',
+      bookPeriod: '2024',
+      status: null,
+      transactionCount: 0,
+    };
+
+    fiscalBookService.getAll.mockResolvedValueOnce([nullStatusBook]);
+
+    render(<FiscalBooksList />);
+
+    expect(await screen.findByText('Null Status Book')).toBeInTheDocument();
+    // formatFiscalBookForDisplay defaults null status to "Aberto"
+    expect(screen.getByText('Aberto')).toBeInTheDocument();
+  });
+
+  it('extracts year from period with dash format (YYYY-MM)', async () => {
+    const dashPeriodBook = {
+      _id: 'fb_dash',
+      bookName: 'Dash Period Book',
+      bookPeriod: '2024-06',
+      status: 'Aberto',
+      transactionCount: 0,
+    };
+
+    fiscalBookService.getAll.mockResolvedValueOnce([dashPeriodBook]);
+
+    render(<FiscalBooksList />);
+    await screen.findByText('Dash Period Book');
+
+    openSelectByLabel('Ano');
+    expect(await screen.findByRole('option', { name: '2024' })).toBeInTheDocument();
+  });
+
+  it('handles book with only id field (no _id)', async () => {
+    const idOnlyBook = {
+      id: 'fb_id_only',
+      bookName: 'ID Only Book',
+      bookPeriod: '2024',
+      status: 'Aberto',
+      transactionCount: 0,
+      createdAt: '2024-01-01T00:00:00.000Z',
+    };
+
+    fiscalBookService.getAll.mockResolvedValueOnce([idOnlyBook]);
+
+    render(<FiscalBooksList />);
+
+    expect(await screen.findByText('ID Only Book')).toBeInTheDocument();
+
+    // Click to view
+    fireEvent.click(screen.getByText('ID Only Book'));
+    const drawerProps =
+      FiscalBookDrawer.mock.calls[FiscalBookDrawer.mock.calls.length - 1][0];
+    expect(drawerProps.open).toBe(true);
+  });
+
+  it('handles book that has only year property (legacy)', async () => {
+    const yearFieldBook = {
+      _id: 'fb_year_field',
+      bookName: 'Year Field Book',
+      year: 2024, // year from formatFiscalBookForDisplay is derived from bookPeriod, so this tests fallback
+      status: 'Aberto',
+      transactionCount: 0,
+    };
+
+    fiscalBookService.getAll.mockResolvedValueOnce([yearFieldBook]);
+
+    render(<FiscalBooksList />);
+
+    // The book should render with the year extracted by formatFiscalBookForDisplay
+    expect(await screen.findByText('Year Field Book')).toBeInTheDocument();
+  });
+
+  it('handles book using notes for description', async () => {
+    const descriptionBook = {
+      _id: 'fb_description',
+      bookName: 'Description Book',
+      bookPeriod: '2024',
+      status: 'Aberto',
+      notes: 'This is a note',
+      transactionCount: 0,
+    };
+
+    fiscalBookService.getAll.mockResolvedValueOnce([descriptionBook]);
+
+    render(<FiscalBooksList />);
+
+    expect(await screen.findByText('Description Book')).toBeInTheDocument();
+    expect(screen.getByText('This is a note')).toBeInTheDocument();
+  });
+
+  it('handles book with closedAt date for formatting', async () => {
+    const closedFormattedBook = {
+      _id: 'fb_closed_formatted',
+      bookName: 'Closed Formatted Book',
+      bookPeriod: '2023',
+      status: 'Fechado',
+      closedAt: '2023-12-31T00:00:00.000Z',
+      transactionCount: 0,
+    };
+
+    fiscalBookService.getAll.mockResolvedValueOnce([closedFormattedBook]);
+
+    render(<FiscalBooksList />);
+
+    expect(await screen.findByText('Closed Formatted Book')).toBeInTheDocument();
+    expect(screen.getByText(/Fechado:/)).toBeInTheDocument();
+  });
+
+  it('handles book without createdAt (shows empty)', async () => {
+    const noCreatedAtBook = {
+      _id: 'fb_no_created',
+      bookName: 'No Created Book',
+      bookPeriod: '2024',
+      status: 'Aberto',
+      transactionCount: 0,
+    };
+
+    fiscalBookService.getAll.mockResolvedValueOnce([noCreatedAtBook]);
+
+    render(<FiscalBooksList />);
+
+    expect(await screen.findByText('No Created Book')).toBeInTheDocument();
+    // When createdAt is missing, formatFiscalBookForDisplay returns empty string
+    // The component then uses "N/A" as fallback via createdAtFormatted || (createdAt logic) || N/A
+    expect(screen.getByText(/Criado:/)).toBeInTheDocument();
+  });
+
+  it('handles empty bookPeriod for year extraction', async () => {
+    const emptyPeriodBook = {
+      _id: 'fb_empty_period',
+      bookName: 'Empty Period Book',
+      bookPeriod: '',
+      status: 'Aberto',
+      transactionCount: 0,
+    };
+
+    fiscalBookService.getAll.mockResolvedValueOnce([emptyPeriodBook]);
+
+    render(<FiscalBooksList />);
+
+    expect(await screen.findByText('Empty Period Book')).toBeInTheDocument();
+  });
+
+  it('does not render bookType when absent', async () => {
+    const noTypeBook = {
+      _id: 'fb_no_type',
+      bookName: 'No Type Book',
+      bookPeriod: '2024',
+      status: 'Aberto',
+      transactionCount: 5,
+    };
+
+    fiscalBookService.getAll.mockResolvedValueOnce([noTypeBook]);
+
+    render(<FiscalBooksList />);
+
+    expect(await screen.findByText('No Type Book')).toBeInTheDocument();
+    expect(screen.queryByText(/Tipo:/)).not.toBeInTheDocument();
+  });
+
+  it('handles books with raw createdAt but no createdAtFormatted', async () => {
+    const rawDateBook = {
+      _id: 'fb_raw_date',
+      bookName: 'Raw Date Book',
+      bookPeriod: '2024',
+      status: 'Aberto',
+      createdAt: '2024-06-15T10:30:00.000Z',
+      transactionCount: 0,
+    };
+
+    fiscalBookService.getAll.mockResolvedValueOnce([rawDateBook]);
+
+    render(<FiscalBooksList />);
+
+    expect(await screen.findByText('Raw Date Book')).toBeInTheDocument();
+    // Should show a formatted date based on createdAtFormatted from formatFiscalBookForDisplay
+    expect(screen.getByText(/Criado:/)).toBeInTheDocument();
+  });
+
+  it('closes menu when clicking away', async () => {
+    render(<FiscalBooksList />);
+
+    await screen.findByText('Livro A');
+
+    openMenuAtIndex(0);
+    expect(await screen.findByText('Ver Transações')).toBeInTheDocument();
+
+    // Close menu by clicking away - simulate menu close
+    fireEvent.keyDown(screen.getByRole('menu'), { key: 'Escape' });
+
+    await waitFor(() => {
+      expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+    });
+  });
+
+  it('renders book with all optional fields present', async () => {
+    const fullBook = {
+      _id: 'fb_full',
+      bookName: 'Full Book',
+      bookPeriod: '2024',
+      status: 'Aberto',
+      bookType: 'Mensal',
+      notes: 'Some notes here',
+      transactionCount: 10,
+      createdAt: '2024-01-01T00:00:00.000Z',
+      closedAt: null,
+    };
+
+    fiscalBookService.getAll.mockResolvedValueOnce([fullBook]);
+
+    render(<FiscalBooksList />);
+
+    expect(await screen.findByText('Full Book')).toBeInTheDocument();
+    expect(screen.getByText('Tipo: Mensal')).toBeInTheDocument();
+    expect(screen.getByText('Some notes here')).toBeInTheDocument();
+    expect(screen.getByText('Transações: 10')).toBeInTheDocument();
+  });
+
+
+  it('renders legacy book correctly using fallback fields', async () => {
+    const legacyBook = {
+      _id: 'legacy_1',
+      name: 'Legacy Name Breakdown',
+      year: 1999,
+      description: 'Legacy Description Content',
+      status: 'Aberto',
+      // No bookName, bookPeriod, notes
+    };
+
+    fiscalBookService.getAll.mockResolvedValueOnce([legacyBook]);
+
+    render(<FiscalBooksList />);
+
+    expect(await screen.findByText('Legacy Name Breakdown')).toBeInTheDocument();
+    expect(screen.getByText('Legacy Description Content')).toBeInTheDocument();
+    expect(screen.getByText(/Período: 1999/)).toBeInTheDocument();
+  });
+
+  it('renders "N/A" for Created At when date is missing', async () => {
+    const noDateBook = {
+      _id: 'no_date',
+      bookName: 'No Date Book',
+      bookPeriod: '2024',
+      status: 'Aberto',
+      // No createdAt
+    };
+    
+    fiscalBookService.getAll.mockResolvedValueOnce([noDateBook]);
+
+    render(<FiscalBooksList />);
+
+    expect(await screen.findByText('No Date Book')).toBeInTheDocument();
+    expect(screen.getByText(/Criado:/)).toBeInTheDocument();
+    expect(screen.getByText(/Criado:.*N\/A/)).toBeInTheDocument();
+  });
+
+  it('renders fallback for Closed At when date is missing', async () => {
+    const noClosedDateBook = {
+      _id: 'no_closed_date',
+      bookName: 'Closed No Date',
+      bookPeriod: '2024',
+      status: 'Fechado',
+      closedAt: undefined
+    };
+    fiscalBookService.getAll.mockResolvedValueOnce([noClosedDateBook]);
+
+    render(<FiscalBooksList />);
+    expect(await screen.findByText('Closed No Date')).toBeInTheDocument();
+    expect(screen.getByText(/Fechado/)).toBeInTheDocument();
+  });
+
+  it('renders default chip for unknown status', async () => {
+     const unknownStatusBook = {
+       _id: 'unknown',
+       bookName: 'Unknown Status',
+       status: 'Something Weird',
+       bookPeriod: '2024'
+     };
+     fiscalBookService.getAll.mockResolvedValueOnce([unknownStatusBook]);
+     
+     render(<FiscalBooksList />);
+     
+     expect(await screen.findByText('Unknown Status')).toBeInTheDocument();
+     expect(screen.getByText('Something Weird')).toBeInTheDocument();
   });
 });

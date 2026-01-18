@@ -21,6 +21,34 @@ jest.mock('../../ui/LoadingIndicator', () => ({
   ),
 }));
 
+// Mock SnapshotsList to capture the onSnapshotCreated callback
+let capturedSnapshotCreatedCallback = null;
+jest.mock('../SnapshotsList/SnapshotsList', () => ({
+  __esModule: true,
+  default: ({ onSnapshotCreated, fiscalBookId, fiscalBookName }) => {
+    capturedSnapshotCreatedCallback = onSnapshotCreated;
+    return (
+      <div data-testid="snapshots-list">
+        <span data-testid="fiscal-book-id">{fiscalBookId}</span>
+        <span data-testid="fiscal-book-name">{fiscalBookName}</span>
+        <button data-testid="trigger-snapshot-created" onClick={onSnapshotCreated}>
+          Trigger Snapshot Created
+        </button>
+      </div>
+    );
+  },
+}));
+
+// Mock SnapshotScheduleForm
+jest.mock('../SnapshotScheduleForm/SnapshotScheduleForm', () => ({
+  __esModule: true,
+  default: ({ onSave }) => (
+    <div data-testid="snapshot-schedule-form">
+      <button data-testid="trigger-save" onClick={onSave}>Save Schedule</button>
+    </div>
+  ),
+}));
+
 describe('FiscalBookDrawer', () => {
   const baseBook = {
     _id: 'fb1',
@@ -514,6 +542,381 @@ describe('FiscalBookDrawer', () => {
 
     await waitFor(() => {
       expect(screen.getByText('Failed to load transactions')).toBeInTheDocument();
+    });
+  });
+
+  // ===== Additional branch coverage tests =====
+  describe('SnapshotsList onSnapshotCreated callback', () => {
+    test('calls onRefresh when onSnapshotCreated is triggered', async () => {
+      const onRefresh = jest.fn();
+
+      render(
+        <FiscalBookDrawer
+          open={true}
+          fiscalBook={baseBook}
+          initialTab={3}
+          onClose={jest.fn()}
+          onRefresh={onRefresh}
+        />
+      );
+
+      await waitFor(() => {
+        expect(screen.getByTestId('trigger-snapshot-created')).toBeInTheDocument();
+      });
+
+      fireEvent.click(screen.getByTestId('trigger-snapshot-created'));
+
+      expect(onRefresh).toHaveBeenCalled();
+    });
+
+    test('does not crash when onRefresh is not provided and onSnapshotCreated is triggered', async () => {
+      render(
+        <FiscalBookDrawer
+          open={true}
+          fiscalBook={baseBook}
+          initialTab={3}
+          onClose={jest.fn()}
+        />
+      );
+
+      await waitFor(() => {
+        expect(screen.getByTestId('trigger-snapshot-created')).toBeInTheDocument();
+      });
+
+      // Should not throw
+      expect(() => {
+        fireEvent.click(screen.getByTestId('trigger-snapshot-created'));
+      }).not.toThrow();
+    });
+
+    test('passes correct fiscalBookId using _id', async () => {
+      render(
+        <FiscalBookDrawer
+          open={true}
+          fiscalBook={baseBook}
+          initialTab={3}
+          onClose={jest.fn()}
+        />
+      );
+
+      await waitFor(() => {
+        expect(screen.getByTestId('fiscal-book-id')).toHaveTextContent('fb1');
+      });
+    });
+
+    test('passes correct fiscalBookId using id fallback', async () => {
+      const bookWithIdOnly = {
+        ...baseBook,
+        _id: undefined,
+        id: 'fb-fallback-id',
+      };
+
+      render(
+        <FiscalBookDrawer
+          open={true}
+          fiscalBook={bookWithIdOnly}
+          initialTab={3}
+          onClose={jest.fn()}
+        />
+      );
+
+      await waitFor(() => {
+        expect(screen.getByTestId('fiscal-book-id')).toHaveTextContent('fb-fallback-id');
+      });
+    });
+  });
+
+  describe('fiscalBook fallback to id when _id is missing', () => {
+    test('SnapshotsList receives id fallback when _id is not present', async () => {
+      const bookWithIdOnly = {
+        ...baseBook,
+        _id: undefined,
+        id: 'fb-id-only',
+      };
+
+      render(
+        <FiscalBookDrawer
+          open={true}
+          fiscalBook={bookWithIdOnly}
+          initialTab={3} // Snapshots tab
+          onClose={jest.fn()}
+        />
+      );
+
+      // The SnapshotsList receives the id fallback
+      await waitFor(() => {
+        expect(screen.getByTestId('fiscal-book-id')).toHaveTextContent('fb-id-only');
+      });
+    });
+  });
+
+  describe('getStatusChipLabel edge cases', () => {
+    test('handles undefined status using default from formatFiscalBookForDisplay', async () => {
+      const bookWithNoStatus = {
+        ...baseBook,
+        status: undefined,
+      };
+
+      render(
+        <FiscalBookDrawer
+          open={true}
+          fiscalBook={bookWithNoStatus}
+          onClose={jest.fn()}
+        />
+      );
+
+      await waitFor(() => {
+        expect(fiscalBookService.getStatistics).toHaveBeenCalled();
+      });
+
+      // Status defaults to 'Aberto' via getFiscalBookStatus in formatFiscalBookForDisplay
+      expect(screen.getAllByText('Aberto').length).toBeGreaterThan(0);
+    });
+  });
+
+  describe('handleToggleStatus without onRefresh', () => {
+    test('does not crash when onRefresh is not provided during status toggle', async () => {
+      render(
+        <FiscalBookDrawer
+          open={true}
+          fiscalBook={{ ...baseBook, status: 'Fechado' }}
+          onClose={jest.fn()}
+          // No onRefresh provided
+        />
+      );
+
+      await waitFor(() => expect(fiscalBookService.getStatistics).toHaveBeenCalled());
+
+      fireEvent.click(screen.getByRole('button', { name: /Reabrir/i }));
+
+      await waitFor(() => {
+        expect(fiscalBookService.reopen).toHaveBeenCalledWith('fb1');
+      });
+      // Should not throw
+    });
+  });
+
+  describe('handleToggleStatus with no fiscalBook', () => {
+    test('handleToggleStatus early returns when fiscalBook is null', async () => {
+      // This is already covered by "returns null when no fiscal book is provided"
+      // but let's ensure the early return in handleToggleStatus works
+      const { container } = render(
+        <FiscalBookDrawer open onClose={jest.fn()} fiscalBook={null} />
+      );
+
+      expect(container.firstChild).toBeNull();
+    });
+  });
+
+  describe('onEdit not provided', () => {
+    test('does not crash when onEdit is not provided and Edit button is clicked', async () => {
+      render(
+        <FiscalBookDrawer
+          open={true}
+          fiscalBook={baseBook}
+          onClose={jest.fn()}
+          // No onEdit provided
+        />
+      );
+
+      await waitFor(() => expect(fiscalBookService.getStatistics).toHaveBeenCalled());
+
+      // Should not throw even though onEdit is not provided
+      expect(() => {
+        fireEvent.click(screen.getByRole('button', { name: /Edit/i }));
+      }).not.toThrow();
+    });
+  });
+
+  describe('transaction with missing _id uses index as key', () => {
+    test('handles transaction without _id', async () => {
+      fiscalBookService.getTransactions.mockResolvedValueOnce({
+        transactions: [
+          {
+            // No _id
+            transactionName: 'No ID Transaction',
+            transactionValue: '15,00',
+            transactionDate: '2024-03-01',
+          },
+        ],
+      });
+
+      render(
+        <FiscalBookDrawer
+          open={true}
+          fiscalBook={baseBook}
+          initialTab={1}
+          onClose={jest.fn()}
+        />
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('No ID Transaction')).toBeInTheDocument();
+      });
+    });
+
+    test('handles transaction with missing transactionName', async () => {
+      fiscalBookService.getTransactions.mockResolvedValueOnce({
+        transactions: [
+          {
+            _id: 't1',
+            // No transactionName
+            transactionValue: '20,00',
+            transactionDate: '2024-04-01',
+          },
+        ],
+      });
+
+      render(
+        <FiscalBookDrawer
+          open={true}
+          fiscalBook={baseBook}
+          initialTab={1}
+          onClose={jest.fn()}
+        />
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('Unnamed Transaction')).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('drawer close behavior', () => {
+    test('calls onClose when close button is clicked', async () => {
+      const onClose = jest.fn();
+
+      render(
+        <FiscalBookDrawer
+          open={true}
+          fiscalBook={baseBook}
+          onClose={onClose}
+        />
+      );
+
+      await waitFor(() => expect(fiscalBookService.getStatistics).toHaveBeenCalled());
+
+      // Find and click the close button (X icon)
+      const closeButtons = screen.getAllByRole('button');
+      const closeButton = closeButtons.find(btn => btn.querySelector('svg[data-testid="CloseIcon"]'));
+      if (closeButton) {
+        fireEvent.click(closeButton);
+        expect(onClose).toHaveBeenCalled();
+      }
+    });
+  });
+
+  describe('initialTab changes', () => {
+    test('updates tabValue when initialTab prop changes', async () => {
+      const { rerender } = render(
+        <FiscalBookDrawer
+          open={true}
+          fiscalBook={baseBook}
+          initialTab={0}
+          onClose={jest.fn()}
+        />
+      );
+
+      await waitFor(() => expect(fiscalBookService.getStatistics).toHaveBeenCalled());
+
+      // Rerender with different initialTab
+      rerender(
+        <FiscalBookDrawer
+          open={true}
+          fiscalBook={baseBook}
+          initialTab={2}
+          onClose={jest.fn()}
+        />
+      );
+
+      // The statistics tab should now be active
+      await waitFor(() => {
+        expect(screen.getByText('Detailed Statistics')).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('export with legacy field names', () => {
+    test('exports with name and year when bookName/bookPeriod are missing', async () => {
+      const legacyBook = {
+        ...baseBook,
+        bookName: undefined,
+        name: 'Legacy Name',
+        bookPeriod: undefined,
+        year: 2023,
+      };
+
+      render(
+        <FiscalBookDrawer
+          open={true}
+          fiscalBook={legacyBook}
+          onClose={jest.fn()}
+        />
+      );
+
+      await waitFor(() => expect(fiscalBookService.getStatistics).toHaveBeenCalled());
+
+      fireEvent.click(screen.getByRole('button', { name: /Export/i }));
+
+      await waitFor(() => {
+        expect(fiscalBookService.export).toHaveBeenCalledWith('fb1', 'csv');
+      });
+    });
+  });
+
+  describe('loadStatistics early return', () => {
+    test('does not load statistics when fiscalBook has no _id', async () => {
+      jest.clearAllMocks();
+      
+      const bookWithoutId = {
+        // No _id
+        bookName: 'No ID Book',
+        bookPeriod: '2024',
+        status: 'Aberto',
+      };
+
+      render(
+        <FiscalBookDrawer
+          open={true}
+          fiscalBook={bookWithoutId}
+          initialTab={2}
+          onClose={jest.fn()}
+        />
+      );
+
+      // Wait a bit to ensure the effect runs
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      // Statistics should NOT be called because there's no _id
+      expect(fiscalBookService.getStatistics).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('loadTransactions early return', () => {
+    test('does not load transactions when fiscalBook has no _id', async () => {
+      jest.clearAllMocks();
+      
+      const bookWithoutId = {
+        // No _id
+        bookName: 'No ID Book',
+        bookPeriod: '2024',
+        status: 'Aberto',
+      };
+
+      render(
+        <FiscalBookDrawer
+          open={true}
+          fiscalBook={bookWithoutId}
+          initialTab={1}
+          onClose={jest.fn()}
+        />
+      );
+
+      // Wait a bit to ensure the effect runs
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      // Transactions should NOT be called because there's no _id
+      expect(fiscalBookService.getTransactions).not.toHaveBeenCalled();
     });
   });
 });

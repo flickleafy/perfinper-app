@@ -200,4 +200,31 @@ describe('FiscalBookForm', () => {
     });
     expect(screen.queryByText('Referência deve ter menos de 100 caracteres')).not.toBeInTheDocument();
   });
+
+  it('updates an existing fiscal book when editing with only id (no _id)', async () => {
+    fiscalBookService.update.mockResolvedValue({ id: '1' });
+    const onSave = jest.fn();
+
+    render(
+      <FiscalBookForm
+        isEditing
+        fiscalBook={{ id: '1', bookName: 'Old', bookPeriod: '2023' }}
+        onSave={onSave}
+        onCancel={() => {}}
+      />
+    );
+
+    fireEvent.change(screen.getByPlaceholderText(/ex: Livro/i), {
+      target: { value: 'Updated' },
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: /Atualizar/i }));
+
+    await waitFor(() => {
+      expect(fiscalBookService.update).toHaveBeenCalledWith(
+        '1',
+        expect.objectContaining({ bookName: 'Updated' })
+      );
+    });
+  });
 });
