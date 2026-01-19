@@ -12,9 +12,20 @@ import { Home } from '@mui/icons-material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { blueGrey, teal, red, brown, common } from '@mui/material/colors';
 
-import TransactionsList from './components/TransactionsList.js';
-import InsertTransaction from './components/InsertTransaction.js';
-import EditTransaction from './components/EditTransaction.js';
+import TransactionsImporter from './components/TransactionsImporter/TransactionsImporter.js';
+import TransactionsExporter from './components/TransactionsExporter/TransactionsExporter.js';
+import TransactionsList from './components/TransactionsList/TransactionsList.js';
+import InsertTransaction from './components/InsertTransaction/InsertTransaction.js';
+import EditTransaction from './components/EditTransaction/EditTransaction.js';
+import CompaniesList from './components/CompaniesList/CompaniesList.js';
+import InsertCompany from './components/InsertCompany/InsertCompany.js';
+import EditCompany from './components/EditCompany/EditCompany.js';
+import PeopleList from './components/PeopleList/PeopleList.js';
+import InsertPerson from './components/InsertPerson/InsertPerson.js';
+import EditPerson from './components/EditPerson/EditPerson.js';
+import FiscalBooksList from './components/FiscalBooksList/FiscalBooksList.js';
+import InsertFiscalBook from './components/InsertFiscalBook/InsertFiscalBook.js';
+import EditFiscalBook from './components/EditFiscalBook/EditFiscalBook.js';
 
 // Create a theme instance.
 const theme = createTheme({
@@ -72,13 +83,42 @@ function App() {
               color='inherit'
               component={Link}
               to='/lista'>
-              Lançamentos
+              Transações
             </Button>
             <Button
               color='inherit'
               component={Link}
               to='/inserir'>
-              Novo Lançamento
+              Nova Transação
+            </Button>
+            <Button
+              color='inherit'
+              component={Link}
+              to='/empresas'>
+              Empresas
+            </Button>            <Button
+              color='inherit'
+              component={Link}
+              to='/pessoas'>
+              Pessoas
+            </Button>
+            <Button
+              color='inherit'
+              component={Link}
+              to='/livros-fiscais'>
+              Livros Fiscais
+            </Button>
+            <Button
+              color='inherit'
+              component={Link}
+              to='/importar'>
+              Importar Transações
+            </Button>
+            <Button
+              color='inherit'
+              component={Link}
+              to='/exportar'>
+              Exportar Transações
             </Button>
           </Toolbar>
         </AppBar>
@@ -102,6 +142,48 @@ function App() {
             <Route
               path='/editar/:id'
               element={<EditTransaction />}
+            />
+            <Route
+              path='/empresas'
+              element={<CompaniesList />}
+            />            <Route
+              path='/empresas/inserir'
+              element={<InsertCompany />}
+            />
+            <Route
+              path='/empresas/editar/:id'
+              element={<EditCompany />}
+            />
+            <Route
+              path='/pessoas'
+              element={<PeopleList />}
+            />
+            <Route
+              path='/pessoas/inserir'
+              element={<InsertPerson />}
+            />            <Route
+              path='/pessoas/editar/:id'
+              element={<EditPerson />}
+            />
+            <Route
+              path='/livros-fiscais'
+              element={<FiscalBooksList />}
+            />
+            <Route
+              path='/livros-fiscais/inserir'
+              element={<InsertFiscalBook />}
+            />
+            <Route
+              path='/livros-fiscais/editar/:id'
+              element={<EditFiscalBook />}
+            />
+            <Route
+              path='/importar'
+              element={<TransactionsImporter />}
+            />
+            <Route
+              path='/exportar'
+              element={<TransactionsExporter />}
             />
           </Routes>
         </Box>
